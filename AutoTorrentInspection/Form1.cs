@@ -93,7 +93,7 @@ namespace AutoTorrentInspection
                     Invoke(new AddRowDelegate(AddRow), item);
                 }
             }
-            cbState.CheckState = dataGridView1.Rows.Count == 1 ? CheckState.Checked : CheckState.Unchecked;
+            cbState.CheckState = dataGridView1.Rows.Count == 0 ? CheckState.Checked : CheckState.Unchecked;
         }
 
         private delegate void AddRowDelegate(FileDescription item);
