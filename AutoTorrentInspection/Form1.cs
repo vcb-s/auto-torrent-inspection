@@ -80,7 +80,7 @@ namespace AutoTorrentInspection
                 Inspection(item);
             }
             cbCategory.SelectedIndex = cbCategory.SelectedIndex == -1 ? 0 : cbCategory.SelectedIndex;
-            Text = $"Auto Torrent Inspection - {(_torrent != null?_torrent.TorrentName : _paths[0])}";
+            Text = $"Auto Torrent Inspection - {(_torrent != null?_torrent.TorrentName : _paths[0])} - By [{_torrent?.CreatedBy}]";
         }
 
         private void Inspection(string category)
