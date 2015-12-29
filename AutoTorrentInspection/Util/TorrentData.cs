@@ -24,6 +24,8 @@ namespace AutoTorrentInspection.Util
 
         public string TorrentName => _torrent.Info["name"].ToString();
 
+        public string CreatedBy => _torrent.CreatedBy;
+
         public Dictionary<string, List<FileDescription>> GetFileList()
         {
             var fileDic = new Dictionary<string, List<FileDescription>>();
