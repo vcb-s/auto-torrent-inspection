@@ -28,7 +28,24 @@ namespace AutoTorrentInspection.Util
         {
             var fileDic = new Dictionary<string, List<FileDescription>>();
             var files = (BList)_torrent.Info["files"];
-            if (files == null) return fileDic;
+            if (files == null)
+            {
+                var name = _torrent.Info["name"].ToString();
+                string fileExt = Path.GetExtension(name).ToLower();
+                var length = ((BNumber)_torrent.Info["length"]).Value;
+                fileDic.Add("", new List<FileDescription>());
+                fileDic[""].Add(new FileDescription
+                {
+                    FileName = name,
+                    Path = "",
+                    Ext = fileExt,
+                    Category = "",
+                    Length = length,
+                });
+                return fileDic;
+            }
+
+
             foreach (var bObject in files)
             {
                 var singleFile = (BList)((BDictionary)bObject)["path"];
