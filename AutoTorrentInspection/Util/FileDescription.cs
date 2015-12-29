@@ -7,6 +7,6 @@
         public string Ext  {set; get;}
         public string Category { set; get; }
         public long Length { set; get; }
-        public bool Valid { set; get; }
+        public bool InValidFile { set; get; }
     }
 }
