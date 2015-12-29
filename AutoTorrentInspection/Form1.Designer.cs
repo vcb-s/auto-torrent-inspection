@@ -45,9 +45,10 @@
             // 
             // btnLoadFile
             // 
-            this.btnLoadFile.Location = new System.Drawing.Point(12, 12);
+            this.btnLoadFile.Location = new System.Drawing.Point(12, 13);
+            this.btnLoadFile.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnLoadFile.Name = "btnLoadFile";
-            this.btnLoadFile.Size = new System.Drawing.Size(75, 23);
+            this.btnLoadFile.Size = new System.Drawing.Size(87, 33);
             this.btnLoadFile.TabIndex = 0;
             this.btnLoadFile.Text = "载入";
             this.btnLoadFile.UseVisualStyleBackColor = true;
@@ -56,9 +57,10 @@
             // btnRefresh
             // 
             this.btnRefresh.AllowDrop = true;
-            this.btnRefresh.Location = new System.Drawing.Point(12, 41);
+            this.btnRefresh.Location = new System.Drawing.Point(12, 54);
+            this.btnRefresh.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(75, 23);
+            this.btnRefresh.Size = new System.Drawing.Size(87, 33);
             this.btnRefresh.TabIndex = 2;
             this.btnRefresh.Text = "刷新";
             this.btnRefresh.UseVisualStyleBackColor = true;
@@ -68,9 +70,10 @@
             // 
             this.cbCategory.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbCategory.FormattingEnabled = true;
-            this.cbCategory.Location = new System.Drawing.Point(12, 99);
+            this.cbCategory.Location = new System.Drawing.Point(12, 136);
+            this.cbCategory.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cbCategory.Name = "cbCategory";
-            this.cbCategory.Size = new System.Drawing.Size(75, 20);
+            this.cbCategory.Size = new System.Drawing.Size(87, 25);
             this.cbCategory.TabIndex = 3;
             // 
             // dataGridView1
@@ -85,11 +88,12 @@
             this.path,
             this.FileName,
             this.Size});
-            this.dataGridView1.Location = new System.Drawing.Point(93, 12);
+            this.dataGridView1.Location = new System.Drawing.Point(105, 13);
+            this.dataGridView1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowTemplate.Height = 23;
-            this.dataGridView1.Size = new System.Drawing.Size(533, 423);
+            this.dataGridView1.Size = new System.Drawing.Size(467, 431);
             this.dataGridView1.TabIndex = 4;
             // 
             // path
@@ -98,7 +102,7 @@
             this.path.HeaderText = "路径";
             this.path.Name = "path";
             this.path.ReadOnly = true;
-            this.path.Width = 54;
+            this.path.Width = 57;
             // 
             // FileName
             // 
@@ -106,7 +110,7 @@
             this.FileName.HeaderText = "文件名";
             this.FileName.Name = "FileName";
             this.FileName.ReadOnly = true;
-            this.FileName.Width = 66;
+            this.FileName.Width = 69;
             // 
             // Size
             // 
@@ -114,7 +118,7 @@
             this.Size.HeaderText = "大小";
             this.Size.Name = "Size";
             this.Size.ReadOnly = true;
-            this.Size.Width = 54;
+            this.Size.Width = 57;
             // 
             // openFileDialog1
             // 
@@ -122,9 +126,10 @@
             // 
             // btnAnnounceList
             // 
-            this.btnAnnounceList.Location = new System.Drawing.Point(12, 70);
+            this.btnAnnounceList.Location = new System.Drawing.Point(12, 95);
+            this.btnAnnounceList.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnAnnounceList.Name = "btnAnnounceList";
-            this.btnAnnounceList.Size = new System.Drawing.Size(75, 23);
+            this.btnAnnounceList.Size = new System.Drawing.Size(87, 33);
             this.btnAnnounceList.TabIndex = 6;
             this.btnAnnounceList.Text = "Tracker";
             this.btnAnnounceList.UseVisualStyleBackColor = true;
@@ -134,9 +139,10 @@
             // 
             this.cbShowAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbShowAll.AutoSize = true;
-            this.cbShowAll.Location = new System.Drawing.Point(12, 419);
+            this.cbShowAll.Location = new System.Drawing.Point(12, 423);
+            this.cbShowAll.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cbShowAll.Name = "cbShowAll";
-            this.cbShowAll.Size = new System.Drawing.Size(72, 16);
+            this.cbShowAll.Size = new System.Drawing.Size(75, 21);
             this.cbShowAll.TabIndex = 7;
             this.cbShowAll.Text = "显示全部";
             this.cbShowAll.UseVisualStyleBackColor = true;
@@ -150,9 +156,10 @@
             this.cbState.Checked = true;
             this.cbState.CheckState = System.Windows.Forms.CheckState.Indeterminate;
             this.cbState.Cursor = System.Windows.Forms.Cursors.Default;
-            this.cbState.Location = new System.Drawing.Point(12, 397);
+            this.cbState.Location = new System.Drawing.Point(12, 394);
+            this.cbState.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cbState.Name = "cbState";
-            this.cbState.Size = new System.Drawing.Size(72, 16);
+            this.cbState.Size = new System.Drawing.Size(75, 21);
             this.cbState.TabIndex = 8;
             this.cbState.Text = "状态正常";
             this.cbState.ThreeState = true;
@@ -161,9 +168,9 @@
             // Form1
             // 
             this.AllowDrop = true;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(638, 447);
+            this.ClientSize = new System.Drawing.Size(584, 457);
             this.Controls.Add(this.cbState);
             this.Controls.Add(this.cbShowAll);
             this.Controls.Add(this.btnAnnounceList);
@@ -171,7 +178,9 @@
             this.Controls.Add(this.cbCategory);
             this.Controls.Add(this.btnRefresh);
             this.Controls.Add(this.btnLoadFile);
+            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "Form1";
             this.Text = "Auto Torrent Inspection";
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Form1_DragDrop);
