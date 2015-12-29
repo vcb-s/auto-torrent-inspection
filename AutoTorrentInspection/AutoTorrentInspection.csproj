@@ -60,6 +60,7 @@
     <Compile Include="BencodeNET\Objects\IBObject.cs" />
     <Compile Include="BencodeNET\Objects\TorrentFile.cs" />
     <Compile Include="BencodeNET\UtilityExtensions.cs" />
+    <Compile Include="Util\ConvertMethod.cs" />
     <Compile Include="Util\FileDescription.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
