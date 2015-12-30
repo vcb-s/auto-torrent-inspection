@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.btnLoadFile = new System.Windows.Forms.Button();
             this.btnRefresh = new System.Windows.Forms.Button();
@@ -40,6 +41,7 @@
             this.btnAnnounceList = new System.Windows.Forms.Button();
             this.cbShowAll = new System.Windows.Forms.CheckBox();
             this.cbState = new System.Windows.Forms.CheckBox();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -61,7 +63,7 @@
             this.btnRefresh.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(87, 33);
-            this.btnRefresh.TabIndex = 2;
+            this.btnRefresh.TabIndex = 1;
             this.btnRefresh.Text = "刷新";
             this.btnRefresh.UseVisualStyleBackColor = true;
             this.btnRefresh.Click += new System.EventHandler(this.btnTest_Click);
@@ -75,6 +77,8 @@
             this.cbCategory.Name = "cbCategory";
             this.cbCategory.Size = new System.Drawing.Size(87, 25);
             this.cbCategory.TabIndex = 3;
+            this.cbCategory.MouseEnter += new System.EventHandler(this.cbCategory_MouseEnter);
+            this.cbCategory.MouseLeave += new System.EventHandler(this.cbCategory_MouseLeave);
             // 
             // dataGridView1
             // 
@@ -83,18 +87,24 @@
             this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridView1.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(230)))), ((int)(((byte)(230)))));
+            this.dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dataGridView1.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.path,
             this.FileName,
             this.Size});
+            this.dataGridView1.GridColor = System.Drawing.SystemColors.Highlight;
             this.dataGridView1.Location = new System.Drawing.Point(105, 13);
             this.dataGridView1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
+            this.dataGridView1.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.dataGridView1.RowTemplate.Height = 23;
             this.dataGridView1.Size = new System.Drawing.Size(467, 431);
-            this.dataGridView1.TabIndex = 4;
+            this.dataGridView1.TabIndex = 9;
+            this.dataGridView1.TabStop = false;
             // 
             // path
             // 
@@ -130,7 +140,7 @@
             this.btnAnnounceList.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnAnnounceList.Name = "btnAnnounceList";
             this.btnAnnounceList.Size = new System.Drawing.Size(87, 33);
-            this.btnAnnounceList.TabIndex = 6;
+            this.btnAnnounceList.TabIndex = 2;
             this.btnAnnounceList.Text = "Tracker";
             this.btnAnnounceList.UseVisualStyleBackColor = true;
             this.btnAnnounceList.Click += new System.EventHandler(this.btnAnnounceList_Click);
@@ -139,11 +149,11 @@
             // 
             this.cbShowAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbShowAll.AutoSize = true;
-            this.cbShowAll.Location = new System.Drawing.Point(12, 423);
+            this.cbShowAll.Location = new System.Drawing.Point(16, 423);
             this.cbShowAll.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cbShowAll.Name = "cbShowAll";
             this.cbShowAll.Size = new System.Drawing.Size(75, 21);
-            this.cbShowAll.TabIndex = 7;
+            this.cbShowAll.TabIndex = 4;
             this.cbShowAll.Text = "显示全部";
             this.cbShowAll.UseVisualStyleBackColor = true;
             // 
@@ -161,6 +171,7 @@
             this.cbState.Name = "cbState";
             this.cbState.Size = new System.Drawing.Size(75, 21);
             this.cbState.TabIndex = 8;
+            this.cbState.TabStop = false;
             this.cbState.Text = "状态正常";
             this.cbState.ThreeState = true;
             this.cbState.UseVisualStyleBackColor = true;
@@ -204,6 +215,7 @@
         private System.Windows.Forms.Button btnAnnounceList;
         private System.Windows.Forms.CheckBox cbShowAll;
         private System.Windows.Forms.CheckBox cbState;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }
 
