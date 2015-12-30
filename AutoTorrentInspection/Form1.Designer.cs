@@ -34,14 +34,14 @@
             this.btnRefresh = new System.Windows.Forms.Button();
             this.cbCategory = new System.Windows.Forms.ComboBox();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.path = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.FileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Size = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.btnAnnounceList = new System.Windows.Forms.Button();
             this.cbShowAll = new System.Windows.Forms.CheckBox();
             this.cbState = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.ColPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -84,6 +84,7 @@
             // 
             this.dataGridView1.AllowUserToAddRows = false;
             this.dataGridView1.AllowUserToDeleteRows = false;
+            this.dataGridView1.AllowUserToResizeRows = false;
             this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -92,9 +93,9 @@
             this.dataGridView1.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.path,
-            this.FileName,
-            this.Size});
+            this.ColPath,
+            this.ColFileName,
+            this.ColSize});
             this.dataGridView1.GridColor = System.Drawing.SystemColors.Highlight;
             this.dataGridView1.Location = new System.Drawing.Point(105, 13);
             this.dataGridView1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -105,30 +106,6 @@
             this.dataGridView1.Size = new System.Drawing.Size(467, 431);
             this.dataGridView1.TabIndex = 9;
             this.dataGridView1.TabStop = false;
-            // 
-            // path
-            // 
-            this.path.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.path.HeaderText = "路径";
-            this.path.Name = "path";
-            this.path.ReadOnly = true;
-            this.path.Width = 57;
-            // 
-            // FileName
-            // 
-            this.FileName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.FileName.HeaderText = "文件名";
-            this.FileName.Name = "FileName";
-            this.FileName.ReadOnly = true;
-            this.FileName.Width = 69;
-            // 
-            // Size
-            // 
-            this.Size.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.Size.HeaderText = "大小";
-            this.Size.Name = "Size";
-            this.Size.ReadOnly = true;
-            this.Size.Width = 57;
             // 
             // openFileDialog1
             // 
@@ -176,6 +153,30 @@
             this.cbState.ThreeState = true;
             this.cbState.UseVisualStyleBackColor = true;
             // 
+            // ColPath
+            // 
+            this.ColPath.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ColPath.HeaderText = "路径";
+            this.ColPath.Name = "ColPath";
+            this.ColPath.ReadOnly = true;
+            this.ColPath.Width = 57;
+            // 
+            // ColFileName
+            // 
+            this.ColFileName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ColFileName.HeaderText = "文件名";
+            this.ColFileName.Name = "ColFileName";
+            this.ColFileName.ReadOnly = true;
+            this.ColFileName.Width = 69;
+            // 
+            // ColSize
+            // 
+            this.ColSize.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ColSize.HeaderText = "大小";
+            this.ColSize.Name = "ColSize";
+            this.ColSize.ReadOnly = true;
+            this.ColSize.Width = 57;
+            // 
             // Form1
             // 
             this.AllowDrop = true;
@@ -209,13 +210,13 @@
         private System.Windows.Forms.ComboBox cbCategory;
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Size;
-        private System.Windows.Forms.DataGridViewTextBoxColumn FileName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn path;
         private System.Windows.Forms.Button btnAnnounceList;
         private System.Windows.Forms.CheckBox cbShowAll;
         private System.Windows.Forms.CheckBox cbState;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColPath;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColFileName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColSize;
     }
 }
 

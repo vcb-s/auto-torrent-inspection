@@ -28,12 +28,7 @@ namespace AutoTorrentInspection
         {
             _paths = e.Data.GetData(DataFormats.FileDrop) as string[];
             if (string.IsNullOrEmpty(_paths?[0])) return;
-            if (Directory.Exists(_paths?[0]))
-            {
-                _data = ConvertMethod.GetFileList(_paths[0]);
-                ThroughInspection();
-            }
-            if (Path.GetExtension(_paths[0]).ToLower() != ".torrent") return;
+            if (Path.GetExtension(_paths[0]).ToLower() != ".torrent" && !Directory.Exists(_paths[0])) return;
             LoadFile(_paths[0]);
         }
 
@@ -60,11 +55,18 @@ namespace AutoTorrentInspection
         {
             try
             {
-                _torrent = new TorrentData(filepath);
-                _data = _torrent.GetFileList();
-                if (_torrent.IsPrivate)
+                if (Directory.Exists(filepath))
                 {
-                    MessageBox.Show(@"This torrent has been set as a private torrent", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    _data = ConvertMethod.GetFileList(filepath);
+                }
+                else
+                {
+                    _torrent = new TorrentData(filepath);
+                    _data = _torrent.GetFileList();
+                    if (_torrent.IsPrivate)
+                    {
+                        MessageBox.Show(@"This torrent has been set as a private torrent", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                 }
                 ThroughInspection();
             }
