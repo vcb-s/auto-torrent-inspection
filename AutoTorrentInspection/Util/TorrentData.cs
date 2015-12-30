@@ -34,7 +34,7 @@ namespace AutoTorrentInspection.Util
         {
             var fileDic = new Dictionary<string, List<FileDescription>>();
             var files = (BList)_torrent.Info["files"];
-            IsPrivate = ((BNumber) _torrent.Info["private"]) != null;
+            IsPrivate = _torrent.Info["private"] != null;
             if (files == null)
             {
                 var name    = _torrent.Info["name"].ToString();
@@ -64,7 +64,7 @@ namespace AutoTorrentInspection.Util
                 {
                     fileDic.Add(category, new List<FileDescription>());
                 }
-                fileDic[category].Add(FileDescription.CreateWithCheck(name, "", fileExt, length));
+                fileDic[category].Add(FileDescription.CreateWithCheck(name, path.ToString(), fileExt, length));
             }
             return fileDic;
         }
