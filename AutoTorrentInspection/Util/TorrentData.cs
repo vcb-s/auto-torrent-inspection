@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 using BencodeNET;
@@ -54,8 +55,11 @@ namespace AutoTorrentInspection.Util
                     path.Append($"{singleFile[i]}\\");
                 }
                 var name = singleFile.Last().ToString();
-                var fileExt  = Path.GetExtension(name).ToLower();
 
+                if (name.IndexOf("_____padding_file_", StringComparison.Ordinal) != -1) continue;
+                //reason: https://www.ptt.cc/bbs/P2PSoftWare/M.1191552305.A.5CE.html
+
+                var fileExt  = Path.GetExtension(name).ToLower();
                 if (!fileDic.ContainsKey(category))
                 {
                     fileDic.Add(category, new List<FileDescription>());
