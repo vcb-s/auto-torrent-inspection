@@ -43,7 +43,6 @@ namespace AutoTorrentInspection
             LoadFile(openFileDialog1.FileName);
         }
 
-
         private void btnTest_Click(object sender, EventArgs e)
         {
             if (_data == null) return;
@@ -59,9 +58,20 @@ namespace AutoTorrentInspection
 
         private void LoadFile(string filepath)
         {
-            _torrent = new TorrentData(filepath);
-            _data = _torrent.GetFileList();
-            ThroughInspection();
+            try
+            {
+                _torrent = new TorrentData(filepath);
+                _data = _torrent.GetFileList();
+                if (_torrent.IsPrivate)
+                {
+                    MessageBox.Show(@"This torrent has been set as a private torrent", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                ThroughInspection();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"InValid Torrent File, Exception Message: \n\n    {ex.Message}", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+            }
         }
 
         private void ThroughInspection()
@@ -88,6 +98,6 @@ namespace AutoTorrentInspection
 
         private void cbCategory_MouseEnter(object sender, EventArgs e) => toolTip1.Show(cbCategory.Text, cbCategory);
 
-        private void cbCategory_MouseLeave(object sender, EventArgs e) => toolTip1.RemoveAll();
+        private void cbCategory_MouseLeave(object sender, EventArgs e) => toolTip1.Hide(cbCategory);
     }
 }

@@ -7,24 +7,26 @@ namespace AutoTorrentInspection.Util
 {
     public static class ConvertMethod
     {
-        private static KeyValuePair<string,IEnumerable<string>>  EnumerateFolder(string path)
+        private static KeyValuePair<string, IEnumerable<string>>  EnumerateFolder(string folderPath)
         {
-            var fileList = new List<string>(Directory.GetFiles(path).ToList().Select(item => item.Substring(path.Length + 1, item.Length - path.Length - 1)));
+            Func<string[], IEnumerable<string>> splitFunc =
+                array => array.Select(item => item.Substring(folderPath.Length + 1, item.Length - folderPath.Length - 1));
+            var fileList = new List<string>(splitFunc(Directory.GetFiles(folderPath)));
             var folderQueue = new Queue<string>();
-            foreach (var item in Directory.GetDirectories(path))
+            foreach (var item in Directory.GetDirectories(folderPath))
             {
                 folderQueue.Enqueue(item);
             }
             while (folderQueue.Count > 0)
             {
                 var currentFolder = folderQueue.Dequeue();
-                fileList.AddRange(Directory.GetFiles(currentFolder).ToList().Select(item=>item.Substring(path.Length + 1, item.Length - path.Length - 1)));
+                fileList.AddRange(splitFunc(Directory.GetFiles(currentFolder)));
                 foreach (var item in Directory.GetDirectories(currentFolder))
                 {
                     folderQueue.Enqueue(item);
                 }
             }
-            return new KeyValuePair<string, IEnumerable<string>>(path, fileList);
+            return new KeyValuePair<string, IEnumerable<string>>(folderPath, fileList);
         }
 
         public static Dictionary<string, List<FileDescription>> GetFileList(string folderPath)
@@ -41,15 +43,10 @@ namespace AutoTorrentInspection.Util
                 {
                     fileDic.Add(category, new List<FileDescription>());
                 }
-                var fd = new FileDescription
-                {
-                    FileName = Path.GetFileName(file),
-                    Path = category == "root" ? "" : file.Substring(0, slashPosition),
-                    Ext = Path.GetExtension(file).ToLower(),
-                    Length = new FileInfo(rawList.Key + "\\" + file).Length
-                };
-                fd.CheckValid();
-                fileDic[category].Add(fd);
+                fileDic[category].Add(FileDescription.CreateWithCheck(Path.GetFileName(file),
+                                                    category == "root" ? "" : file.Substring(0, slashPosition),
+                                                    Path.GetExtension(file).ToLower(),
+                                                    new FileInfo($"{rawList.Key}\\{file}").Length));
             }
             return fileDic;
         }

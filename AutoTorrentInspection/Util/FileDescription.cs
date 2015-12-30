@@ -12,17 +12,29 @@ namespace AutoTorrentInspection.Util
         public long Length      { set; private get; }
         public bool InValidFile { private set; get; }
 
+        public static FileDescription CreateWithCheck(string fileName, string path, string ext, long length)
+        {
+            var temp = new FileDescription
+            {
+                FileName = fileName,
+                Path = path,
+                Ext = ext,
+                Length = length
+            };
+            temp.CheckValid();
+            return temp;
+        }
 
-        private readonly Regex _animePartten = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ (\[.*\d*\])*\[((?<Ma>Ma10p_1080p)|(?<Hi>(Hi10p|Hi444pp)_(1080|720|480)p)|(?<EIGHT>(1080|720)p))\]\[((?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(flac|aac|ac3)\](?<SUB>(\.(sc|tc)|\.(chs|cht))*)\.((?(AVC)(mkv|mka|flac))|(?(HEVC)(mkv|mka|flac)|(?(EIGHT)mp4))|(?(SUB)ass))$");
-        private readonly Regex _musicPartten = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2)");
-        private readonly Regex _exceptPartten = new Regex(@"\.(rar|7z|zip)");
+        private static readonly Regex AnimePartten  = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ (\[.*\d*\])*\[((?<Ma>Ma10p_1080p)|(?<Hi>(Hi10p|Hi444pp)_(1080|720|480)p)|(?<EIGHT>(1080|720)p))\]\[((?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(flac|aac|ac3)\](?<SUB>(\.(sc|tc)|\.(chs|cht))*)\.((?(AVC)(mkv|mka|flac))|(?(HEVC)(mkv|mka|flac)|(?(EIGHT)mp4))|(?(SUB)ass))$");
+        private static readonly Regex MusicPartten  = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2)");
+        private static readonly Regex ExceptPartten = new Regex(@"\.(rar|7z|zip)");
 
 
         public bool CheckValid()
         {
-            InValidFile = !_exceptPartten.IsMatch(Ext.ToLower()) &&
-                          !_musicPartten.IsMatch(FileName.ToLower()) &&
-                          !_animePartten.IsMatch(FileName);
+            InValidFile = !ExceptPartten.IsMatch(Ext.ToLower()) &&
+                          !MusicPartten.IsMatch(FileName.ToLower()) &&
+                          !AnimePartten.IsMatch(FileName);
             return InValidFile;
         }
 
