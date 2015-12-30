@@ -1,16 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using System.Linq;
-using AutoTorrentInspection.Util;
+using System.Collections.Generic;
 
 namespace AutoTorrentInspection.Util
 {
-    public class ConvertMethod
+    public static class ConvertMethod
     {
-
-        private static IEnumerable<string> EnumerateFolder(string path)
+        private static KeyValuePair<string,IEnumerable<string>>  EnumerateFolder(string path)
         {
-            var fileList = new List<string>(Directory.GetFiles(path));
+            var fileList = new List<string>(Directory.GetFiles(path).ToList().Select(item => item.Substring(path.Length + 1, item.Length - path.Length - 1)));
             var folderQueue = new Queue<string>();
             foreach (var item in Directory.GetDirectories(path))
             {
@@ -19,34 +18,38 @@ namespace AutoTorrentInspection.Util
             while (folderQueue.Count > 0)
             {
                 var currentFolder = folderQueue.Dequeue();
-                fileList.AddRange(Directory.GetFiles(currentFolder));
+                fileList.AddRange(Directory.GetFiles(currentFolder).ToList().Select(item=>item.Substring(path.Length + 1, item.Length - path.Length - 1)));
                 foreach (var item in Directory.GetDirectories(currentFolder))
                 {
                     folderQueue.Enqueue(item);
                 }
             }
-            return fileList;
+            return new KeyValuePair<string, IEnumerable<string>>(path, fileList);
         }
 
         public static Dictionary<string, List<FileDescription>> GetFileList(string folderPath)
         {
             var fileDic = new Dictionary<string, List<FileDescription>>();
-            var fileList = EnumerateFolder(folderPath).ToList();
+            var rawList = EnumerateFolder(folderPath);
+            var fileList = rawList.Value.ToList();
             if (fileList.Count == 0) return fileDic;
-            fileDic.Add("folder", new List<FileDescription>());
             foreach (var file in fileList)
             {
-                var length = new FileInfo(file).Length;
-                var fileName = Path.GetFileName(file);
-                var fileExt = Path.GetExtension(file)?.ToLower();
-                fileDic["folder"].Add(new FileDescription
+                var slashPosition = file.LastIndexOf("\\", StringComparison.Ordinal);
+                var category = slashPosition > -1 ? file.Substring(0, slashPosition) : "root";
+                if (!fileDic.ContainsKey(category))
                 {
-                    FileName = fileName,
-                    Path = file,
-                    Ext = fileExt,
-                    Category = "folder",
-                    Length = length,
-                });
+                    fileDic.Add(category, new List<FileDescription>());
+                }
+                var fd = new FileDescription
+                {
+                    FileName = Path.GetFileName(file),
+                    Path = category == "root" ? "" : file.Substring(0, slashPosition),
+                    Ext = Path.GetExtension(file).ToLower(),
+                    Length = new FileInfo(rawList.Key + "\\" + file).Length
+                };
+                fd.CheckValid();
+                fileDic[category].Add(fd);
             }
             return fileDic;
         }
