@@ -43,10 +43,11 @@ namespace AutoTorrentInspection.Util
                 {
                     fileDic.Add(category, new List<FileDescription>());
                 }
+                string fullPath = $"{rawList.Key}\\{file}";
                 fileDic[category].Add(FileDescription.CreateWithCheck(Path.GetFileName(file),
                                                     category == "root" ? "" : file.Substring(0, slashPosition),
                                                     Path.GetExtension(file).ToLower(),
-                                                    new FileInfo($"{rawList.Key}\\{file}").Length));
+                                                    fullPath.Length > 256 ? 0L: new FileInfo(fullPath).Length));
             }
             return fileDic;
         }
