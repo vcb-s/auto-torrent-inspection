@@ -37,7 +37,7 @@ namespace AutoTorrentInspection.Util
             if (fileList.Count == 0) return fileDic;
             foreach (var file in fileList)
             {
-                var slashPosition = file.LastIndexOf("\\", StringComparison.Ordinal);
+                var slashPosition = file.IndexOf("\\", StringComparison.Ordinal);
                 var category = slashPosition > -1 ? file.Substring(0, slashPosition) : "root";
                 if (!fileDic.ContainsKey(category))
                 {
