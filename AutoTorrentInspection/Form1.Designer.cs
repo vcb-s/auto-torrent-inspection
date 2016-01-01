@@ -28,26 +28,29 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.btnLoadFile = new System.Windows.Forms.Button();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.cbCategory = new System.Windows.Forms.ComboBox();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.path = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.FileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Size = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.btnAnnounceList = new System.Windows.Forms.Button();
             this.cbShowAll = new System.Windows.Forms.CheckBox();
             this.cbState = new System.Windows.Forms.CheckBox();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.ColPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // btnLoadFile
             // 
-            this.btnLoadFile.Location = new System.Drawing.Point(12, 12);
+            this.btnLoadFile.Location = new System.Drawing.Point(12, 13);
+            this.btnLoadFile.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnLoadFile.Name = "btnLoadFile";
-            this.btnLoadFile.Size = new System.Drawing.Size(75, 23);
+            this.btnLoadFile.Size = new System.Drawing.Size(87, 33);
             this.btnLoadFile.TabIndex = 0;
             this.btnLoadFile.Text = "载入";
             this.btnLoadFile.UseVisualStyleBackColor = true;
@@ -56,10 +59,11 @@
             // btnRefresh
             // 
             this.btnRefresh.AllowDrop = true;
-            this.btnRefresh.Location = new System.Drawing.Point(12, 41);
+            this.btnRefresh.Location = new System.Drawing.Point(12, 54);
+            this.btnRefresh.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(75, 23);
-            this.btnRefresh.TabIndex = 2;
+            this.btnRefresh.Size = new System.Drawing.Size(87, 33);
+            this.btnRefresh.TabIndex = 1;
             this.btnRefresh.Text = "刷新";
             this.btnRefresh.UseVisualStyleBackColor = true;
             this.btnRefresh.Click += new System.EventHandler(this.btnTest_Click);
@@ -68,53 +72,40 @@
             // 
             this.cbCategory.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbCategory.FormattingEnabled = true;
-            this.cbCategory.Location = new System.Drawing.Point(12, 99);
+            this.cbCategory.Location = new System.Drawing.Point(12, 136);
+            this.cbCategory.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cbCategory.Name = "cbCategory";
-            this.cbCategory.Size = new System.Drawing.Size(75, 20);
+            this.cbCategory.Size = new System.Drawing.Size(87, 25);
             this.cbCategory.TabIndex = 3;
+            this.cbCategory.MouseEnter += new System.EventHandler(this.cbCategory_MouseEnter);
+            this.cbCategory.MouseLeave += new System.EventHandler(this.cbCategory_MouseLeave);
             // 
             // dataGridView1
             // 
             this.dataGridView1.AllowUserToAddRows = false;
             this.dataGridView1.AllowUserToDeleteRows = false;
+            this.dataGridView1.AllowUserToResizeRows = false;
             this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridView1.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(230)))), ((int)(((byte)(230)))));
+            this.dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dataGridView1.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.path,
-            this.FileName,
-            this.Size});
-            this.dataGridView1.Location = new System.Drawing.Point(93, 12);
+            this.ColPath,
+            this.ColFileName,
+            this.ColSize});
+            this.dataGridView1.GridColor = System.Drawing.SystemColors.Highlight;
+            this.dataGridView1.Location = new System.Drawing.Point(105, 13);
+            this.dataGridView1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
+            this.dataGridView1.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.dataGridView1.RowTemplate.Height = 23;
-            this.dataGridView1.Size = new System.Drawing.Size(533, 423);
-            this.dataGridView1.TabIndex = 4;
-            // 
-            // path
-            // 
-            this.path.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.path.HeaderText = "路径";
-            this.path.Name = "path";
-            this.path.ReadOnly = true;
-            this.path.Width = 54;
-            // 
-            // FileName
-            // 
-            this.FileName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.FileName.HeaderText = "文件名";
-            this.FileName.Name = "FileName";
-            this.FileName.ReadOnly = true;
-            this.FileName.Width = 66;
-            // 
-            // Size
-            // 
-            this.Size.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.Size.HeaderText = "大小";
-            this.Size.Name = "Size";
-            this.Size.ReadOnly = true;
-            this.Size.Width = 54;
+            this.dataGridView1.Size = new System.Drawing.Size(467, 431);
+            this.dataGridView1.TabIndex = 9;
+            this.dataGridView1.TabStop = false;
             // 
             // openFileDialog1
             // 
@@ -122,10 +113,11 @@
             // 
             // btnAnnounceList
             // 
-            this.btnAnnounceList.Location = new System.Drawing.Point(12, 70);
+            this.btnAnnounceList.Location = new System.Drawing.Point(12, 95);
+            this.btnAnnounceList.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnAnnounceList.Name = "btnAnnounceList";
-            this.btnAnnounceList.Size = new System.Drawing.Size(75, 23);
-            this.btnAnnounceList.TabIndex = 6;
+            this.btnAnnounceList.Size = new System.Drawing.Size(87, 33);
+            this.btnAnnounceList.TabIndex = 2;
             this.btnAnnounceList.Text = "Tracker";
             this.btnAnnounceList.UseVisualStyleBackColor = true;
             this.btnAnnounceList.Click += new System.EventHandler(this.btnAnnounceList_Click);
@@ -134,10 +126,11 @@
             // 
             this.cbShowAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbShowAll.AutoSize = true;
-            this.cbShowAll.Location = new System.Drawing.Point(12, 419);
+            this.cbShowAll.Location = new System.Drawing.Point(16, 423);
+            this.cbShowAll.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cbShowAll.Name = "cbShowAll";
-            this.cbShowAll.Size = new System.Drawing.Size(72, 16);
-            this.cbShowAll.TabIndex = 7;
+            this.cbShowAll.Size = new System.Drawing.Size(75, 21);
+            this.cbShowAll.TabIndex = 4;
             this.cbShowAll.Text = "显示全部";
             this.cbShowAll.UseVisualStyleBackColor = true;
             // 
@@ -150,20 +143,46 @@
             this.cbState.Checked = true;
             this.cbState.CheckState = System.Windows.Forms.CheckState.Indeterminate;
             this.cbState.Cursor = System.Windows.Forms.Cursors.Default;
-            this.cbState.Location = new System.Drawing.Point(12, 397);
+            this.cbState.Location = new System.Drawing.Point(12, 394);
+            this.cbState.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cbState.Name = "cbState";
-            this.cbState.Size = new System.Drawing.Size(72, 16);
+            this.cbState.Size = new System.Drawing.Size(75, 21);
             this.cbState.TabIndex = 8;
+            this.cbState.TabStop = false;
             this.cbState.Text = "状态正常";
             this.cbState.ThreeState = true;
             this.cbState.UseVisualStyleBackColor = true;
             // 
+            // ColPath
+            // 
+            this.ColPath.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ColPath.HeaderText = "路径";
+            this.ColPath.Name = "ColPath";
+            this.ColPath.ReadOnly = true;
+            this.ColPath.Width = 57;
+            // 
+            // ColFileName
+            // 
+            this.ColFileName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ColFileName.HeaderText = "文件名";
+            this.ColFileName.Name = "ColFileName";
+            this.ColFileName.ReadOnly = true;
+            this.ColFileName.Width = 69;
+            // 
+            // ColSize
+            // 
+            this.ColSize.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ColSize.HeaderText = "大小";
+            this.ColSize.Name = "ColSize";
+            this.ColSize.ReadOnly = true;
+            this.ColSize.Width = 57;
+            // 
             // Form1
             // 
             this.AllowDrop = true;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(638, 447);
+            this.ClientSize = new System.Drawing.Size(584, 457);
             this.Controls.Add(this.cbState);
             this.Controls.Add(this.cbShowAll);
             this.Controls.Add(this.btnAnnounceList);
@@ -171,7 +190,9 @@
             this.Controls.Add(this.cbCategory);
             this.Controls.Add(this.btnRefresh);
             this.Controls.Add(this.btnLoadFile);
+            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "Form1";
             this.Text = "Auto Torrent Inspection";
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Form1_DragDrop);
@@ -189,12 +210,13 @@
         private System.Windows.Forms.ComboBox cbCategory;
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Size;
-        private System.Windows.Forms.DataGridViewTextBoxColumn FileName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn path;
         private System.Windows.Forms.Button btnAnnounceList;
         private System.Windows.Forms.CheckBox cbShowAll;
         private System.Windows.Forms.CheckBox cbState;
+        private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColPath;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColFileName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColSize;
     }
 }
 

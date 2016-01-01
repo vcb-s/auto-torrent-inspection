@@ -1,10 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using AutoTorrentInspection.Util;
 
 namespace AutoTorrentInspection
@@ -30,12 +28,7 @@ namespace AutoTorrentInspection
         {
             _paths = e.Data.GetData(DataFormats.FileDrop) as string[];
             if (string.IsNullOrEmpty(_paths?[0])) return;
-            if (Directory.Exists(_paths?[0]))
-            {
-                _data = ConvertMethod.GetFileList(_paths[0]);
-                ThroughInspection();
-            }
-            if (Path.GetExtension(_paths[0]).ToLower() != ".torrent") return;
+            if (Path.GetExtension(_paths[0]).ToLower() != ".torrent" && !Directory.Exists(_paths[0])) return;
             LoadFile(_paths[0]);
         }
 
@@ -44,7 +37,6 @@ namespace AutoTorrentInspection
             if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
             LoadFile(openFileDialog1.FileName);
         }
-
 
         private void btnTest_Click(object sender, EventArgs e)
         {
@@ -61,14 +53,32 @@ namespace AutoTorrentInspection
 
         private void LoadFile(string filepath)
         {
-            _torrent = new TorrentData(filepath);
-            _data = _torrent.GetFileList();
-            ThroughInspection();
+            try
+            {
+                if (Directory.Exists(filepath))
+                {
+                    _data = ConvertMethod.GetFileList(filepath);
+                }
+                else
+                {
+                    _torrent = new TorrentData(filepath);
+                    _data = _torrent.GetFileList();
+                    if (_torrent.IsPrivate)
+                    {
+                        MessageBox.Show(@"This torrent has been set as a private torrent", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    if (_torrent.Comment != null)
+                    {
+                        MessageBox.Show(_torrent.Comment, @"Comment");
+                    }
+                }
+                ThroughInspection();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Exception Message: \n\n    {ex.Message}", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+            }
         }
-
-        private readonly Regex _partten = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ (\[.*\d*\])*\[((?<Ma>Ma10p_1080p)|(?<Hi>(Hi10p|Hi444pp)_(1080|720|480)p)|(?<EIGHT>(1080|720)p))\]\[((?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(flac|aac|ac3)\](?<SUB>(\.(sc|tc)|\.(chs|cht))*)\.((?(AVC)(mkv|mka|flac))|(?(HEVC)(mkv|mka|flac)|(?(EIGHT)mp4))|(?(SUB)ass))$");
-        private readonly Regex _musicPartten = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2)");
-        private readonly List<string> _exceptExt = new List<string> { ".rar", ".7z", ".zip" };
 
         private void ThroughInspection()
         {
@@ -80,28 +90,20 @@ namespace AutoTorrentInspection
                 Inspection(item);
             }
             cbCategory.SelectedIndex = cbCategory.SelectedIndex == -1 ? 0 : cbCategory.SelectedIndex;
-            Text = $"Auto Torrent Inspection - {(_torrent != null?_torrent.TorrentName : _paths[0])} - By [{_torrent?.CreatedBy}]";
+            Text = $"Auto Torrent Inspection - {(_torrent != null?_torrent.TorrentName : _paths[0])} - By [{_torrent?.CreatedBy ?? "folder"}] - {_torrent?.CreationDate}";
         }
 
         private void Inspection(string category)
         {
-            foreach (var item in _data[category])
+            foreach (var item in _data[category].Where(item => item.InValidFile || cbShowAll.Checked))
             {
-                item.InValidFile = (_exceptExt.IndexOf(item.Ext) <= 0 && !_partten.IsMatch(item.FileName) && !_musicPartten.IsMatch(item.FileName.ToLower()));
-                if (item.InValidFile || cbShowAll.Checked)
-                {
-                    Invoke(new AddRowDelegate(AddRow), item);
-                }
+                dataGridView1.Rows.Add(item.ToRow(dataGridView1));
             }
             cbState.CheckState = dataGridView1.Rows.Count == 0 ? CheckState.Checked : CheckState.Unchecked;
         }
 
-        private delegate void AddRowDelegate(FileDescription item);
+        private void cbCategory_MouseEnter(object sender, EventArgs e) => toolTip1.Show(cbCategory.Text, cbCategory);
 
-        private void AddRow(FileDescription item)
-        {
-            int index = dataGridView1.Rows.Add(item.Path,item.FileName,$"{(double) item.Length/1024:F3}KB");
-            dataGridView1.Rows[index].DefaultCellStyle.BackColor = ColorTranslator.FromHtml(item.InValidFile ? "#FB9966":"#92AAF3");
-        }
+        private void cbCategory_MouseLeave(object sender, EventArgs e) => toolTip1.Hide(cbCategory);
     }
 }
