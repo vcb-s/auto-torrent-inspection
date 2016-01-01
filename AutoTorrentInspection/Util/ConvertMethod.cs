@@ -44,7 +44,10 @@ namespace AutoTorrentInspection.Util
             }
             return fileDic;
         }
-
+        /// <summary>
+        /// 将指定集合的元素添加到 <see cref= "T:System.Collections.Generic.Queue`1"/> 的结尾处。
+        /// </summary>
+        /// <param name="queue">用作要添加的目标 <see cref= "T:System.Collections.Generic.Queue`1"/>。</param>  <param name="source">应将其元素添加到 <see cref= "T:System.Collections.Generic.Queue`1"/> 的结尾的集合。</param>
         private static void EnqueueRange<T>(this Queue<T> queue, IEnumerable<T> source)
         {
             foreach (var item in source)
