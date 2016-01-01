@@ -17,7 +17,7 @@ namespace AutoTorrentInspection.Util
             _torrent = Bencode.DecodeTorrentFile(path);
         }
 
-        public bool IsPrivate { private set; get; }
+        public bool IsPrivate => _torrent.Info["private"] != null;
 
         public IEnumerable<string> GetAnnounceList()
         {
@@ -34,14 +34,12 @@ namespace AutoTorrentInspection.Util
         {
             var fileDic = new Dictionary<string, List<FileDescription>>();
             var files = (BList)_torrent.Info["files"];
-            IsPrivate = _torrent.Info["private"] != null;
             if (files == null)
             {
                 var name    = _torrent.Info["name"].ToString();
                 var fileExt = Path.GetExtension(name).ToLower();
                 var length  = ((BNumber)_torrent.Info["length"]).Value;
-                fileDic.Add("singe", new List<FileDescription>());
-                fileDic["singe"].Add(FileDescription.CreateWithCheck(name, "", fileExt, length));
+                fileDic.Add("singe", new List<FileDescription> { FileDescription.CreateWithCheck(name, "", fileExt, length) });
                 return fileDic;
             }
             foreach (var bObject in files)
@@ -60,10 +58,7 @@ namespace AutoTorrentInspection.Util
                 //reason: https://www.ptt.cc/bbs/P2PSoftWare/M.1191552305.A.5CE.html
 
                 var fileExt  = Path.GetExtension(name).ToLower();
-                if (!fileDic.ContainsKey(category))
-                {
-                    fileDic.Add(category, new List<FileDescription>());
-                }
+                fileDic.TryAdd(category, new List<FileDescription>());
                 fileDic[category].Add(FileDescription.CreateWithCheck(name, path.ToString(), fileExt, length));
             }
             return fileDic;
