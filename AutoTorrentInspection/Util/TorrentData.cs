@@ -19,6 +19,10 @@ namespace AutoTorrentInspection.Util
 
         public bool IsPrivate => _torrent.Info["private"] != null;
 
+        public DateTime CreationDate => _torrent.CreationDate;
+
+        public string Comment => _torrent.Comment;
+
         public IEnumerable<string> GetAnnounceList()
         {
             var announceList = _torrent.AnnounceList;

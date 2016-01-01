@@ -67,12 +67,16 @@ namespace AutoTorrentInspection
                     {
                         MessageBox.Show(@"This torrent has been set as a private torrent", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
+                    if (_torrent.Comment != null)
+                    {
+                        MessageBox.Show(_torrent.Comment, @"Comment");
+                    }
                 }
                 ThroughInspection();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"InValid Torrent File, Exception Message: \n\n    {ex.Message}", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                MessageBox.Show($"Exception Message: \n\n    {ex.Message}", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Hand);
             }
         }
 
@@ -86,7 +90,7 @@ namespace AutoTorrentInspection
                 Inspection(item);
             }
             cbCategory.SelectedIndex = cbCategory.SelectedIndex == -1 ? 0 : cbCategory.SelectedIndex;
-            Text = $"Auto Torrent Inspection - {(_torrent != null?_torrent.TorrentName : _paths[0])} - By [{_torrent?.CreatedBy ?? "folder"}]";
+            Text = $"Auto Torrent Inspection - {(_torrent != null?_torrent.TorrentName : _paths[0])} - By [{_torrent?.CreatedBy ?? "folder"}] - {_torrent?.CreationDate}";
         }
 
         private void Inspection(string category)
