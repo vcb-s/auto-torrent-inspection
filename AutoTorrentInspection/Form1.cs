@@ -95,7 +95,7 @@ namespace AutoTorrentInspection
 
         private void Inspection(string category)
         {
-            foreach (var item in _data[category].Where(item => item.InValidFile || cbShowAll.Checked))
+            foreach (var item in _data[category].Where(item => item.InValidFile || item.InValidCue || cbShowAll.Checked))
             {
                 dataGridView1.Rows.Add(item.ToRow(dataGridView1));
             }

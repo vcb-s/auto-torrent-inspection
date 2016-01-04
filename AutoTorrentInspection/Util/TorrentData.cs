@@ -43,7 +43,7 @@ namespace AutoTorrentInspection.Util
                 var name    = _torrent.Info["name"].ToString();
                 var fileExt = Path.GetExtension(name).ToLower();
                 var length  = ((BNumber)_torrent.Info["length"]).Value;
-                fileDic.Add("singe", new List<FileDescription> { FileDescription.CreateWithCheck(name, "", fileExt, length) });
+                fileDic.Add("singe", new List<FileDescription> { FileDescription.CreateWithCheckTorrent(name, "", fileExt, length) });
                 return fileDic;
             }
             foreach (var bObject in files)
@@ -63,7 +63,7 @@ namespace AutoTorrentInspection.Util
 
                 var fileExt  = Path.GetExtension(name).ToLower();
                 fileDic.TryAdd(category, new List<FileDescription>());
-                fileDic[category].Add(FileDescription.CreateWithCheck(name, path.ToString(), fileExt, length));
+                fileDic[category].Add(FileDescription.CreateWithCheckTorrent(name, path.ToString(), fileExt, length));
             }
             return fileDic;
         }

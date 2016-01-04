@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.IO;
+using System.Drawing;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 
@@ -6,13 +7,14 @@ namespace AutoTorrentInspection.Util
 {
     public class FileDescription
     {
-        public string FileName  { set; private get; }
-        public string Path      { set; private get; }
-        public string Ext       { set; private get; }
-        public long Length      { set; private get; }
+        private string FileName { set; get; }
+        private string Path     { set; get; }
+        private string Ext      { set; get; }
+        private long Length     { set; get; }
         public bool InValidFile { private set; get; }
+        public bool InValidCue  { private set; get; }
 
-        public static FileDescription CreateWithCheck(string fileName, string path, string ext, long length)
+        public static FileDescription CreateWithCheckTorrent(string fileName, string path, string ext, long length)
         {
             var temp = new FileDescription
             {
@@ -21,7 +23,27 @@ namespace AutoTorrentInspection.Util
                 Ext = ext,
                 Length = length
             };
-            temp.CheckValid();
+            temp.CheckValidTorrent();
+            return temp;
+        }
+
+        public static FileDescription CreateWithCheckFile(string fileName, string path, string ext, string fullPath)
+        {
+            var temp = new FileDescription
+            {
+                FileName = fileName,
+                Path = path,
+                Ext = ext,
+                Length = fullPath.Length > 256 ? 0L : new FileInfo(fullPath).Length
+            };
+            if (fullPath.Length > 256)
+            {
+                temp.InValidCue = false;
+            }
+            else
+            {
+                temp.CheckValidFile(fullPath);
+            }
             return temp;
         }
 
@@ -29,13 +51,22 @@ namespace AutoTorrentInspection.Util
         private static readonly Regex MusicPartten  = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2)");
         private static readonly Regex ExceptPartten = new Regex(@"\.(rar|7z|zip)");
 
-
-        public bool CheckValid()
+        private void CheckValidTorrent()
         {
             InValidFile = !ExceptPartten.IsMatch(Ext.ToLower()) &&
                           !MusicPartten.IsMatch(FileName.ToLower()) &&
                           !AnimePartten.IsMatch(FileName);
-            return InValidFile;
+        }
+
+        private void CheckValidFile(string fullPath)
+        {
+            InValidFile = !ExceptPartten.IsMatch(Ext.ToLower()) &&
+                          !MusicPartten.IsMatch(FileName.ToLower()) &&
+                          !AnimePartten.IsMatch(FileName);
+            if (Ext.ToLower() == ".cue")
+            {
+                InValidCue = !ConvertMethod.IsUTF8(fullPath);
+            }
         }
 
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
@@ -45,6 +76,7 @@ namespace AutoTorrentInspection.Util
             var row = new DataGridViewRow();
             row.CreateCells(view, Path, FileName, $"{(double)Length / 1024:F3}KB");
             row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml(InValidFile ? "#FB9966" : "#92AAF3");
+            if (InValidCue) row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#113285");
             return row;
         }
     }

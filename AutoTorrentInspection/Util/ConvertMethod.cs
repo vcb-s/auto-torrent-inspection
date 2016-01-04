@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 
 namespace AutoTorrentInspection.Util
 {
@@ -33,17 +32,54 @@ namespace AutoTorrentInspection.Util
             if (fileList.Count == 0) return fileDic;
             foreach (var file in fileList)
             {
-                var slashPosition = file.IndexOf("\\", StringComparison.Ordinal);
+                var slashPosition = file.LastIndexOf("\\", StringComparison.Ordinal);
                 var category = slashPosition > -1 ? file.Substring(0, slashPosition) : "root";
                 fileDic.TryAdd(category, new List<FileDescription>());
                 string fullPath = $"{rawList.Key}\\{file}";
-                fileDic[category].Add(FileDescription.CreateWithCheck(Path.GetFileName(file),
+                fileDic[category].Add(FileDescription.CreateWithCheckFile(Path.GetFileName(file),
                                                     category == "root" ? "" : file.Substring(0, slashPosition),
                                                     Path.GetExtension(file).ToLower(),
-                                                    fullPath.Length > 256 ? 0L: new FileInfo(fullPath).Length));
+                                                    fullPath));
             }
             return fileDic;
         }
+
+        /// <summary>
+        /// Determines wether a text file is encoded in UTF by analyzing its context.
+        /// </summary>
+        /// <param name="filePath">The text file to analyze.</param>
+        public static bool IsUTF8(string filePath)
+        {
+            var bytes = File.ReadAllBytes(filePath);
+            if (bytes.Length <= 0) return false;
+            int asciiOnly = 1, continuationBytes = 0;
+            foreach (var item in bytes)
+            {
+                if ((sbyte)item < 0) asciiOnly = 0;
+                if (continuationBytes != 0)
+                {
+                    if ((item & 0xC0) != 0x80u)
+                        return false;
+                    --continuationBytes;
+                }
+                else
+                {
+                    if (item < 0x80u) continue;
+                    var temp = item;
+                    do
+                    {
+                        temp <<= 1;
+                        ++continuationBytes;
+                    } while ((sbyte)temp < 0);
+                    --continuationBytes;
+                    if (continuationBytes == 0) return false;
+                }
+            }
+            return continuationBytes == 0 && asciiOnly == 0;
+        }
+
+
+
         /// <summary>
         /// 将指定集合的元素添加到 <see cref= "T:System.Collections.Generic.Queue`1"/> 的结尾处。
         /// </summary>
