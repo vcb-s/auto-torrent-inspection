@@ -23,7 +23,7 @@ namespace BencodeNET
             set
             {
                 if (value == null)
-                    throw new ArgumentNullException("value", "DefaultEncoding may not be set to null");
+                    throw new ArgumentNullException(nameof(value), "DefaultEncoding may not be set to null");
                 _defaultEncoding = value;
             }
         }
@@ -36,7 +36,7 @@ namespace BencodeNET
         /// <exception cref="ArgumentNullException"></exception>
         public static IBObject Decode(string bencodedString)
         {
-            if (bencodedString == null) throw new ArgumentNullException("bencodedString");
+            if (bencodedString == null) throw new ArgumentNullException(nameof(bencodedString));
 
             return Decode(bencodedString, DefaultEncoding);
         }
@@ -50,8 +50,8 @@ namespace BencodeNET
         /// <exception cref="ArgumentNullException"></exception>
         public static IBObject Decode(string bencodedString, Encoding encoding)
         {
-            if (bencodedString == null) throw new ArgumentNullException("bencodedString");
-            if (encoding == null) throw new ArgumentNullException("encoding");
+            if (bencodedString == null) throw new ArgumentNullException(nameof(bencodedString));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
             using (var ms = new MemoryStream(encoding.GetBytes(bencodedString)))
             {
@@ -67,7 +67,7 @@ namespace BencodeNET
         /// <exception cref="ArgumentNullException">stream</exception>
         public static IBObject Decode(Stream stream)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
 
             return Decode(stream, DefaultEncoding);
         }
@@ -81,8 +81,8 @@ namespace BencodeNET
         /// <exception cref="ArgumentNullException">stream</exception>
         public static IBObject Decode(Stream stream, Encoding encoding)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
-            if (encoding == null) throw new ArgumentNullException("encoding");
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
             return Decode(new BencodeStream(stream, leaveOpen: true), encoding);
         }
@@ -96,8 +96,8 @@ namespace BencodeNET
         /// <exception cref="ArgumentNullException">stream</exception>
         public static IBObject Decode(BencodeStream stream, Encoding encoding)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
-            if (encoding == null) throw new ArgumentNullException("encoding");
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
             switch (stream.PeekChar())
             {
@@ -122,15 +122,15 @@ namespace BencodeNET
 
         public static BString DecodeString(string bencodedString)
         {
-            if (bencodedString == null) throw new ArgumentNullException("bencodedString");
+            if (bencodedString == null) throw new ArgumentNullException(nameof(bencodedString));
 
             return DecodeString(bencodedString, DefaultEncoding);
         }
 
         public static BString DecodeString(string bencodedString, Encoding encoding)
         {
-            if (bencodedString == null) throw new ArgumentNullException("bencodedString");
-            if (encoding == null) throw new ArgumentNullException("encoding");
+            if (bencodedString == null) throw new ArgumentNullException(nameof(bencodedString));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
             using (var ms = new MemoryStream(encoding.GetBytes(bencodedString)))
             {
@@ -140,23 +140,23 @@ namespace BencodeNET
 
         public static BString DecodeString(Stream stream)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
 
             return DecodeString(stream, DefaultEncoding);
         }
 
         public static BString DecodeString(Stream stream, Encoding encoding)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
-            if (encoding == null) throw new ArgumentNullException("encoding");
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
             return DecodeString(new BencodeStream(stream, leaveOpen: true), encoding);
         }
 
         public static BString DecodeString(BencodeStream stream, Encoding encoding)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
-            if (encoding == null) throw new ArgumentNullException("encoding");
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
             // Minimum Valid bencode string is '0:' meaning an empty string
             if (stream.Length < 2)
@@ -207,7 +207,7 @@ namespace BencodeNET
 
         public static BNumber DecodeNumber(string bencodedString)
         {
-            if (bencodedString == null) throw new ArgumentNullException("bencodedString");
+            if (bencodedString == null) throw new ArgumentNullException(nameof(bencodedString));
 
             using (var ms = new MemoryStream(DefaultEncoding.GetBytes(bencodedString)))
             {
@@ -217,14 +217,14 @@ namespace BencodeNET
 
         public static BNumber DecodeNumber(Stream stream)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
 
             return DecodeNumber(new BencodeStream(stream, leaveOpen: true));
         }
 
         public static BNumber DecodeNumber(BencodeStream stream)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
 
             if (stream.Length < 3)
                 throw new BencodeDecodingException<BNumber>("Minimum Valid length of stream is 3 ('i0e').", stream.Position);
@@ -292,8 +292,8 @@ namespace BencodeNET
 
         public static BList DecodeList(string bencodedString, Encoding encoding)
         {
-            if (bencodedString == null) throw new ArgumentNullException("bencodedString");
-            if (encoding == null) throw new ArgumentNullException("encoding");
+            if (bencodedString == null) throw new ArgumentNullException(nameof(bencodedString));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
             using (var ms = new MemoryStream(encoding.GetBytes(bencodedString)))
             {
@@ -313,8 +313,8 @@ namespace BencodeNET
 
         public static BList DecodeList(BencodeStream stream, Encoding encoding)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
-            if (encoding == null) throw new ArgumentNullException("encoding");
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
             if (stream.Length < 2)
                 throw new BencodeDecodingException<BList>("Minimum Valid length is 2 (an empty list: 'le')", stream.Position);
@@ -348,8 +348,8 @@ namespace BencodeNET
 
         public static BDictionary DecodeDictionary(string bencodedString, Encoding encoding)
         {
-            if (bencodedString == null) throw new ArgumentNullException("bencodedString");
-            if (encoding == null) throw new ArgumentNullException("encoding");
+            if (bencodedString == null) throw new ArgumentNullException(nameof(bencodedString));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
             using (var ms = new MemoryStream(encoding.GetBytes(bencodedString)))
             {
@@ -369,8 +369,8 @@ namespace BencodeNET
 
         public static BDictionary DecodeDictionary(BencodeStream stream, Encoding encoding)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
-            if (encoding == null) throw new ArgumentNullException("encoding");
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
             var startPosition = stream.Position;
 

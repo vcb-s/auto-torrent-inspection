@@ -9,36 +9,17 @@ namespace BencodeNET.Objects
     {
         private readonly BDictionary _data = new BDictionary();
 
-        public BDictionary Info
-        {
-            get { return (BDictionary) _data["info"]; }
-        }
+        public BDictionary Info => (BDictionary) _data["info"];
 
         /// <summary>
         /// The first announce URL contained within the .torrent file
         /// </summary>
-        public string Announce
-        {
-            get
-            {
-                if (!_data.ContainsKey("announce"))
-                    return null;
-                return _data["announce"].ToString();
-            }
-        }
+        public string Announce => !_data.ContainsKey("announce") ? null : _data["announce"].ToString();
 
         /// <summary>
         /// The announce URLs contained within the .torrent file
         /// </summary>
-        public BList AnnounceList
-        {
-            get
-            {
-                if (!_data.ContainsKey("announce-list"))
-                    return null;
-                return (BList) _data["announce-list"];
-            }
-        }
+        public BList AnnounceList => !_data.ContainsKey("announce-list") ? null: (BList)_data["announce-list"];
 
         /// <summary>
         /// The creation date of the .torrent file
@@ -56,41 +37,17 @@ namespace BencodeNET.Objects
         /// <summary>
         /// The comment contained within the .torrent file
         /// </summary>
-        public string Comment
-        {
-            get
-            {
-                if (!_data.ContainsKey("comment"))
-                    return null;
-                return _data["comment"].ToString();
-            }
-        }
+        public string Comment => !_data.ContainsKey("comment") ? null : _data["comment"].ToString();
 
         /// <summary>
         /// The optional string showing who/what created the .torrent
         /// </summary>
-        public string CreatedBy
-        {
-            get
-            {
-                if (!_data.ContainsKey("created by"))
-                    return null;
-                return _data["created by"].ToString();
-            }
-        }
+        public string CreatedBy => !_data.ContainsKey("created by") ? null : _data["created by"].ToString();
 
         /// <summary>
         /// The encoding used by the client that created the .torrent file
         /// </summary>
-        public string Encoding
-        {
-            get
-            {
-                if (!_data.ContainsKey("encoding"))
-                    return null;
-                return _data["encoding"].ToString();
-            }
-        }
+        public string Encoding => !_data.ContainsKey("encoding") ? null : _data["encoding"].ToString();
 
         public string CalculateInfoHash()
         {
