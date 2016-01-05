@@ -35,11 +35,10 @@ namespace AutoTorrentInspection.Util
                 var slashPosition = file.LastIndexOf("\\", StringComparison.Ordinal);
                 var category = slashPosition > -1 ? file.Substring(0, slashPosition) : "root";
                 fileDic.TryAdd(category, new List<FileDescription>());
-                string fullPath = $"{rawList.Key}\\{file}";
                 fileDic[category].Add(FileDescription.CreateWithCheckFile(Path.GetFileName(file),
                                                     category == "root" ? "" : file.Substring(0, slashPosition),
                                                     Path.GetExtension(file).ToLower(),
-                                                    fullPath));
+                                                    $"{rawList.Key}\\{file}"));
             }
             return fileDic;
         }
@@ -52,14 +51,14 @@ namespace AutoTorrentInspection.Util
         {
             var bytes = File.ReadAllBytes(filePath);
             if (bytes.Length <= 0) return false;
-            int asciiOnly = 1, continuationBytes = 0;
+            bool asciiOnly = true;
+            int continuationBytes = 0;
             foreach (var item in bytes)
             {
-                if ((sbyte)item < 0) asciiOnly = 0;
+                if ((sbyte)item < 0) asciiOnly = false;
                 if (continuationBytes != 0)
                 {
-                    if ((item & 0xC0) != 0x80u)
-                        return false;
+                    if ((item & 0xC0) != 0x80u) return false;
                     --continuationBytes;
                 }
                 else
@@ -75,7 +74,7 @@ namespace AutoTorrentInspection.Util
                     if (continuationBytes == 0) return false;
                 }
             }
-            return continuationBytes == 0 && asciiOnly == 0;
+            return continuationBytes == 0 && !asciiOnly;
         }
 
 
