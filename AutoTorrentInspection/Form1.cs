@@ -53,6 +53,7 @@ namespace AutoTorrentInspection
 
         private void LoadFile(string filepath)
         {
+            _torrent = null;
             try
             {
                 if (Directory.Exists(filepath))
@@ -67,9 +68,9 @@ namespace AutoTorrentInspection
                     {
                         MessageBox.Show(@"This torrent has been set as a private torrent", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
-                    if (_torrent.Comment != null)
+                    if (!string.IsNullOrEmpty(_torrent.Comment) || !string.IsNullOrEmpty(_torrent.Source))
                     {
-                        MessageBox.Show(_torrent.Comment, @"Comment");
+                        MessageBox.Show(_torrent.Comment + Environment.NewLine + _torrent.Source, @"Comment/Source");
                     }
                 }
                 ThroughInspection();

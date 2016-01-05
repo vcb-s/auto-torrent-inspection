@@ -17,22 +17,21 @@ namespace AutoTorrentInspection.Util
             _torrent = Bencode.DecodeTorrentFile(path);
         }
 
-        public bool IsPrivate => _torrent.Info["private"] != null;
-
-        public DateTime CreationDate => _torrent.CreationDate;
-
-        public string Comment => _torrent.Comment;
-
-        public IEnumerable<string> GetAnnounceList()
-        {
-            var announceList = _torrent.AnnounceList;
-            return announceList?.ToList().Select(item => ((BList)item).First().ToString()).ToList() ?? new List<string> { _torrent.Announce };
-        }
-
-        public string TorrentName => _torrent.Info["name"].ToString();
+        public IEnumerable<string> GetAnnounceList() =>
+                _torrent.AnnounceList?.ToList().Select(item => ((BList) item).First().ToString()).ToList() ??
+                new List<string> {_torrent.Announce};
 
         public string CreatedBy => _torrent.CreatedBy;
 
+        public DateTime CreationDate => _torrent.CreationDate;
+
+        public string Comment => _torrent.Comment ?? "";
+
+        public string Source => _torrent.Info.ContainsKey("source") ? _torrent.Info["source"].ToString() : "";
+
+        public string TorrentName => _torrent.Info["name"].ToString();
+
+        public bool IsPrivate => _torrent.Info["private"] != null;
 
         public Dictionary<string, List<FileDescription>> GetFileList()
         {
