@@ -42,7 +42,7 @@ namespace AutoTorrentInspection.Util
                 var name    = _torrent.Info["name"].ToString();
                 var fileExt = Path.GetExtension(name).ToLower();
                 var length  = ((BNumber)_torrent.Info["length"]).Value;
-                fileDic.Add("singe", new List<FileDescription> { FileDescription.CreateWithCheckTorrent(name, "", fileExt, length) });
+                fileDic.Add("single", new List<FileDescription> { FileDescription.CreateWithCheckTorrent(name, "", fileExt, length) });
                 return fileDic;
             }
             foreach (var bObject in files)

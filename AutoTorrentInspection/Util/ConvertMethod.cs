@@ -25,14 +25,13 @@ namespace AutoTorrentInspection.Util
 
         public static Dictionary<string, List<FileDescription>> GetFileList(string folderPath)
         {
-
             var fileDic = new Dictionary<string, List<FileDescription>>();
             var rawList = EnumerateFolder(folderPath);
             var fileList = rawList.Value.ToList();
             if (fileList.Count == 0) return fileDic;
             foreach (var file in fileList)
             {
-                var slashPosition = file.LastIndexOf("\\", StringComparison.Ordinal);
+                var slashPosition = file.IndexOf("\\", StringComparison.Ordinal);
                 var category = slashPosition > -1 ? file.Substring(0, slashPosition) : "root";
                 fileDic.TryAdd(category, new List<FileDescription>());
                 fileDic[category].Add(FileDescription.CreateWithCheckFile(Path.GetFileName(file),
@@ -76,8 +75,6 @@ namespace AutoTorrentInspection.Util
             }
             return continuationBytes == 0 && !asciiOnly;
         }
-
-
 
         /// <summary>
         /// 将指定集合的元素添加到 <see cref= "T:System.Collections.Generic.Queue`1"/> 的结尾处。

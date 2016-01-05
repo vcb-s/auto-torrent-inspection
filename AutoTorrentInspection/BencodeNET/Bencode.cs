@@ -23,7 +23,7 @@ namespace BencodeNET
             set
             {
                 if (value == null)
-                    throw new ArgumentNullException(nameof(value), "DefaultEncoding may not be set to null");
+                    throw new ArgumentNullException(nameof(value), @"DefaultEncoding may not be set to null");
                 _defaultEncoding = value;
             }
         }
@@ -171,7 +171,7 @@ namespace BencodeNET
                 if (lengthString.Length >= BString.LengthMaxDigits)
                 {
                     throw new UnsupportedBencodeException(
-                        string.Format("Length of string is more than {0} digits (>10GB) and is not supported (max is ~1-2GB).", BString.LengthMaxDigits),
+                        $"Length of string is more than {BString.LengthMaxDigits} digits (>10GB) and is not supported (max is ~1-2GB).",
                         stream.Position);
                 }
 
@@ -181,14 +181,14 @@ namespace BencodeNET
             long stringLength;
             if (!TryParseLongFast(lengthString.ToString(), out stringLength))
             {
-                throw new BencodeDecodingException<BString>(string.Format("Invalid length of string '{0}'", lengthString), startPosition);
+                throw new BencodeDecodingException<BString>($"Invalid length of string '{lengthString}'", startPosition);
             }
 
             // Int32.MaxValue is ~2GB and is the absolute maximum that can be handled in memory
             if (stringLength > int.MaxValue)
             {
                 throw new UnsupportedBencodeException(
-                    string.Format("Length of string is {0:N0} but maximum supported length is {1:N0}.", stringLength, int.MaxValue),
+                    $"Length of string is {stringLength:N0} but maximum supported length is {int.MaxValue:N0}.",
                     stream.Position);
             }
 
@@ -198,7 +198,7 @@ namespace BencodeNET
             if (bytes.Length != stringLength)
             {
                 throw new BencodeDecodingException<BString>(
-                    string.Format("Expected string to be {0:N0} bytes long but could only read {1:N0} bytes.", stringLength, bytes.Length),
+                    $"Expected string to be {stringLength:N0} bytes long but could only read {bytes.Length:N0} bytes.",
                     stream.Position);
             }
 
@@ -233,7 +233,8 @@ namespace BencodeNET
 
             // Numbers must start with 'i'
             if (stream.ReadChar() != 'i')
-                throw new BencodeDecodingException<BNumber>(string.Format("Must begin with 'i' but began with '{0}'.", stream.ReadPreviousChar()), stream.Position);
+                throw new BencodeDecodingException<BNumber>(
+                    $"Must begin with 'i' but began with '{stream.ReadPreviousChar()}'.", stream.Position);
 
             var digits = new StringBuilder();
             char c;
@@ -253,9 +254,7 @@ namespace BencodeNET
             if (numberOfDigits > BNumber.MaxDigits)
             {
                 throw new UnsupportedBencodeException(
-                    string.Format(
-                        "The number '{0}' has more than 19 digits and cannot be stored as a long (Int64) and therefore is not supported.",
-                        digits),
+                    $"The number '{digits}' has more than 19 digits and cannot be stored as a long (Int64) and therefore is not supported.",
                     stream.Position);
             }
 
@@ -277,8 +276,7 @@ namespace BencodeNET
             if (!TryParseLongFast(digits.ToString(), out number))
             {
                 throw new BencodeDecodingException<BNumber>(
-                    string.Format("The value '{0}' is not a Valid long (Int64). Supported values range from '{1:N0}' to '{2:N0}'.",
-                        digits, long.MinValue, long.MaxValue),
+                    $"The value '{digits}' is not a Valid long (Int64). Supported values range from '{long.MinValue:N0}' to '{long.MaxValue:N0}'.",
                     stream.Position);
             }
 
@@ -321,7 +319,8 @@ namespace BencodeNET
 
             // Lists must start with 'l'
             if (stream.ReadChar() != 'l')
-                throw new BencodeDecodingException<BList>(string.Format("Must begin with 'l' but began with '{0}'.", stream.ReadPreviousChar()), stream.Position);
+                throw new BencodeDecodingException<BList>(
+                    $"Must begin with 'l' but began with '{stream.ReadPreviousChar()}'.", stream.Position);
 
             var list = new BList();
             // Loop until next character is the end character 'e' or end of stream
@@ -330,7 +329,7 @@ namespace BencodeNET
                 // Decode next object in stream
                 var bObject = Decode(stream, encoding);
                 if (bObject == null)
-                    throw new BencodeDecodingException<BList>(string.Format("Invalid object beginning with '{0}'", stream.PeekChar()), stream.Position);
+                    throw new BencodeDecodingException<BList>($"Invalid object beginning with '{stream.PeekChar()}'", stream.Position);
 
                 list.Add(bObject);
             }
@@ -379,7 +378,8 @@ namespace BencodeNET
 
             // Dictionaries must start with 'd'
             if (stream.ReadChar() != 'd')
-                throw new BencodeDecodingException<BDictionary>(string.Format("Must begin with 'd' but began with '{0}'", stream.ReadPreviousChar()), startPosition);
+                throw new BencodeDecodingException<BDictionary>(
+                    $"Must begin with 'd' but began with '{stream.ReadPreviousChar()}'", startPosition);
 
             var dictionary = new BDictionary();
             // Loop until next character is the end character 'e' or end of stream

@@ -14,12 +14,12 @@ namespace BencodeNET.Objects
         /// <summary>
         /// The first announce URL contained within the .torrent file
         /// </summary>
-        public string Announce => !_data.ContainsKey("announce") ? null : _data["announce"].ToString();
+        public string Announce => _data.ContainsKey("announce") ? _data["announce"].ToString() : null;
 
         /// <summary>
         /// The announce URLs contained within the .torrent file
         /// </summary>
-        public BList AnnounceList => !_data.ContainsKey("announce-list") ? null: (BList)_data["announce-list"];
+        public BList AnnounceList => _data.ContainsKey("announce-list") ? (BList) _data["announce-list"] : null;
 
         /// <summary>
         /// The creation date of the .torrent file
@@ -37,17 +37,17 @@ namespace BencodeNET.Objects
         /// <summary>
         /// The comment contained within the .torrent file
         /// </summary>
-        public string Comment => !_data.ContainsKey("comment") ? null : _data["comment"].ToString();
+        public string Comment => _data.ContainsKey("comment") ? _data["comment"].ToString() : null;
 
         /// <summary>
         /// The optional string showing who/what created the .torrent
         /// </summary>
-        public string CreatedBy => !_data.ContainsKey("created by") ? null : _data["created by"].ToString();
+        public string CreatedBy => _data.ContainsKey("created by") ? _data["created by"].ToString() : null;
 
         /// <summary>
         /// The encoding used by the client that created the .torrent file
         /// </summary>
-        public string Encoding => !_data.ContainsKey("encoding") ? null : _data["encoding"].ToString();
+        public string Encoding => _data.ContainsKey("encoding") ? _data["encoding"].ToString() : null;
 
         public string CalculateInfoHash()
         {
@@ -78,10 +78,7 @@ namespace BencodeNET.Objects
             }
         }
 
-        public IBObject this[BString key]
-        {
-            get { return _data[key]; }
-        }
+        public IBObject this[BString key] => _data[key];
 
         public static bool operator ==(TorrentFile first, TorrentFile second)
         {

@@ -24,7 +24,7 @@ namespace BencodeNET.Objects
             set
             {
                 if (value == null)
-                    throw new ArgumentNullException("value", "Encoding may not be set to null");
+                    throw new ArgumentNullException(nameof(value), "Encoding may not be set to null");
                 _encoding = value;
             }
         }
@@ -35,8 +35,8 @@ namespace BencodeNET.Objects
 
         public BString(IEnumerable<byte> bytes, Encoding encoding)
         {
-            if (bytes == null) throw new ArgumentNullException("bytes");
-            if (encoding == null) throw new ArgumentNullException("encoding");
+            if (bytes == null) throw new ArgumentNullException(nameof(bytes));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
             _encoding = encoding;
             Value = bytes as byte[] ?? bytes.ToArray();
@@ -61,8 +61,8 @@ namespace BencodeNET.Objects
         /// <exception cref="ArgumentNullException"></exception>
         public BString(string str, Encoding encoding)
         {
-            if (str == null) throw new ArgumentNullException("str");
-            if (encoding == null) throw new ArgumentNullException("encoding");
+            if (str == null) throw new ArgumentNullException(nameof(str));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
             _encoding = encoding;
             Value = encoding.GetBytes(str);
@@ -100,10 +100,7 @@ namespace BencodeNET.Objects
                 return false;
 
             var bstr = other as BString;
-            if (bstr != null)
-                return Value.SequenceEqual(bstr.Value);
-
-            return false;
+            return bstr != null && Value.SequenceEqual(bstr.Value);
         }
 
         public override int GetHashCode()
