@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 
 namespace BencodeNET.Objects
@@ -15,6 +14,9 @@ namespace BencodeNET.Objects
             get { return (BDictionary) _data["info"]; }
         }
 
+        /// <summary>
+        /// The first announce URL contained within the .torrent file
+        /// </summary>
         public string Announce
         {
             get
@@ -25,6 +27,9 @@ namespace BencodeNET.Objects
             }
         }
 
+        /// <summary>
+        /// The announce URLs contained within the .torrent file
+        /// </summary>
         public BList AnnounceList
         {
             get
@@ -35,16 +40,22 @@ namespace BencodeNET.Objects
             }
         }
 
+        /// <summary>
+        /// The creation date of the .torrent file
+        /// </summary>
         public DateTime CreationDate
         {
             get
             {
-                var unixTime = (BNumber) _data["creation date"];
+                var unixTime = (BNumber) _data["creation date"] ?? 0;
                 var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                 return epoch.AddSeconds(unixTime);
             }
         }
 
+        /// <summary>
+        /// The comment contained within the .torrent file
+        /// </summary>
         public string Comment
         {
             get
@@ -55,6 +66,9 @@ namespace BencodeNET.Objects
             }
         }
 
+        /// <summary>
+        /// The optional string showing who/what created the .torrent
+        /// </summary>
         public string CreatedBy
         {
             get
@@ -65,6 +79,9 @@ namespace BencodeNET.Objects
             }
         }
 
+        /// <summary>
+        /// The encoding used by the client that created the .torrent file
+        /// </summary>
         public string Encoding
         {
             get
