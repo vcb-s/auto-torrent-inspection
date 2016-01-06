@@ -46,6 +46,17 @@ namespace AutoTorrentInspection.Util
             return fileDic;
         }
 
+        private static string GetUTF8String(byte[] buffer)
+        {
+            if (buffer == null) return null;
+            if (buffer.Length <= 3) return Encoding.UTF8.GetString(buffer);
+            if (buffer[0] == 0xef && buffer[1] == 0xbb && buffer[2] == 0xbf)
+            {
+                return new UTF8Encoding(false).GetString(buffer, 3, buffer.Length - 3);
+            }
+            return Encoding.UTF8.GetString(buffer);
+        }
+
         /// <summary>
         /// Determines wether a text file is encoded in UTF by analyzing its context.
         /// </summary>
@@ -79,18 +90,6 @@ namespace AutoTorrentInspection.Util
             }
             return continuationBytes == 0 && !asciiOnly;
         }
-
-        private static string GetUTF8String(byte[] buffer)
-        {
-            if (buffer == null) return null;
-            if (buffer.Length <= 3) return Encoding.UTF8.GetString(buffer);
-            if (buffer[0] == 0xef && buffer[1] == 0xbb && buffer[2] == 0xbf)
-            {
-                return new UTF8Encoding(false).GetString(buffer, 3, buffer.Length - 3);
-            }
-            return Encoding.UTF8.GetString(buffer);
-        }
-
 
         public static bool CueMatchCheck(FileDescription cueFile)
         {
