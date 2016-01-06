@@ -7,12 +7,14 @@ namespace AutoTorrentInspection.Util
 {
     public class FileDescription
     {
-        private string FileName { set; get; }
-        private string Path     { set; get; }
-        private string Ext      { set; get; }
-        private long Length     { set; get; }
-        public bool InValidFile { private set; get; }
-        public bool InValidCue  { private set; get; }
+        private string FileName   {         set; get; }
+        private string Path       {         set; get; }
+        public string FullPath    { private set; get; }
+        public string Ext         { private set; get; }
+        private long Length       {         set; get; }
+        public bool InValidFile   { private set; get; }
+        public bool InValidEncode { private set; get; }
+        public bool InValidCue    { private set; get; }
 
         public static FileDescription CreateWithCheckTorrent(string fileName, string path, string ext, long length)
         {
@@ -33,6 +35,7 @@ namespace AutoTorrentInspection.Util
             {
                 FileName = fileName,
                 Path = path,
+                FullPath = fullPath,
                 Ext = ext,
                 Length = fullPath.Length > 256 ? 0L : new FileInfo(fullPath).Length
             };
@@ -42,7 +45,7 @@ namespace AutoTorrentInspection.Util
             }
             else
             {
-                temp.CheckValidFile(fullPath);
+                temp.CheckValidFile(temp);
             }
             return temp;
         }
@@ -58,15 +61,14 @@ namespace AutoTorrentInspection.Util
                           !AnimePartten.IsMatch(FileName);
         }
 
-        private void CheckValidFile(string fullPath)
+        private void CheckValidFile(FileDescription file)
         {
             InValidFile = !ExceptPartten.IsMatch(Ext.ToLower()) &&
                           !MusicPartten.IsMatch(FileName.ToLower()) &&
                           !AnimePartten.IsMatch(FileName);
-            if (Ext.ToLower() == ".cue")
-            {
-                InValidCue = !ConvertMethod.IsUTF8(fullPath);
-            }
+            if (Ext.ToLower() != ".cue") return;
+            InValidCue = !ConvertMethod.CueMatchCheck(file);
+            InValidEncode = !ConvertMethod.IsUTF8(file.FullPath);
         }
 
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
@@ -76,7 +78,8 @@ namespace AutoTorrentInspection.Util
             var row = new DataGridViewRow();
             row.CreateCells(view, Path, FileName, $"{(double)Length / 1024:F3}KB");
             row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml(InValidFile ? "#FB9966" : "#92AAF3");
-            if (InValidCue) row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#113285");
+            if (InValidCue)    row.DefaultCellStyle.ForeColor = ColorTranslator.FromHtml("#113285");
+            if (InValidEncode) row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#4E4F97");
             return row;
         }
     }

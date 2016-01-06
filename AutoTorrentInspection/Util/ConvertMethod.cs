@@ -2,6 +2,8 @@
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AutoTorrentInspection.Util
 {
@@ -31,11 +33,13 @@ namespace AutoTorrentInspection.Util
             if (fileList.Count == 0) return fileDic;
             foreach (var file in fileList)
             {
-                var slashPosition = file.IndexOf("\\", StringComparison.Ordinal);
-                var category = slashPosition > -1 ? file.Substring(0, slashPosition) : "root";
+                var categorySlashPosition = file.IndexOf("\\", StringComparison.Ordinal);
+                var category = categorySlashPosition > -1 ? file.Substring(0, categorySlashPosition) : "root";
+                var pathSlashPosition = file.LastIndexOf("\\", StringComparison.Ordinal);
+                var relativePath = category == "root" ? "" : file.Substring(0, pathSlashPosition);
                 fileDic.TryAdd(category, new List<FileDescription>());
                 fileDic[category].Add(FileDescription.CreateWithCheckFile(Path.GetFileName(file),
-                                                    category == "root" ? "" : file.Substring(0, slashPosition),
+                                                    relativePath,
                                                     Path.GetExtension(file).ToLower(),
                                                     $"{rawList.Key}\\{file}"));
             }
@@ -75,6 +79,27 @@ namespace AutoTorrentInspection.Util
             }
             return continuationBytes == 0 && !asciiOnly;
         }
+
+        private static string GetUTF8String(byte[] buffer)
+        {
+            if (buffer == null) return null;
+            if (buffer.Length <= 3) return Encoding.UTF8.GetString(buffer);
+            if (buffer[0] == 0xef && buffer[1] == 0xbb && buffer[2] == 0xbf)
+            {
+                return new UTF8Encoding(false).GetString(buffer, 3, buffer.Length - 3);
+            }
+            return Encoding.UTF8.GetString(buffer);
+        }
+
+
+        public static bool CueMatchCheck(FileDescription cueFile)
+        {
+            var cueContext = IsUTF8(cueFile.FullPath) ? GetUTF8String(File.ReadAllBytes(cueFile.FullPath)) : File.ReadAllText(cueFile.FullPath, Encoding.Default);
+            var audioName = Regex.Match(cueContext, "FILE \"(?<fileName>.+)\" WAVE").Groups["fileName"].Value;
+            var audioFile = cueFile.FullPath.Substring(0, cueFile.FullPath.LastIndexOf("\\", StringComparison.Ordinal))+ "\\" + audioName;
+            return File.Exists(audioFile);
+        }
+
 
         /// <summary>
         /// 将指定集合的元素添加到 <see cref= "T:System.Collections.Generic.Queue`1"/> 的结尾处。
