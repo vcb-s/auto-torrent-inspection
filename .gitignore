@@ -1,3 +1,7 @@
 AutoTorrentInspection/bin/
 AutoTorrentInspection/obj/
 .vs/
+AutoTorrentInspection.VC.opendb
+AutoTorrentInspection.sdf
+AutoTorrentInspection.Test/obj/
+AutoTorrentInspection.Test/bin/

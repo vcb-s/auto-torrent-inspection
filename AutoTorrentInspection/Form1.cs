@@ -53,25 +53,25 @@ namespace AutoTorrentInspection
 
         private void LoadFile(string filepath)
         {
+            _torrent = null;
             try
             {
                 if (Directory.Exists(filepath))
                 {
                     _data = ConvertMethod.GetFileList(filepath);
+                    goto Inspection;
                 }
-                else
+                _torrent = new TorrentData(filepath);
+                _data    = _torrent.GetFileList();
+                if (_torrent.IsPrivate)
                 {
-                    _torrent = new TorrentData(filepath);
-                    _data = _torrent.GetFileList();
-                    if (_torrent.IsPrivate)
-                    {
-                        MessageBox.Show(@"This torrent has been set as a private torrent", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
-                    if (_torrent.Comment != null)
-                    {
-                        MessageBox.Show(_torrent.Comment, @"Comment");
-                    }
+                    MessageBox.Show(@"This torrent has been set as a private torrent", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
+                if (!string.IsNullOrEmpty(_torrent.Comment) || !string.IsNullOrEmpty(_torrent.Source))
+                {
+                    MessageBox.Show($"Comment: {_torrent.Comment}{Environment.NewLine}Source: {_torrent.Source}", @"Comment/Source");
+                }
+                Inspection:
                 ThroughInspection();
             }
             catch (Exception ex)
@@ -95,7 +95,7 @@ namespace AutoTorrentInspection
 
         private void Inspection(string category)
         {
-            foreach (var item in _data[category].Where(item => item.InValidFile || cbShowAll.Checked))
+            foreach (var item in _data[category].Where(item => item.InValidFile || item.InValidCue || item.InValidEncode || cbShowAll.Checked))
             {
                 dataGridView1.Rows.Add(item.ToRow(dataGridView1));
             }

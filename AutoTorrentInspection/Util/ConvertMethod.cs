@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AutoTorrentInspection.Util
 {
@@ -26,24 +27,84 @@ namespace AutoTorrentInspection.Util
 
         public static Dictionary<string, List<FileDescription>> GetFileList(string folderPath)
         {
-
             var fileDic = new Dictionary<string, List<FileDescription>>();
             var rawList = EnumerateFolder(folderPath);
             var fileList = rawList.Value.ToList();
             if (fileList.Count == 0) return fileDic;
             foreach (var file in fileList)
             {
-                var slashPosition = file.IndexOf("\\", StringComparison.Ordinal);
-                var category = slashPosition > -1 ? file.Substring(0, slashPosition) : "root";
+                var categorySlashPosition = file.IndexOf("\\", StringComparison.Ordinal);
+                var category = categorySlashPosition > -1 ? file.Substring(0, categorySlashPosition) : "root";
+                var pathSlashPosition = file.LastIndexOf("\\", StringComparison.Ordinal);
+                var relativePath = category == "root" ? "" : file.Substring(0, pathSlashPosition);
                 fileDic.TryAdd(category, new List<FileDescription>());
-                string fullPath = $"{rawList.Key}\\{file}";
-                fileDic[category].Add(FileDescription.CreateWithCheck(Path.GetFileName(file),
-                                                    category == "root" ? "" : file.Substring(0, slashPosition),
+                fileDic[category].Add(FileDescription.CreateWithCheckFile(Path.GetFileName(file),
+                                                    relativePath,
                                                     Path.GetExtension(file).ToLower(),
-                                                    fullPath.Length > 256 ? 0L: new FileInfo(fullPath).Length));
+                                                    $"{rawList.Key}\\{file}"));
             }
             return fileDic;
         }
+
+        private static string GetUTF8String(byte[] buffer)
+        {
+            if (buffer == null) return null;
+            if (buffer.Length <= 3) return Encoding.UTF8.GetString(buffer);
+            if (buffer[0] == 0xef && buffer[1] == 0xbb && buffer[2] == 0xbf)
+            {
+                return new UTF8Encoding(false).GetString(buffer, 3, buffer.Length - 3);
+            }
+            return Encoding.UTF8.GetString(buffer);
+        }
+
+        // 0000 0000-0000 007F - 0xxxxxxx                   (ascii converts to 1 octet!)
+        // 0000 0080-0000 07FF - 110xxxxx 10xxxxxx          ( 2 octet format)
+        // 0000 0800-0000 FFFF - 1110xxxx 10xxxxxx 10xxxxxx ( 3 octet format)
+        /// <summary>
+        /// Determines wether a text file is encoded in UTF by analyzing its context.
+        /// </summary>
+        /// <param name="filePath">The text file to analyze.</param>
+        public static bool IsUTF8(string filePath)
+        {
+            var bytes = File.ReadAllBytes(filePath);
+            if (bytes.Length <= 0) return false;
+            bool asciiOnly = true;
+            int continuationBytes = 0;
+            foreach (var item in bytes)
+            {
+                if ((sbyte)item < 0) asciiOnly = false;
+                if (continuationBytes != 0)
+                {
+                    if ((item & 0xC0) != 0x80u) return false;
+                    --continuationBytes;
+                }
+                else
+                {
+                    if (item < 0x80u) continue;
+                    var temp = item;
+                    do
+                    {
+                        temp <<= 1;
+                        ++continuationBytes;
+                    } while ((sbyte)temp < 0);
+                    --continuationBytes;
+                    if (continuationBytes == 0) return false;
+                }
+            }
+            return continuationBytes == 0 && !asciiOnly;
+        }
+
+
+
+        public static bool CueMatchCheck(FileDescription cueFile)
+        {
+            var cueContext = IsUTF8(cueFile.FullPath) ? GetUTF8String(File.ReadAllBytes(cueFile.FullPath)) : File.ReadAllText(cueFile.FullPath, Encoding.Default);
+            var audioName = Regex.Match(cueContext, "FILE \"(?<fileName>.+)\" WAVE").Groups["fileName"].Value;
+            var audioFile = Path.GetDirectoryName(cueFile.FullPath) + "\\" + audioName;
+            return File.Exists(audioFile);
+        }
+
+
         /// <summary>
         /// 将指定集合的元素添加到 <see cref= "T:System.Collections.Generic.Queue`1"/> 的结尾处。
         /// </summary>

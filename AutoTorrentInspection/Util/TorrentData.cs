@@ -17,22 +17,21 @@ namespace AutoTorrentInspection.Util
             _torrent = Bencode.DecodeTorrentFile(path);
         }
 
-        public bool IsPrivate => _torrent.Info["private"] != null;
-
-        public DateTime CreationDate => _torrent.CreationDate;
-
-        public string Comment => _torrent.Comment;
-
-        public IEnumerable<string> GetAnnounceList()
-        {
-            var announceList = _torrent.AnnounceList;
-            return announceList?.ToList().Select(item => ((BList)item).First().ToString()).ToList() ?? new List<string> { _torrent.Announce };
-        }
-
-        public string TorrentName => _torrent.Info["name"].ToString();
+        public IEnumerable<string> GetAnnounceList() =>
+                _torrent.AnnounceList?.ToList().Select(item => ((BList) item).First().ToString()).ToList() ??
+                new List<string> {_torrent.Announce};
 
         public string CreatedBy => _torrent.CreatedBy;
 
+        public DateTime CreationDate => _torrent.CreationDate;
+
+        public string Comment => _torrent.Comment ?? "";
+
+        public string Source => _torrent.Info.ContainsKey("source") ? _torrent.Info["source"].ToString() : "";
+
+        public string TorrentName => _torrent.Info["name"].ToString();
+
+        public bool IsPrivate => _torrent.Info["private"] != null;
 
         public Dictionary<string, List<FileDescription>> GetFileList()
         {
@@ -43,7 +42,7 @@ namespace AutoTorrentInspection.Util
                 var name    = _torrent.Info["name"].ToString();
                 var fileExt = Path.GetExtension(name).ToLower();
                 var length  = ((BNumber)_torrent.Info["length"]).Value;
-                fileDic.Add("singe", new List<FileDescription> { FileDescription.CreateWithCheck(name, "", fileExt, length) });
+                fileDic.Add("single", new List<FileDescription> { FileDescription.CreateWithCheckTorrent(name, "", fileExt, length) });
                 return fileDic;
             }
             foreach (var bObject in files)
@@ -63,7 +62,7 @@ namespace AutoTorrentInspection.Util
 
                 var fileExt  = Path.GetExtension(name).ToLower();
                 fileDic.TryAdd(category, new List<FileDescription>());
-                fileDic[category].Add(FileDescription.CreateWithCheck(name, path.ToString(), fileExt, length));
+                fileDic[category].Add(FileDescription.CreateWithCheckTorrent(name, path.ToString(), fileExt, length));
             }
             return fileDic;
         }

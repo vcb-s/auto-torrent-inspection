@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 
 namespace BencodeNET.Objects
@@ -10,70 +9,45 @@ namespace BencodeNET.Objects
     {
         private readonly BDictionary _data = new BDictionary();
 
-        public BDictionary Info
-        {
-            get { return (BDictionary) _data["info"]; }
-        }
+        public BDictionary Info => (BDictionary) _data["info"];
 
-        public string Announce
-        {
-            get
-            {
-                if (!_data.ContainsKey("announce"))
-                    return null;
-                return _data["announce"].ToString();
-            }
-        }
+        /// <summary>
+        /// The first announce URL contained within the .torrent file
+        /// </summary>
+        public string Announce => _data.ContainsKey("announce") ? _data["announce"].ToString() : null;
 
-        public BList AnnounceList
-        {
-            get
-            {
-                if (!_data.ContainsKey("announce-list"))
-                    return null;
-                return (BList) _data["announce-list"];
-            }
-        }
+        /// <summary>
+        /// The announce URLs contained within the .torrent file
+        /// </summary>
+        public BList AnnounceList => _data.ContainsKey("announce-list") ? (BList) _data["announce-list"] : null;
 
+        /// <summary>
+        /// The creation date of the .torrent file
+        /// </summary>
         public DateTime CreationDate
         {
             get
             {
-                var unixTime = (BNumber) _data["creation date"];
+                var unixTime = (BNumber) _data["creation date"] ?? 0;
                 var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                 return epoch.AddSeconds(unixTime);
             }
         }
 
-        public string Comment
-        {
-            get
-            {
-                if (!_data.ContainsKey("comment"))
-                    return null;
-                return _data["comment"].ToString();
-            }
-        }
+        /// <summary>
+        /// The comment contained within the .torrent file
+        /// </summary>
+        public string Comment => _data.ContainsKey("comment") ? _data["comment"].ToString() : null;
 
-        public string CreatedBy
-        {
-            get
-            {
-                if (!_data.ContainsKey("created by"))
-                    return null;
-                return _data["created by"].ToString();
-            }
-        }
+        /// <summary>
+        /// The optional string showing who/what created the .torrent
+        /// </summary>
+        public string CreatedBy => _data.ContainsKey("created by") ? _data["created by"].ToString() : null;
 
-        public string Encoding
-        {
-            get
-            {
-                if (!_data.ContainsKey("encoding"))
-                    return null;
-                return _data["encoding"].ToString();
-            }
-        }
+        /// <summary>
+        /// The encoding used by the client that created the .torrent file
+        /// </summary>
+        public string Encoding => _data.ContainsKey("encoding") ? _data["encoding"].ToString() : null;
 
         public string CalculateInfoHash()
         {
@@ -104,10 +78,7 @@ namespace BencodeNET.Objects
             }
         }
 
-        public IBObject this[BString key]
-        {
-            get { return _data[key]; }
-        }
+        public IBObject this[BString key] => _data[key];
 
         public static bool operator ==(TorrentFile first, TorrentFile second)
         {
