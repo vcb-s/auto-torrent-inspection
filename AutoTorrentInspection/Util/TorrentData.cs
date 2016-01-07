@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+
 using System.Linq;
 using System.Text;
 using BencodeNET;
@@ -17,9 +17,7 @@ namespace AutoTorrentInspection.Util
             _torrent = Bencode.DecodeTorrentFile(path);
         }
 
-        public IEnumerable<string> GetAnnounceList() =>
-                _torrent.AnnounceList?.ToList().Select(item => ((BList) item).First().ToString()).ToList() ??
-                new List<string> {_torrent.Announce};
+        public IEnumerable<string> GetAnnounceList() => _torrent.AnnounceList?.ToList().Select(item => ((BList)item).First().ToString()).ToList() ?? new List<string> { _torrent.Announce };
 
         public string CreatedBy => _torrent.CreatedBy;
 
@@ -40,9 +38,8 @@ namespace AutoTorrentInspection.Util
             if (files == null)
             {
                 var name    = _torrent.Info["name"].ToString();
-                var fileExt = Path.GetExtension(name).ToLower();
                 var length  = ((BNumber)_torrent.Info["length"]).Value;
-                fileDic.Add("single", new List<FileDescription> { FileDescription.CreateWithCheckTorrent(name, "", fileExt, length) });
+                fileDic.Add("single", new List<FileDescription> { FileDescription.CreateWithCheckTorrent(name, "", length) });
                 return fileDic;
             }
             foreach (var bObject in files)
@@ -60,9 +57,8 @@ namespace AutoTorrentInspection.Util
                 if (name.IndexOf("_____padding_file_", StringComparison.Ordinal) != -1) continue;
                 //reason: https://www.ptt.cc/bbs/P2PSoftWare/M.1191552305.A.5CE.html
 
-                var fileExt  = Path.GetExtension(name).ToLower();
                 fileDic.TryAdd(category, new List<FileDescription>());
-                fileDic[category].Add(FileDescription.CreateWithCheckTorrent(name, path.ToString(), fileExt, length));
+                fileDic[category].Add(FileDescription.CreateWithCheckTorrent(name, path.ToString(), length));
             }
             return fileDic;
         }

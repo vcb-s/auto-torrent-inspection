@@ -30,7 +30,7 @@ namespace AutoTorrentInspection.Util
             var fileDic = new Dictionary<string, List<FileDescription>>();
             var rawList = EnumerateFolder(folderPath);
             var fileList = rawList.Value.ToList();
-            if (fileList.Count == 0) return fileDic;
+            if (!fileList.Any()) return fileDic;
             foreach (var file in fileList)
             {
                 var categorySlashPosition = file.IndexOf("\\", StringComparison.Ordinal);
@@ -38,10 +38,8 @@ namespace AutoTorrentInspection.Util
                 var pathSlashPosition = file.LastIndexOf("\\", StringComparison.Ordinal);
                 var relativePath = category == "root" ? "" : file.Substring(0, pathSlashPosition);
                 fileDic.TryAdd(category, new List<FileDescription>());
-                fileDic[category].Add(FileDescription.CreateWithCheckFile(Path.GetFileName(file),
-                                                    relativePath,
-                                                    Path.GetExtension(file).ToLower(),
-                                                    $"{rawList.Key}\\{file}"));
+                fileDic[category].Add(
+                    FileDescription.CreateWithCheckFile(Path.GetFileName(file), relativePath, $"{rawList.Key}\\{file}"));
             }
             return fileDic;
         }
@@ -94,8 +92,6 @@ namespace AutoTorrentInspection.Util
             return continuationBytes == 0 && !asciiOnly;
         }
 
-
-
         public static bool CueMatchCheck(FileDescription cueFile)
         {
             var cueContext = IsUTF8(cueFile.FullPath) ? GetUTF8String(File.ReadAllBytes(cueFile.FullPath)) : File.ReadAllText(cueFile.FullPath, Encoding.Default);
@@ -116,6 +112,7 @@ namespace AutoTorrentInspection.Util
                 queue.Enqueue(item);
             }
         }
+
         /// <summary>
         /// 在 <see cref="T:System.Collections.Generic.IDictionary`2"/> 中尝试添加一个带有所提供的键和值的元素。
         /// </summary>

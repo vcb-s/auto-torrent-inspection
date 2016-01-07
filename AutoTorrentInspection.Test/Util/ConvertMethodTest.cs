@@ -34,7 +34,7 @@ namespace AutoTorrentInspection.Test.Util
             var cueFiles = new List<FileDescription>();
             foreach (var file in result.Values)
             {
-                cueFiles.AddRange(file.Where(item => item.Ext.ToLower() == ".cue"));
+                cueFiles.AddRange(file.Where(item => item.Extension.ToLower() == ".cue"));
             }
             foreach (var cue in cueFiles)
             {
