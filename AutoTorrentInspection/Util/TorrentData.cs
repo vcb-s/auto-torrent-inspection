@@ -29,7 +29,14 @@ namespace AutoTorrentInspection.Util
 
         public string TorrentName => _torrent.Info["name"].ToString();
 
-        public bool IsPrivate => _torrent.Info["private"] != null;
+        public bool IsPrivate
+        {
+            get
+            {
+                var pri = _torrent.Info["private"];
+                return pri != null && (BNumber) pri != 0 && (BNumber) pri == 1;
+            }
+        }
 
         public Dictionary<string, List<FileDescription>> GetFileList()
         {

@@ -10,11 +10,23 @@ namespace AutoTorrentInspection.Test.Util
     {
         private TorrentData _torrent;
 
+        private void PrintTorrentInfo()
+        {
+            Console.WriteLine(_torrent.GetAnnounceList().First());
+            Console.WriteLine(_torrent.Comment);
+            Console.WriteLine(_torrent.CreatedBy);
+            Console.WriteLine(_torrent.CreationDate);
+            Console.WriteLine($"IsPrivate: {_torrent.IsPrivate}");
+            Console.WriteLine(_torrent.Source);
+            Console.WriteLine(_torrent.TorrentName);
+        }
+
         [TestMethod()]
         public void TestLoadTorrent1()
         {
             const string torrentPath = @"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Torrent Sample]\Comment.torrent";
             _torrent = new TorrentData(torrentPath);
+            PrintTorrentInfo();
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.dmhy.org/announce?secure=securecode");
             Assert.IsTrue(_torrent.Comment == "Ripped And Scanned By imi415@U2");
             Assert.IsTrue(_torrent.CreatedBy == "uTorrent/3.4.2");
@@ -34,6 +46,7 @@ namespace AutoTorrentInspection.Test.Util
         {
             const string torrentPath = @"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Torrent Sample]\SingleFile.torrent";
             _torrent = new TorrentData(torrentPath);
+            PrintTorrentInfo();
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.dmhy.org/announce?secure=securecode");
             Assert.IsTrue(_torrent.Comment == "");
             Assert.IsTrue(_torrent.CreatedBy == "uTorrent/3220");
@@ -52,11 +65,12 @@ namespace AutoTorrentInspection.Test.Util
         {
             const string torrentPath = @"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Torrent Sample]\Martian.torrent";
             _torrent = new TorrentData(torrentPath);
+            PrintTorrentInfo();
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.hdtime.org/announce.php?passkey=passkey");
             Assert.IsTrue(_torrent.Comment == "");
             Assert.IsTrue(_torrent.CreatedBy == null);
             Assert.IsTrue(_torrent.CreationDate == new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(0));
-            Assert.IsTrue(_torrent.IsPrivate);
+            Assert.IsFalse(_torrent.IsPrivate);
             Assert.IsTrue(_torrent.Source == "[hdtime.org] HDTIME");
             Assert.IsTrue(_torrent.TorrentName == "The Martian 2015 HD-VOD HC x264 AC3-CPG");
             var fileList = _torrent.GetFileList();
@@ -70,6 +84,7 @@ namespace AutoTorrentInspection.Test.Util
         {
             const string torrentPath = @"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Torrent Sample]\USO.torrent";
             _torrent = new TorrentData(torrentPath);
+            PrintTorrentInfo();
             var fileList = _torrent.GetFileList();
             Assert.IsTrue(fileList.Keys.Sum(category => fileList[category].Count(item => item.InValidFile)) == 33);
         }
@@ -79,6 +94,7 @@ namespace AutoTorrentInspection.Test.Util
         {
             const string torrentPath = @"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Torrent Sample]\FZ.torrent";
             _torrent = new TorrentData(torrentPath);
+            PrintTorrentInfo();
             var fileList = _torrent.GetFileList();
             Assert.IsTrue(fileList.Keys.Sum(category => fileList[category].Count(item => item.InValidFile)) == 1);
         }
@@ -88,6 +104,7 @@ namespace AutoTorrentInspection.Test.Util
         {
             const string torrentPath = @"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Torrent Sample]\Padding_file.torrent";
             _torrent = new TorrentData(torrentPath);
+            PrintTorrentInfo();
             var fileList = _torrent.GetFileList();
             Assert.IsTrue(fileList["root"].Count == 12);
         }
