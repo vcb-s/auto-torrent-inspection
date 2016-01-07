@@ -57,6 +57,9 @@ namespace AutoTorrentInspection.Util
             return Encoding.UTF8.GetString(buffer);
         }
 
+        // 0000 0000-0000 007F - 0xxxxxxx                   (ascii converts to 1 octet!)
+        // 0000 0080-0000 07FF - 110xxxxx 10xxxxxx          ( 2 octet format)
+        // 0000 0800-0000 FFFF - 1110xxxx 10xxxxxx 10xxxxxx ( 3 octet format)
         /// <summary>
         /// Determines wether a text file is encoded in UTF by analyzing its context.
         /// </summary>
@@ -91,11 +94,13 @@ namespace AutoTorrentInspection.Util
             return continuationBytes == 0 && !asciiOnly;
         }
 
+
+
         public static bool CueMatchCheck(FileDescription cueFile)
         {
             var cueContext = IsUTF8(cueFile.FullPath) ? GetUTF8String(File.ReadAllBytes(cueFile.FullPath)) : File.ReadAllText(cueFile.FullPath, Encoding.Default);
             var audioName = Regex.Match(cueContext, "FILE \"(?<fileName>.+)\" WAVE").Groups["fileName"].Value;
-            var audioFile = cueFile.FullPath.Substring(0, cueFile.FullPath.LastIndexOf("\\", StringComparison.Ordinal))+ "\\" + audioName;
+            var audioFile = Path.GetDirectoryName(cueFile.FullPath) + "\\" + audioName;
             return File.Exists(audioFile);
         }
 
