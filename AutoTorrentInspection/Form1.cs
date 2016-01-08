@@ -69,7 +69,7 @@ namespace AutoTorrentInspection
                 }
                 if (!string.IsNullOrEmpty(_torrent.Comment) || !string.IsNullOrEmpty(_torrent.Source))
                 {
-                    MessageBox.Show($"Comment: {_torrent.Comment}{Environment.NewLine}Source: {_torrent.Source}", @"Comment/Source");
+                    MessageBox.Show($"Comment: {_torrent.Comment ?? "无可奉告"}{Environment.NewLine}Source: {_torrent.Source}", @"Comment/Source");
                 }
                 Inspection:
                 ThroughInspection();

@@ -12,13 +12,13 @@ namespace AutoTorrentInspection.Test.Util
 
         private void PrintTorrentInfo()
         {
-            Console.WriteLine(_torrent.GetAnnounceList().First());
-            Console.WriteLine(_torrent.Comment);
-            Console.WriteLine(_torrent.CreatedBy);
-            Console.WriteLine(_torrent.CreationDate);
+            Console.WriteLine($"AnnounceURL: {_torrent.GetAnnounceList().First()}");
+            Console.WriteLine($"Comment: {_torrent.Comment}");
+            Console.WriteLine($"CreatedBy: {_torrent.CreatedBy}");
+            Console.WriteLine($"CreationDate: {_torrent.CreationDate}");
             Console.WriteLine($"IsPrivate: {_torrent.IsPrivate}");
-            Console.WriteLine(_torrent.Source);
-            Console.WriteLine(_torrent.TorrentName);
+            Console.WriteLine($"Source: {_torrent.Source}");
+            Console.WriteLine($"TorrentName: {_torrent.TorrentName}");
         }
 
         [TestMethod()]
@@ -48,7 +48,7 @@ namespace AutoTorrentInspection.Test.Util
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.dmhy.org/announce?secure=securecode");
-            Assert.IsTrue(_torrent.Comment == "");
+            Assert.IsTrue(string.IsNullOrEmpty(_torrent.Comment));
             Assert.IsTrue(_torrent.CreatedBy == "uTorrent/3220");
             Assert.IsTrue(_torrent.CreationDate == new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(1414723640));
             Assert.IsTrue(_torrent.IsPrivate);
@@ -67,7 +67,7 @@ namespace AutoTorrentInspection.Test.Util
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.hdtime.org/announce.php?passkey=passkey");
-            Assert.IsTrue(_torrent.Comment == "");
+            Assert.IsTrue(string.IsNullOrEmpty(_torrent.Comment));
             Assert.IsTrue(_torrent.CreatedBy == null);
             Assert.IsTrue(_torrent.CreationDate == new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(0));
             Assert.IsFalse(_torrent.IsPrivate);

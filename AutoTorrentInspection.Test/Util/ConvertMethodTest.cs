@@ -21,6 +21,7 @@ namespace AutoTorrentInspection.Test.Util
         public void GetFileListTest()
         {
             var result = ConvertMethod.GetFileList(@"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Folder Sample]");
+            result.Values.ToList().ForEach(category => category.ForEach(Console.WriteLine));
             Assert.IsTrue(result.Count              == 3);
             Assert.IsTrue(result["root"].Count      == 1);
             Assert.IsTrue(result["[folder1]"].Count == 3);

@@ -23,7 +23,7 @@ namespace AutoTorrentInspection.Util
 
         public DateTime CreationDate => _torrent.CreationDate;
 
-        public string Comment => _torrent.Comment ?? "";
+        public string Comment => _torrent.Comment;
 
         public string Source => _torrent.Info.ContainsKey("source") ? _torrent.Info["source"].ToString() : "";
 
@@ -45,14 +45,14 @@ namespace AutoTorrentInspection.Util
             if (files == null)
             {
                 var name    = _torrent.Info["name"].ToString();
-                var length  = ((BNumber)_torrent.Info["length"]).Value;
+                var length  = ((BNumber) _torrent.Info["length"]).Value;
                 fileDic.Add("single", new List<FileDescription> { FileDescription.CreateWithCheckTorrent(name, "", length) });
                 return fileDic;
             }
             foreach (var bObject in files)
             {
-                var singleFile = (BList)((BDictionary)bObject)["path"];
-                var length     = ((BNumber)((BDictionary)bObject)["length"]).Value;
+                var singleFile = (BList) ((BDictionary) bObject)["path"];
+                var length     = ((BNumber) ((BDictionary) bObject)["length"]).Value;
                 var category   = singleFile.Count != 1 ? singleFile.First().ToString() : "root";
                 var path       = new StringBuilder();
                 for (int i = 0; i < singleFile.Count - 1; i++)
