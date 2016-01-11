@@ -95,9 +95,13 @@ namespace AutoTorrentInspection.Util
         public static bool CueMatchCheck(FileDescription cueFile)
         {
             var cueContext = IsUTF8(cueFile.FullPath) ? GetUTF8String(File.ReadAllBytes(cueFile.FullPath)) : File.ReadAllText(cueFile.FullPath, Encoding.Default);
-            var audioName = Regex.Match(cueContext, "FILE \"(?<fileName>.+)\" WAVE").Groups["fileName"].Value;
-            var audioFile = Path.GetDirectoryName(cueFile.FullPath) + "\\" + audioName;
-            return File.Exists(audioFile);
+            var result = true;
+            foreach (Match audioName in Regex.Matches(cueContext, "FILE \"(?<fileName>.+)\" WAVE"))
+            {
+                var audioFile = Path.GetDirectoryName(cueFile.FullPath) + "\\" + audioName.Groups["fileName"].Value;
+                result &= File.Exists(audioFile);
+            }
+            return result;
         }
 
 
