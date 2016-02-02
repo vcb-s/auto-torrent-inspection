@@ -48,7 +48,7 @@ namespace AutoTorrentInspection
         private void btnAnnounceList_Click(object sender, EventArgs e)
         {
             if (_torrent == null) return;
-            MessageBox.Show(string.Join("\n", _torrent.GetAnnounceList()), @"Tracker List");
+            MessageBox.Show(text: string.Join("\n", _torrent.GetAnnounceList()),caption: @"Tracker List");
         }
 
         private void LoadFile(string filepath)
@@ -65,18 +65,21 @@ namespace AutoTorrentInspection
                 _data    = _torrent.GetFileList();
                 if (_torrent.IsPrivate)
                 {
-                    MessageBox.Show(@"This torrent has been set as a private torrent", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(caption: @"ATI Warning",       text: @"This torrent has been set as a private torrent",
+                                    buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Warning);
                 }
                 if (!string.IsNullOrEmpty(_torrent.Comment) || !string.IsNullOrEmpty(_torrent.Source))
                 {
-                    MessageBox.Show($"Comment: {_torrent.Comment ?? "无可奉告"}{Environment.NewLine}Source: {_torrent.Source}", @"Comment/Source");
+                    MessageBox.Show(caption: @"Comment/Source",
+                                    text:    $"Comment: {_torrent.Comment ?? "无可奉告"}{Environment.NewLine}Source: {_torrent.Source}");
                 }
                 Inspection:
                 ThroughInspection();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Exception Message: \n\n    {ex.Message}", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                MessageBox.Show(caption: @"ATI Warning",       text: $"Exception Message: \n\n    {ex.Message}",
+                                buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Hand);
             }
         }
 

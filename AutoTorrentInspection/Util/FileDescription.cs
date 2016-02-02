@@ -43,7 +43,8 @@ namespace AutoTorrentInspection.Util
                 ReletivePath = reletivePath,
                 FullPath     = fullPath,
                 Extension    = Path.GetExtension(fileName)?.ToLower(),
-                Length       = fullPath.Length > 256 ? -1024*1024L : new FileInfo(fullPath).Length
+                //Length       = fullPath.Length > 256 ? -1024*1024L : new FileInfo(fullPath).Length
+                Length       = ConvertMethod.GetFile(fullPath).Length
             };
             temp.CheckValidFile();
             return temp;
