@@ -18,8 +18,8 @@ namespace AutoTorrentInspection.Util
 
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
 
-        private static readonly Regex AnimePartten = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ (\[.*\d*\])*\[((?<Ma>Ma10p_1080p)|(?<Hi>(Hi10p|Hi444pp)_(1080|720|480)p)|(?<EIGHT>(1080|720)p))\]\[((?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(flac|aac|ac3)\](?<SUB>(\.(sc|tc)|\.(chs|cht))*)\.((?(AVC)(mkv|mka|flac))|(?(HEVC)(mkv|mka|flac)|(?(EIGHT)mp4))|(?(SUB)ass))$");
-        private static readonly Regex MusicPartten = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2)");
+        private static readonly Regex AnimePartten  = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ (\[.*\d*\])*\[((?<Ma>Ma10p_1080p)|(?<Hi>(Hi10p|Hi444pp)_(1080|720|480)p)|(?<EIGHT>(1080|720)p))\]\[((?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(flac|aac|ac3)\](?<SUB>(\.(sc|tc)|\.(chs|cht))*)\.((?(AVC)(mkv|mka|flac))|(?(HEVC)(mkv|mka|flac)|(?(EIGHT)mp4))|(?(SUB)ass))$");
+        private static readonly Regex MusicPartten  = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2)");
         private static readonly Regex ExceptPartten = new Regex(@"\.(rar|7z|zip)");
 
         public static FileDescription CreateWithCheckTorrent(string fileName, string reletivePath, long length)
@@ -43,7 +43,7 @@ namespace AutoTorrentInspection.Util
                 ReletivePath = reletivePath,
                 FullPath     = fullPath,
                 Extension    = Path.GetExtension(fileName)?.ToLower(),
-                Length       = fullPath.Length > 256 ? 0L : new FileInfo(fullPath).Length
+                Length       = fullPath.Length > 256 ? -1024*1024L : new FileInfo(fullPath).Length
             };
             temp.CheckValidFile();
             return temp;
@@ -62,8 +62,9 @@ namespace AutoTorrentInspection.Util
                           !MusicPartten.IsMatch(FileName.ToLower()) &&
                           !AnimePartten.IsMatch(FileName);
             if (Extension != ".cue" || FullPath.Length > 256) return;
-            InValidCue    = !ConvertMethod.CueMatchCheck(this);
             InValidEncode = !ConvertMethod.IsUTF8(FullPath);
+            InValidCue    = !ConvertMethod.CueMatchCheck(this, !InValidEncode);
+
         }
 
         public DataGridViewRow ToRow(DataGridView view)
@@ -71,8 +72,8 @@ namespace AutoTorrentInspection.Util
             var row = new DataGridViewRow();
             row.CreateCells(view, ReletivePath, FileName, $"{(double)Length / 1024:F3}KB");
             row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml(InValidFile ? "#FB9966" : "#92AAF3");
-            if (InValidCue)    row.DefaultCellStyle.ForeColor = ColorTranslator.FromHtml("#113285");
-            if (InValidEncode) row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#4E4F97");
+            if (InValidCue)    row.DefaultCellStyle.ForeColor = ColorTranslator.FromHtml("#FF6538");//orange
+            if (InValidEncode) row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#4E4F97");//blue
             return row;
         }
     }

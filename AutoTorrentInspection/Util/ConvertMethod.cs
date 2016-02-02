@@ -38,8 +38,7 @@ namespace AutoTorrentInspection.Util
                 var pathSlashPosition = file.LastIndexOf("\\", StringComparison.Ordinal);
                 var relativePath = category == "root" ? "" : file.Substring(0, pathSlashPosition);
                 fileDic.TryAdd(category, new List<FileDescription>());
-                fileDic[category].Add(
-                    FileDescription.CreateWithCheckFile(Path.GetFileName(file), relativePath, $"{rawList.Key}\\{file}"));
+                fileDic[category].Add(FileDescription.CreateWithCheckFile(Path.GetFileName(file), relativePath, $"{rawList.Key}\\{file}"));
             }
             return fileDic;
         }
@@ -92,13 +91,14 @@ namespace AutoTorrentInspection.Util
             return continuationBytes == 0 && !asciiOnly;
         }
 
-        public static bool CueMatchCheck(FileDescription cueFile)
+        public static bool CueMatchCheck(FileDescription cueFile, bool utf8)
         {
-            var cueContext = IsUTF8(cueFile.FullPath) ? GetUTF8String(File.ReadAllBytes(cueFile.FullPath)) : File.ReadAllText(cueFile.FullPath, Encoding.Default);
-            var result = true;
+            var cueContext = utf8 ? GetUTF8String(File.ReadAllBytes(cueFile.FullPath)) : File.ReadAllText(cueFile.FullPath, Encoding.Default);
+            var rootPath   = Path.GetDirectoryName(cueFile.FullPath);
+            var result     = true;
             foreach (Match audioName in Regex.Matches(cueContext, "FILE \"(?<fileName>.+)\" WAVE"))
             {
-                var audioFile = Path.GetDirectoryName(cueFile.FullPath) + "\\" + audioName.Groups["fileName"].Value;
+                var audioFile = $"{rootPath}\\{audioName.Groups["fileName"].Value}";
                 result &= File.Exists(audioFile);
             }
             return result;
@@ -111,7 +111,7 @@ namespace AutoTorrentInspection.Util
         /// <param name="queue">用作要添加的目标 <see cref= "T:System.Collections.Generic.Queue`1"/>。</param>  <param name="source">应将其元素添加到 <see cref= "T:System.Collections.Generic.Queue`1"/> 的结尾的集合。</param>
         private static void EnqueueRange<T>(this Queue<T> queue, IEnumerable<T> source)
         {
-            foreach (var item in source)
+            foreach (T item in source)
             {
                 queue.Enqueue(item);
             }

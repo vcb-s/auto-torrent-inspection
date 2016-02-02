@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
+using System.Runtime.Versioning;
 
 namespace BencodeNET.Objects
 {
@@ -132,6 +134,15 @@ namespace BencodeNET.Objects
             Value.RemoveAt(index);
         }
 
+        public void ForEach(Action<IBObject> action)
+        {
+            foreach (IBObject obj in Value)
+            {
+                action(obj);
+            }
+        }
+
         #endregion
+
     }
 }

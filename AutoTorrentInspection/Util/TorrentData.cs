@@ -5,6 +5,7 @@ using System.Text;
 using BencodeNET;
 using BencodeNET.Objects;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace AutoTorrentInspection.Util
 {
@@ -21,7 +22,15 @@ namespace AutoTorrentInspection.Util
 
         public string CreatedBy => _torrent.CreatedBy;
 
-        public DateTime CreationDate => _torrent.CreationDate;
+        public DateTime CreationDate
+        {
+            get
+            {
+                TimeSpan timeZoneOffset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
+                DateTime utcTime = _torrent.CreationDate;
+                return utcTime.Add(timeZoneOffset);
+            }
+        }
 
         public string Comment => _torrent.Comment;
 
@@ -54,13 +63,13 @@ namespace AutoTorrentInspection.Util
                 var singleFile = (BList) ((BDictionary) bObject)["path"];
                 var length     = ((BNumber) ((BDictionary) bObject)["length"]).Value;
                 var category   = singleFile.Count != 1 ? singleFile.First().ToString() : "root";
-                var path       = new StringBuilder();
+                var path = new StringBuilder();
                 for (int i = 0; i < singleFile.Count - 1; i++)
                 {
                     path.Append($"{singleFile[i]}\\");
                 }
+                //var path = singleFile.Aggregate(new StringBuilder(), (current, item) => current.Append($"{item}\\"));
                 var name = singleFile.Last().ToString();
-
                 if (name.IndexOf("_____padding_file_", StringComparison.Ordinal) != -1) continue;
                 //reason: https://www.ptt.cc/bbs/P2PSoftWare/M.1191552305.A.5CE.html
 
