@@ -124,55 +124,45 @@ namespace AutoTorrentInspection.Util
             string[] subpaths = path.Split('\\');
             StringBuilder sbNewPath = new StringBuilder(subpaths[0]);
             // Build longest sub-path that is less than MAX_PATH characters
-            for (int i = 1; i < subpaths.Length; i++)
+            for (int index = 1; index < subpaths.Length; index++)
             {
-                if (sbNewPath.Length + subpaths[i].Length >= MAX_DIR_PATH)
+                if (sbNewPath.Length + subpaths[index].Length >= MAX_DIR_PATH)
                 {
-                    subpaths = subpaths.Skip(i).ToArray();
+                    subpaths = subpaths.Skip(index).ToArray();
                     break;
                 }
-                sbNewPath.Append("\\" + subpaths[i]);
+                sbNewPath.Append("\\" + subpaths[index]);
             }
             DirectoryInfo dir = new DirectoryInfo(sbNewPath.ToString());
             bool foundMatch = dir.Exists;
-            if (foundMatch)
+            if (!foundMatch) return null;// If we didn't find a match, return null;
+
+            // Make sure that all of the subdirectories in our path exist.
+            // Skip the last entry in subpaths, since it is our filename.
+            // If we try to specify the path in dir.GetDirectories(),
+            // We get a max path length error.
+            int i = 0;
+            while (i < subpaths.Length - 1 && foundMatch)
             {
-                // Make sure that all of the subdirectories in our path exist.
-                // Skip the last entry in subpaths, since it is our filename.
-                // If we try to specify the path in dir.GetDirectories(),
-                // We get a max path length error.
-                int i = 0;
-                while (i < subpaths.Length - 1 && foundMatch)
+                foundMatch = false;
+                foreach (DirectoryInfo subDir in dir.GetDirectories())
                 {
-                    foundMatch = false;
-                    foreach (DirectoryInfo subDir in dir.GetDirectories())
+                    if (subDir.Name == subpaths[i])
                     {
-                        if (subDir.Name == subpaths[i])
-                        {
-                            // Move on to the next subDirectory
-                            dir = subDir;
-                            foundMatch = true;
-                            break;
-                        }
-                    }
-                    i++;
-                }
-                if (foundMatch)
-                {
-                    // Now that we've gone through all of the subpaths, see if our file exists.
-                    // Once again, If we try to specify the path in dir.GetFiles(),
-                    // we get a max path length error.
-                    foreach (FileInfo fi in dir.GetFiles())
-                    {
-                        if (fi.Name == subpaths[subpaths.Length - 1])
-                        {
-                            return fi;
-                        }
+                        // Move on to the next subDirectory
+                        dir = subDir;
+                        foundMatch = true;
+                        break;
                     }
                 }
+                i++;
             }
-            // If we didn't find a match, return null;
-            return null;
+            if (!foundMatch) return null;
+
+            // Now that we've gone through all of the subpaths, see if our file exists.
+            // Once again, If we try to specify the path in dir.GetFiles(),
+            // we get a max path length error.
+            return dir.GetFiles().First(item => item.Name == subpaths[subpaths.Length - 1]);
         }
 
 
