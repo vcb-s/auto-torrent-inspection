@@ -70,7 +70,7 @@ namespace AutoTorrentInspection.Util
                 }
                 //var path = singleFile.Aggregate(new StringBuilder(), (current, item) => current.Append($"{item}\\"));
                 var name = singleFile.Last().ToString();
-                if (name.IndexOf("_____padding_file_", StringComparison.Ordinal) != -1) continue;
+                if (name.Contains("_____padding_file_")) continue;
                 //reason: https://www.ptt.cc/bbs/P2PSoftWare/M.1191552305.A.5CE.html
 
                 fileDic.TryAdd(category, new List<FileDescription>());

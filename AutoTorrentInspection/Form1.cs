@@ -48,7 +48,7 @@ namespace AutoTorrentInspection
         private void btnAnnounceList_Click(object sender, EventArgs e)
         {
             if (_torrent == null) return;
-            MessageBox.Show(text: string.Join("\n", _torrent.GetAnnounceList()),caption: @"Tracker List");
+            MessageBox.Show(text: string.Join("\n", _torrent.GetAnnounceList()), caption: @"Tracker List");
         }
 
         private void LoadFile(string filepath)

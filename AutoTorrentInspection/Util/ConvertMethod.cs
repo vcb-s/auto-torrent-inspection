@@ -12,7 +12,7 @@ namespace AutoTorrentInspection.Util
         private static KeyValuePair<string, IEnumerable<string>>  EnumerateFolder(string folderPath)
         {
             Func<string[], IEnumerable<string>> splitFunc =
-                array => array.Select(item => item.Substring(folderPath.Length + 1, item.Length - folderPath.Length - 1));
+                array => array.Select(item => item.Substring(folderPath.Length + 1));
             var fileList = new List<string>(splitFunc(Directory.GetFiles(folderPath)));
             var folderQueue = new Queue<string>();
             folderQueue.EnqueueRange(Directory.GetDirectories(folderPath));
