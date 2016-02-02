@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
@@ -68,10 +70,12 @@ namespace AutoTorrentInspection.Util
 
         }
 
+        private readonly string[] _sizeTail = {"B", "KB", "MB", "GB", "TB", "PB"};
         public DataGridViewRow ToRow(DataGridView view)
         {
             var row = new DataGridViewRow();
-            row.CreateCells(view, ReletivePath, FileName, $"{(double)Length / 1024:F3}KB");
+            var scale = Length == 0 ? 0 : (int) Math.Floor(Math.Log(Length, 1024));
+            row.CreateCells(view, ReletivePath, FileName, $"{Length / Math.Pow(1024, scale):F3}{_sizeTail[scale]}");
             row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml(InValidFile ? "#FB9966" : "#92AAF3");
             if (InValidCue)    row.DefaultCellStyle.ForeColor = ColorTranslator.FromHtml("#FF6538");//orange
             if (InValidEncode) row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#4E4F97");//blue
