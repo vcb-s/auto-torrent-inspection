@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using NChardet;
 
 namespace AutoTorrentInspection.Util
@@ -30,6 +32,7 @@ namespace AutoTorrentInspection.Util
                 {
                     return "";
                 }
+                Debug.WriteLine($"--{Path.GetFileName(filename)}--");
                 stream = File.OpenRead(filename);// response.GetResponseStream();
 
                 byte[] buf = new byte[1024];
@@ -57,20 +60,21 @@ namespace AutoTorrentInspection.Util
 
                 if (isAscii)
                 {
-                    Console.WriteLine("CHARSET = ASCII");
+                    Debug.WriteLine("CHARSET = ASCII");
                     return "ASCII";
-                    //found = true;
                 }
                 else if (cdo.Charset != null)
                 {
-                    Console.WriteLine("CHARSET = {0}", cdo.Charset);
+                    Debug.WriteLine($"CHARSET = {cdo.Charset}");
                     return cdo.Charset;
                 }
 
-                string[] prob = det.getProbableCharsets();
+                var prob = det.getProbableCharsets();
+
+                var probEncode = prob.Aggregate("", (current, item) => current + item + " ");
+                Debug.WriteLine($"Probable Charset = {probEncode}");
                 foreach (string item in prob)
                 {
-                    Console.WriteLine("Probable Charset = " + item);
                     switch (item)
                     {
                         case "Shift_JIS":
@@ -87,9 +91,9 @@ namespace AutoTorrentInspection.Util
             }
         }
     }
-    internal class MyCharsetDetectionObserver : NChardet.ICharsetDetectionObserver
+    internal class MyCharsetDetectionObserver : ICharsetDetectionObserver
     {
-        public string Charset = null;
+        public string Charset;
 
         public void Notify(string charset)
         {

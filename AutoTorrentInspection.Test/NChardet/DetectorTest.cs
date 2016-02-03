@@ -18,8 +18,8 @@ namespace NChardet.Tests
         {
             foreach (var item in Directory.GetFiles(@"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Encode Sample]"))
             {
-                Console.WriteLine($"{Path.GetFileName(item)}: {Environment.NewLine}");
-                EncodingDetector.GetEncoding(item);
+                Console.WriteLine($"{Path.GetFileName(item)}: ");
+                Console.WriteLine(EncodingDetector.GetEncoding(item));
                 Console.WriteLine(@"-----------------------------");
             }
         }
