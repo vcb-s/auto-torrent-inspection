@@ -60,6 +60,13 @@ namespace AutoTorrentInspection.Util
                           !AnimePartten.IsMatch(FileName);
         }
 
+        public void RecheckCueFile(DataGridViewRow row)
+        {
+            InValidCue = !CueCurer.CueMatchCheck(this);
+            if (InValidCue) row.DefaultCellStyle.ForeColor = ColorTranslator.FromHtml("#FF6538");//orange
+            if (InValidEncode) row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#4E4F97");//blue
+        }
+
         private void CheckValidFile()
         {
             InValidFile = !ExceptPartten.IsMatch(Extension) &&
@@ -67,8 +74,11 @@ namespace AutoTorrentInspection.Util
                           !AnimePartten.IsMatch(FileName);
             if (Extension != ".cue" || FullPath.Length > 256) return;
 
-            InValidEncode = !ConvertMethod.IsUTF8(FullPath);
-            InValidCue    = !ConvertMethod.CueMatchCheck(this, !InValidEncode);
+            //InValidEncode = !ConvertMethod.IsUTF8(FullPath);
+            Encode = EncodingDetector.GetEncoding(FullPath);
+            InValidEncode = Encode != "UTF-8";
+
+            InValidCue = !CueCurer.CueMatchCheck(this);
 
         }
 

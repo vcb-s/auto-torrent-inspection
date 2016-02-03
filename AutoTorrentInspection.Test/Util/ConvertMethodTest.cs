@@ -43,7 +43,7 @@ namespace AutoTorrentInspection.Test.Util
             {
                 Console.WriteLine(cue);
 
-                Assert.IsTrue(ConvertMethod.CueMatchCheck(cue, ConvertMethod.IsUTF8(cue.FullPath)));
+                Assert.IsTrue(CueCurer.CueMatchCheck(cue));
             }
         }
     }

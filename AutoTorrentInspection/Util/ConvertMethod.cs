@@ -43,7 +43,7 @@ namespace AutoTorrentInspection.Util
             return fileDic;
         }
 
-        private static string GetUTF8String(byte[] buffer)
+        public static string GetUTF8String(byte[] buffer)
         {
             if (buffer == null) return null;
             if (buffer.Length <= 3) return Encoding.UTF8.GetString(buffer);
@@ -91,18 +91,6 @@ namespace AutoTorrentInspection.Util
             return continuationBytes == 0 && !asciiOnly;
         }
 
-        public static bool CueMatchCheck(FileDescription cueFile, bool utf8)
-        {
-            var cueContext = utf8 ? GetUTF8String(File.ReadAllBytes(cueFile.FullPath)) : File.ReadAllText(cueFile.FullPath, Encoding.Default);
-            var rootPath   = Path.GetDirectoryName(cueFile.FullPath);
-            var result     = true;
-            foreach (Match audioName in Regex.Matches(cueContext, "FILE \"(?<fileName>.+)\" WAVE"))
-            {
-                var audioFile = $"{rootPath}\\{audioName.Groups["fileName"].Value}";
-                result &= File.Exists(audioFile);
-            }
-            return result;
-        }
 
         // Only call GetFileWithLongPath() if the path is too long
         // ... otherwise, new FileInfo() is sufficient
@@ -164,6 +152,7 @@ namespace AutoTorrentInspection.Util
             // we get a max path length error.
             return dir.GetFiles().First(item => item.Name == subpaths[subpaths.Length - 1]);
         }
+
 
 
 

@@ -116,11 +116,20 @@ namespace AutoTorrentInspection
             FileDescription fileInfo = ((dataGridView1.Rows[e.RowIndex].Tag) as FileDescription);
             Debug.Assert(fileInfo != null);
             if (fileInfo.Extension.ToLower() != ".cue") return;
-            if (string.IsNullOrEmpty(fileInfo.Encode))
-            {
-                fileInfo.Encode = EncodingDetector.GetEncoding(fileInfo.FullPath);
-            }
             dataGridView1.Rows[e.RowIndex].Cells[2].Value = fileInfo.Encode;
+            if (fileInfo.InValidCue)
+            {
+                var dResult = MessageBox.Show("该cue内文件名与实际文件不相符, 是否尝试修复?", "来自TC的提示", MessageBoxButtons.OKCancel);
+                if (dResult == DialogResult.OK)
+                {
+                    CueCurer.MakeBackup(fileInfo.FullPath);
+                    var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
+                    var directory = Path.GetDirectoryName(fileInfo.FullPath);
+                    var editedContext = CueCurer.FixFilename(originContext, directory);
+                    EncodingConverter.SaveAsEncoding(editedContext, fileInfo.FullPath, "UTF-8");
+                    fileInfo.RecheckCueFile(dataGridView1.Rows[e.RowIndex]);
+                }
+            }
         }
     }
 }
