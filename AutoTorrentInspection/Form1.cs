@@ -117,12 +117,31 @@ namespace AutoTorrentInspection
             Debug.Assert(fileInfo != null);
             if (fileInfo.Extension.ToLower() != ".cue") return;
             dataGridView1.Rows[e.RowIndex].Cells[2].Value = fileInfo.Encode;
-            if (fileInfo.InValidCue)
+            if (fileInfo.InValidEncode)
             {
-                var dResult = MessageBox.Show("该cue内文件名与实际文件不相符, 是否尝试修复?", "来自TC的提示", MessageBoxButtons.OKCancel);
+                var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.OKCancel,
+                    text: $"该cue编码不是UTF-8, 是否尝试修复?{Environment.NewLine}注: 有概率失败, 此时请检查备份。");
                 if (dResult == DialogResult.OK)
                 {
-                    CueCurer.MakeBackup(fileInfo.FullPath);
+                    if (!File.Exists(fileInfo.FullPath+".bak"))
+                    {
+                        CueCurer.MakeBackup(fileInfo.FullPath);
+                    }
+                    var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
+                    EncodingConverter.SaveAsEncoding(originContext, fileInfo.FullPath, "UTF-8");
+                    fileInfo.RecheckCueFile(dataGridView1.Rows[e.RowIndex]);
+                }
+            }
+            else if (fileInfo.InValidCue)
+            {
+                var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.OKCancel,
+                    text: $"该cue内文件名与实际文件不相符, 是否尝试修复?{Environment.NewLine}注: 非常规编码可能无法正确修复, 此时请检查备份。");
+                if (dResult == DialogResult.OK)
+                {
+                    if (!File.Exists(fileInfo.FullPath + ".bak"))
+                    {
+                        CueCurer.MakeBackup(fileInfo.FullPath);
+                    }
                     var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
                     var directory = Path.GetDirectoryName(fileInfo.FullPath);
                     var editedContext = CueCurer.FixFilename(originContext, directory);
