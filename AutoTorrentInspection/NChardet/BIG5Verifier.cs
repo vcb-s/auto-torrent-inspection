@@ -1,8 +1,5 @@
 ﻿namespace NChardet
 {
-    /// <summary>
-    /// Description of BIG5Verifier.
-    /// </summary>
     public sealed class BIG5Verifier : Verifier
     {
         static int[]  _cclass   ;
@@ -10,10 +7,10 @@
         static int    _stFactor ;
         static string _charset  ;
 
-        public override int[]  cclass()   { return _cclass ;   }
-        public override int[]  states()   { return _states ;   }
-        public override int    stFactor() { return _stFactor ; }
-        public override string charset()  { return _charset ;  }
+        public override int[]  cclass()   => _cclass;
+        public override int[]  states()   => _states;
+        public override int    stFactor() => _stFactor;
+        public override string charset()  => _charset;
 
         public BIG5Verifier()
         {
@@ -56,7 +53,7 @@
             _states[1] = ((  ((  (eError << 4) | eItsMe  ) << 8) | (eItsMe << 4) | eItsMe ) << 16) | ((  (eItsMe << 4) | eItsMe ) << 8) | (eError << 4) | eError ;
             _states[2] = ((  ((  (eStart << 4) | eStart  ) << 8) | (eStart << 4) | eStart ) << 16) | ((  (eStart << 4) | eStart ) << 8) | (eStart << 4) | eError ;
 
-            _charset =  "Big5";
+            _charset  =  "Big5";
             _stFactor =  5;
         }
         public override bool isUCS2() { return  false; }

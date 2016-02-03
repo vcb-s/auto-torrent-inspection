@@ -16,7 +16,7 @@ namespace AutoTorrentInspection.Util
             Stream stream = null;
             try
             {
-                int lang = 1;
+                const int lang = 1;
                 //1.Japanese
                 //2.Chinese
                 //3.Simplified Chinese
@@ -35,16 +35,16 @@ namespace AutoTorrentInspection.Util
                 Debug.WriteLine($"--{Path.GetFileName(filename)}--");
                 stream = File.OpenRead(filename);// response.GetResponseStream();
 
-                byte[] buf = new byte[1024];
                 int len;
-                bool done = false;
+                var buf      = new byte[1024];
+                bool done    = false;
                 bool isAscii = true;
 
                 while ((len = stream.Read(buf, 0, buf.Length)) != 0)
                 {
                     // 探测是否为Ascii编码
                     if (isAscii)
-                        isAscii = det.isAscii(buf, len);
+                        isAscii = Detector.isAscii(buf, len);
 
                     // 如果不是Ascii编码，并且编码未确定，则继续探测
                     if (!isAscii && !done)

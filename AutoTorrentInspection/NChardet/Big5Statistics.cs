@@ -1,8 +1,5 @@
 ﻿namespace NChardet
 {
-    /// <summary>
-    /// Description of Big5Statistics.
-    /// </summary>
     public class Big5Statistics : EUCStatistics
     {
         static float[] _mFirstByteFreq ;
@@ -14,17 +11,17 @@
         static float   _mSecondByteMean;
         static float   _mSecondByteWeight;
 
-        public override float[] mFirstByteFreq() { return _mFirstByteFreq; }
-        public override float   mFirstByteStdDev()  { return _mFirstByteStdDev; }
-        public override float   mFirstByteMean()  { return _mFirstByteMean; }
-        public override float   mFirstByteWeight()  { return _mFirstByteWeight; }
-        public override float[] mSecondByteFreq()  { return _mSecondByteFreq; }
-        public override float   mSecondByteStdDev()  { return _mSecondByteStdDev; }
-        public override float   mSecondByteMean()  { return _mSecondByteMean; }
-        public override float   mSecondByteWeight()  { return _mSecondByteWeight; }
+        public override float[] mFirstByteFreq()    => _mFirstByteFreq;
+        public override float   mFirstByteStdDev()  => _mFirstByteStdDev;
+        public override float   mFirstByteMean()    => _mFirstByteMean;
+        public override float   mFirstByteWeight()  => _mFirstByteWeight;
+        public override float[] mSecondByteFreq()   => _mSecondByteFreq;
+        public override float   mSecondByteStdDev() => _mSecondByteStdDev;
+        public override float   mSecondByteMean()   => _mSecondByteMean;
+        public override float   mSecondByteWeight() => _mSecondByteWeight;
 
-     	public Big5Statistics() {
-         _mFirstByteFreq = new float[] {
+        public Big5Statistics() {
+            _mFirstByteFreq = new[] {
                     0.000000f, // FreqH[a1]
                     0.000000f, // FreqH[a2]
                     0.000000f, // FreqH[a3]
@@ -125,7 +122,7 @@
         _mFirstByteMean   = 0.010638f; // Lead Byte Mean
         _mFirstByteWeight = 0.675261f; // Lead Byte Weight
 
-        _mSecondByteFreq = new float[] {
+        _mSecondByteFreq = new[] {
                      0.020256f, // FreqL[a1]
                      0.003293f, // FreqL[a2]
                      0.045811f, // FreqL[a3]
@@ -224,7 +221,7 @@
 
         _mSecondByteStdDev = 0.009909f; // Trail Byte StdDev
         _mSecondByteMean   = 0.010638f; // Trail Byte Mean
-        _mSecondByteWeight = 0.324739f ;  // Trial Byte Weight
+        _mSecondByteWeight = 0.324739f; // Trial Byte Weight
 
         }
 
