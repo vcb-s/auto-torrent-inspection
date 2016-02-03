@@ -34,14 +34,14 @@
             this.btnRefresh = new System.Windows.Forms.Button();
             this.cbCategory = new System.Windows.Forms.ComboBox();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.ColPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.btnAnnounceList = new System.Windows.Forms.Button();
             this.cbShowAll = new System.Windows.Forms.CheckBox();
             this.cbState = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.ColPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -72,10 +72,10 @@
             // 
             this.cbCategory.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbCategory.FormattingEnabled = true;
-            this.cbCategory.Location = new System.Drawing.Point(12, 136);
+            this.cbCategory.Location = new System.Drawing.Point(13, 136);
             this.cbCategory.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cbCategory.Name = "cbCategory";
-            this.cbCategory.Size = new System.Drawing.Size(87, 25);
+            this.cbCategory.Size = new System.Drawing.Size(85, 25);
             this.cbCategory.TabIndex = 3;
             this.cbCategory.MouseEnter += new System.EventHandler(this.cbCategory_MouseEnter);
             this.cbCategory.MouseLeave += new System.EventHandler(this.cbCategory_MouseLeave);
@@ -106,6 +106,31 @@
             this.dataGridView1.Size = new System.Drawing.Size(467, 431);
             this.dataGridView1.TabIndex = 9;
             this.dataGridView1.TabStop = false;
+            this.dataGridView1.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellDoubleClick);
+            // 
+            // ColPath
+            // 
+            this.ColPath.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ColPath.HeaderText = "路径";
+            this.ColPath.Name = "ColPath";
+            this.ColPath.ReadOnly = true;
+            this.ColPath.Width = 57;
+            // 
+            // ColFileName
+            // 
+            this.ColFileName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ColFileName.HeaderText = "文件名";
+            this.ColFileName.Name = "ColFileName";
+            this.ColFileName.ReadOnly = true;
+            this.ColFileName.Width = 69;
+            // 
+            // ColSize
+            // 
+            this.ColSize.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ColSize.HeaderText = "大小";
+            this.ColSize.Name = "ColSize";
+            this.ColSize.ReadOnly = true;
+            this.ColSize.Width = 57;
             // 
             // openFileDialog1
             // 
@@ -152,30 +177,6 @@
             this.cbState.Text = "状态正常";
             this.cbState.ThreeState = true;
             this.cbState.UseVisualStyleBackColor = true;
-            // 
-            // ColPath
-            // 
-            this.ColPath.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.ColPath.HeaderText = "路径";
-            this.ColPath.Name = "ColPath";
-            this.ColPath.ReadOnly = true;
-            this.ColPath.Width = 57;
-            // 
-            // ColFileName
-            // 
-            this.ColFileName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.ColFileName.HeaderText = "文件名";
-            this.ColFileName.Name = "ColFileName";
-            this.ColFileName.ReadOnly = true;
-            this.ColFileName.Width = 69;
-            // 
-            // ColSize
-            // 
-            this.ColSize.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.ColSize.HeaderText = "大小";
-            this.ColSize.Name = "ColSize";
-            this.ColSize.ReadOnly = true;
-            this.ColSize.Width = 57;
             // 
             // Form1
             // 

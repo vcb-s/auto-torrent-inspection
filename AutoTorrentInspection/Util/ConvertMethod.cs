@@ -12,7 +12,7 @@ namespace AutoTorrentInspection.Util
         private static KeyValuePair<string, IEnumerable<string>>  EnumerateFolder(string folderPath)
         {
             Func<string[], IEnumerable<string>> splitFunc =
-                array => array.Select(item => item.Substring(folderPath.Length + 1, item.Length - folderPath.Length - 1));
+                array => array.Select(item => item.Substring(folderPath.Length + 1));
             var fileList = new List<string>(splitFunc(Directory.GetFiles(folderPath)));
             var folderQueue = new Queue<string>();
             folderQueue.EnqueueRange(Directory.GetDirectories(folderPath));
@@ -30,7 +30,7 @@ namespace AutoTorrentInspection.Util
             var fileDic = new Dictionary<string, List<FileDescription>>();
             var rawList = EnumerateFolder(folderPath);
             var fileList = rawList.Value.ToList();
-            if (fileList.Count == 0) return fileDic;
+            if (!fileList.Any()) return fileDic;
             foreach (var file in fileList)
             {
                 var categorySlashPosition = file.IndexOf("\\", StringComparison.Ordinal);
@@ -38,10 +38,7 @@ namespace AutoTorrentInspection.Util
                 var pathSlashPosition = file.LastIndexOf("\\", StringComparison.Ordinal);
                 var relativePath = category == "root" ? "" : file.Substring(0, pathSlashPosition);
                 fileDic.TryAdd(category, new List<FileDescription>());
-                fileDic[category].Add(FileDescription.CreateWithCheckFile(Path.GetFileName(file),
-                                                    relativePath,
-                                                    Path.GetExtension(file).ToLower(),
-                                                    $"{rawList.Key}\\{file}"));
+                fileDic[category].Add(FileDescription.CreateWithCheckFile(Path.GetFileName(file), relativePath, $"{rawList.Key}\\{file}"));
             }
             return fileDic;
         }
@@ -94,15 +91,80 @@ namespace AutoTorrentInspection.Util
             return continuationBytes == 0 && !asciiOnly;
         }
 
-
-
-        public static bool CueMatchCheck(FileDescription cueFile)
+        public static bool CueMatchCheck(FileDescription cueFile, bool utf8)
         {
-            var cueContext = IsUTF8(cueFile.FullPath) ? GetUTF8String(File.ReadAllBytes(cueFile.FullPath)) : File.ReadAllText(cueFile.FullPath, Encoding.Default);
-            var audioName = Regex.Match(cueContext, "FILE \"(?<fileName>.+)\" WAVE").Groups["fileName"].Value;
-            var audioFile = Path.GetDirectoryName(cueFile.FullPath) + "\\" + audioName;
-            return File.Exists(audioFile);
+            var cueContext = utf8 ? GetUTF8String(File.ReadAllBytes(cueFile.FullPath)) : File.ReadAllText(cueFile.FullPath, Encoding.Default);
+            var rootPath   = Path.GetDirectoryName(cueFile.FullPath);
+            var result     = true;
+            foreach (Match audioName in Regex.Matches(cueContext, "FILE \"(?<fileName>.+)\" WAVE"))
+            {
+                var audioFile = $"{rootPath}\\{audioName.Groups["fileName"].Value}";
+                result &= File.Exists(audioFile);
+            }
+            return result;
         }
+
+        // Only call GetFileWithLongPath() if the path is too long
+        // ... otherwise, new FileInfo() is sufficient
+        //source from http://stackoverflow.com/questions/12204186/error-file-path-is-too-long
+        public static FileInfo GetFile(string path)
+        {
+            if (path.Length >= MAX_FILE_PATH)
+            {
+                return GetFileWithLongPath(path);
+            }
+            return new FileInfo(path);
+        }
+
+        static int MAX_FILE_PATH = 260;
+        static int MAX_DIR_PATH = 248;
+
+        private static FileInfo GetFileWithLongPath(string path)
+        {
+            string[] subpaths = path.Split('\\');
+            StringBuilder sbNewPath = new StringBuilder(subpaths[0]);
+            // Build longest sub-path that is less than MAX_PATH characters
+            for (int index = 1; index < subpaths.Length; index++)
+            {
+                if (sbNewPath.Length + subpaths[index].Length >= MAX_DIR_PATH)
+                {
+                    subpaths = subpaths.Skip(index).ToArray();
+                    break;
+                }
+                sbNewPath.Append("\\" + subpaths[index]);
+            }
+            DirectoryInfo dir = new DirectoryInfo(sbNewPath.ToString());
+            bool foundMatch = dir.Exists;
+            if (!foundMatch) return null;// If we didn't find a match, return null;
+
+            // Make sure that all of the subdirectories in our path exist.
+            // Skip the last entry in subpaths, since it is our filename.
+            // If we try to specify the path in dir.GetDirectories(),
+            // We get a max path length error.
+            int i = 0;
+            while (i < subpaths.Length - 1 && foundMatch)
+            {
+                foundMatch = false;
+                foreach (DirectoryInfo subDir in dir.GetDirectories())
+                {
+                    if (subDir.Name == subpaths[i])
+                    {
+                        // Move on to the next subDirectory
+                        dir = subDir;
+                        foundMatch = true;
+                        break;
+                    }
+                }
+                i++;
+            }
+            if (!foundMatch) return null;
+
+            // Now that we've gone through all of the subpaths, see if our file exists.
+            // Once again, If we try to specify the path in dir.GetFiles(),
+            // we get a max path length error.
+            return dir.GetFiles().First(item => item.Name == subpaths[subpaths.Length - 1]);
+        }
+
 
 
         /// <summary>
@@ -111,11 +173,12 @@ namespace AutoTorrentInspection.Util
         /// <param name="queue">用作要添加的目标 <see cref= "T:System.Collections.Generic.Queue`1"/>。</param>  <param name="source">应将其元素添加到 <see cref= "T:System.Collections.Generic.Queue`1"/> 的结尾的集合。</param>
         private static void EnqueueRange<T>(this Queue<T> queue, IEnumerable<T> source)
         {
-            foreach (var item in source)
+            foreach (T item in source)
             {
                 queue.Enqueue(item);
             }
         }
+
         /// <summary>
         /// 在 <see cref="T:System.Collections.Generic.IDictionary`2"/> 中尝试添加一个带有所提供的键和值的元素。
         /// </summary>
