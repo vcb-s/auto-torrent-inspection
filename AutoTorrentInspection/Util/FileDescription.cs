@@ -17,6 +17,7 @@ namespace AutoTorrentInspection.Util
         public bool InValidFile     { private set; get; }
         public bool InValidEncode   { private set; get; }
         public bool InValidCue      { private set; get; }
+        public string Encode        {         set; get; }
 
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
 
@@ -65,6 +66,7 @@ namespace AutoTorrentInspection.Util
                           !MusicPartten.IsMatch(FileName.ToLower()) &&
                           !AnimePartten.IsMatch(FileName);
             if (Extension != ".cue" || FullPath.Length > 256) return;
+
             InValidEncode = !ConvertMethod.IsUTF8(FullPath);
             InValidCue    = !ConvertMethod.CueMatchCheck(this, !InValidEncode);
 
@@ -73,7 +75,7 @@ namespace AutoTorrentInspection.Util
         private readonly string[] _sizeTail = {"B", "KB", "MB", "GB", "TB", "PB"};
         public DataGridViewRow ToRow(DataGridView view)
         {
-            var row = new DataGridViewRow();
+            var row = new DataGridViewRow {Tag = this};
             var scale = Length == 0 ? 0 : (int) Math.Floor(Math.Log(Length, 1024));
             row.CreateCells(view, ReletivePath, FileName, $"{Length / Math.Pow(1024, scale):F3}{_sizeTail[scale]}");
             row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml(InValidFile ? "#FB9966" : "#92AAF3");

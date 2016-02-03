@@ -14,13 +14,22 @@ namespace AutoTorrentInspection.Util
             Stream stream = null;
             try
             {
-                int lang = 2;//
+                int lang = 1;
+                //1.Japanese
+                //2.Chinese
+                //3.Simplified Chinese
+                //4.Traditional Chinese
+                //5.Korean
+                //6.Dont know(默认)
                 //用指定的语参数实例化Detector
                 Detector det = new Detector(lang);
                 //初始化
                 MyCharsetDetectionObserver cdo = new MyCharsetDetectionObserver();
                 det.Init(cdo);
-
+                if (!File.Exists(filename))
+                {
+                    return "";
+                }
                 stream = File.OpenRead(filename);// response.GetResponseStream();
 
                 byte[] buf = new byte[1024];
@@ -70,7 +79,7 @@ namespace AutoTorrentInspection.Util
                             return item;
                     }
                 }
-                return "";
+                return "UnKonw";
             }
             finally
             {

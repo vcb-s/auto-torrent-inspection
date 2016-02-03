@@ -106,6 +106,7 @@
             this.dataGridView1.Size = new System.Drawing.Size(467, 431);
             this.dataGridView1.TabIndex = 9;
             this.dataGridView1.TabStop = false;
+            this.dataGridView1.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellDoubleClick);
             // 
             // ColPath
             // 

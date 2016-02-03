@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.Diagnostics;
 using AutoTorrentInspection.Util;
 
 namespace AutoTorrentInspection
@@ -108,5 +109,17 @@ namespace AutoTorrentInspection
         private void cbCategory_MouseEnter(object sender, EventArgs e) => toolTip1.Show(cbCategory.Text, cbCategory);
 
         private void cbCategory_MouseLeave(object sender, EventArgs e) => toolTip1.Hide(cbCategory);
+
+        private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            FileDescription fileInfo = ((dataGridView1.Rows[e.RowIndex].Tag) as FileDescription);
+            Debug.Assert(fileInfo != null);
+            if (fileInfo.Extension.ToLower() != ".cue") return;
+            if (string.IsNullOrEmpty(fileInfo?.Encode))
+            {
+                fileInfo.Encode = EncodingDetector.GetEncoding(fileInfo.FullPath);
+            }
+            dataGridView1.Rows[e.RowIndex].Cells[2].Value = fileInfo.Encode;
+        }
     }
 }
