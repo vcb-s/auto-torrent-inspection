@@ -72,17 +72,7 @@ namespace AutoTorrentInspection.Util
 
                 var probEncode = prob.Aggregate("", (current, item) => current + item + " ");
                 Debug.WriteLine($"Probable Charset = {probEncode}");
-                foreach (string item in prob)
-                {
-                    switch (item)
-                    {
-                        case "Shift_JIS":
-                            return item;
-                        case "EUC-JP":
-                            return item;
-                    }
-                }
-                return "GB18030";//to avoid exception while can not determine encode.
+                return prob.First();
             }
             finally
             {
