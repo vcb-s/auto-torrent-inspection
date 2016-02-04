@@ -15,7 +15,8 @@ namespace AutoTorrentInspection.Test.Util
         {
             foreach (var item in Directory.GetFiles(@"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Encode Sample]"))
             {
-                Console.WriteLine($"{Path.GetFileName(item)}: {ConvertMethod.IsUTF8(item)}");
+                string encode = EncodingDetector.GetEncoding(item);
+                Console.WriteLine($"{Path.GetFileName(item)}: {encode == "UTF-8"}");
             }
         }
 

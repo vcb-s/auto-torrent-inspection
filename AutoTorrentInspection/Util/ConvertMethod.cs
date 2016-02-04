@@ -38,7 +38,7 @@ namespace AutoTorrentInspection.Util
                 var pathSlashPosition = file.LastIndexOf("\\", StringComparison.Ordinal);
                 var relativePath = category == "root" ? "" : file.Substring(0, pathSlashPosition);
                 fileDic.TryAdd(category, new List<FileDescription>());
-                fileDic[category].Add(FileDescription.CreateWithCheckFile(Path.GetFileName(file), relativePath, $"{rawList.Key}\\{file}"));
+                fileDic[category].Add(new FileDescription(Path.GetFileName(file), relativePath, $"{rawList.Key}\\{file}"));
             }
             return fileDic;
         }
