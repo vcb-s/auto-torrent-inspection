@@ -42,7 +42,6 @@ namespace AutoTorrentInspection.Test.Util
             foreach (var cue in cueFiles)
             {
                 Console.WriteLine(cue);
-
                 Assert.IsTrue(CueCurer.CueMatchCheck(cue));
             }
         }

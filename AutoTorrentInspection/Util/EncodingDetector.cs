@@ -1,8 +1,7 @@
-using System;
-using System.Diagnostics;
+using NChardet;
 using System.IO;
 using System.Linq;
-using NChardet;
+using System.Diagnostics;
 
 namespace AutoTorrentInspection.Util
 {
@@ -83,7 +82,7 @@ namespace AutoTorrentInspection.Util
                             return item;
                     }
                 }
-                return "UnKonw";
+                return "GB18030";//to avoid exception while can not determine encode.
             }
             finally
             {

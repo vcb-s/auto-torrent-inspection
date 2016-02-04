@@ -8,7 +8,11 @@ namespace AutoTorrentInspection.Util
     public static class CueCurer
     {
         private static readonly Regex _rCuefileName = new Regex(@"FILE\s\""(?<fileName>.*?)\""\sWAVE", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
-
+        /// <summary>
+        /// 检测cue文件内的文件名是否与文件对应
+        /// </summary>
+        /// <param name="cueFile"></param>
+        /// <returns></returns>
         public static bool CueMatchCheck(FileDescription cueFile)
         {
             var cueContext = EncodingConverter.GetStringFrom(cueFile.FullPath, cueFile.Encode);

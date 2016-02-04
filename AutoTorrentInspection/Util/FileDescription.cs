@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Drawing;
+using System.Diagnostics;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 
@@ -17,7 +17,7 @@ namespace AutoTorrentInspection.Util
         public bool InValidFile     { private set; get; }
         public bool InValidEncode   { private set; get; }
         public bool InValidCue      { private set; get; }
-        public string Encode        {         set; get; }
+        public string Encode        { private set; get; }
 
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
 
@@ -62,9 +62,13 @@ namespace AutoTorrentInspection.Util
 
         public void RecheckCueFile(DataGridViewRow row)
         {
+            Debug.WriteLine(@"----ReCheck----");
             InValidCue = !CueCurer.CueMatchCheck(this);
+            Encode = EncodingDetector.GetEncoding(FullPath);
+            InValidEncode = Encode != "UTF-8";
             if (InValidCue) row.DefaultCellStyle.ForeColor = ColorTranslator.FromHtml("#FF6538");//orange
             if (InValidEncode) row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#4E4F97");//blue
+            Debug.WriteLine(@"----ReCheck----");
         }
 
         private void CheckValidFile()

@@ -117,6 +117,7 @@ namespace AutoTorrentInspection
             Debug.Assert(fileInfo != null);
             if (fileInfo.Extension.ToLower() != ".cue") return;
             dataGridView1.Rows[e.RowIndex].Cells[2].Value = fileInfo.Encode;
+            Application.DoEvents();
             if (fileInfo.InValidEncode)
             {
                 var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.OKCancel,
