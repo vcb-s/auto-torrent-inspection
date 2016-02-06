@@ -79,6 +79,43 @@ namespace AutoTorrentInspection.Util
                 stream?.Close();
             }
         }
+
+        // 0000 0000-0000 007F - 0xxxxxxx                   (ascii converts to 1 octet!)
+        // 0000 0080-0000 07FF - 110xxxxx 10xxxxxx          ( 2 octet format)
+        // 0000 0800-0000 FFFF - 1110xxxx 10xxxxxx 10xxxxxx ( 3 octet format)
+        /// <summary>
+        /// Determines wether a text file is encoded in UTF by analyzing its context.
+        /// </summary>
+        /// <param name="filePath">The text file to analyze.</param>
+        public static bool IsUTF8(string filePath)
+        {
+            var bytes = File.ReadAllBytes(filePath);
+            if (bytes.Length <= 0) return false;
+            bool asciiOnly = true;
+            int continuationBytes = 0;
+            foreach (var item in bytes)
+            {
+                if ((sbyte)item < 0) asciiOnly = false;
+                if (continuationBytes != 0)
+                {
+                    if ((item & 0xC0) != 0x80u) return false;
+                    --continuationBytes;
+                }
+                else
+                {
+                    if (item < 0x80u) continue;
+                    var temp = item;
+                    do
+                    {
+                        temp <<= 1;
+                        ++continuationBytes;
+                    } while ((sbyte)temp < 0);
+                    --continuationBytes;
+                    if (continuationBytes == 0) return false;
+                }
+            }
+            return continuationBytes == 0 && !asciiOnly;
+        }
     }
     internal class MyCharsetDetectionObserver : ICharsetDetectionObserver
     {

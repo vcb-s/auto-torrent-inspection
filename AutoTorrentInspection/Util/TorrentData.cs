@@ -1,11 +1,9 @@
 ﻿using System;
-
 using System.Linq;
 using System.Text;
 using BencodeNET;
 using BencodeNET.Objects;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace AutoTorrentInspection.Util
 {

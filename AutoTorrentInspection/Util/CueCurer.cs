@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace AutoTorrentInspection.Util
 {
     public static class CueCurer
     {
-        private static readonly Regex _rCuefileName = new Regex(@"FILE\s\""(?<fileName>.*?)\""\sWAVE", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
+        private static readonly Regex CueFileNameRegex = new Regex(@"FILE\s\""(?<fileName>.*?)\""\sWAVE", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
         /// <summary>
         /// 检测cue文件内的文件名是否与文件对应
         /// </summary>
@@ -18,7 +17,7 @@ namespace AutoTorrentInspection.Util
             var cueContext = EncodingConverter.GetStringFrom(cueFile.FullPath, cueFile.Encode);
             var rootPath = Path.GetDirectoryName(cueFile.FullPath);
             var result = true;
-            foreach (Match audioName in _rCuefileName.Matches(cueContext))
+            foreach (Match audioName in CueFileNameRegex.Matches(cueContext))
             {
                 var audioFile = $"{rootPath}\\{audioName.Groups["fileName"].Value}";
                 result &= File.Exists(audioFile);
@@ -33,7 +32,7 @@ namespace AutoTorrentInspection.Util
         /// <param name="directory">cue文件所在目录</param>
         public static string FixFilename(string original, string directory)
         {
-            string filename = _rCuefileName.Match(original).Groups["fileName"].ToString();
+            string filename = CueFileNameRegex.Match(original).Groups["fileName"].ToString();
             if (!directory.EndsWith("\\"))
             {
                 directory += "\\";
@@ -68,12 +67,12 @@ namespace AutoTorrentInspection.Util
                 ext = ext.TrimStart('.');
             }
             return ext.Equals("flac", StringComparison.CurrentCultureIgnoreCase) ||
-                   ext.Equals("m4a", StringComparison.CurrentCultureIgnoreCase) ||
-                   ext.Equals("tak", StringComparison.CurrentCultureIgnoreCase) ||
-                   ext.Equals("wav", StringComparison.CurrentCultureIgnoreCase) ||
-                   ext.Equals("mp3", StringComparison.CurrentCultureIgnoreCase) ||
-                   ext.Equals("bin", StringComparison.CurrentCultureIgnoreCase) ||
-                   ext.Equals("img", StringComparison.CurrentCultureIgnoreCase);
+                   ext.Equals("m4a",  StringComparison.CurrentCultureIgnoreCase) ||
+                   ext.Equals("tak",  StringComparison.CurrentCultureIgnoreCase) ||
+                   ext.Equals("wav",  StringComparison.CurrentCultureIgnoreCase) ||
+                   ext.Equals("mp3",  StringComparison.CurrentCultureIgnoreCase) ||
+                   ext.Equals("bin",  StringComparison.CurrentCultureIgnoreCase) ||
+                   ext.Equals("img",  StringComparison.CurrentCultureIgnoreCase);
         }
 
         public static void MakeBackup(string filename)

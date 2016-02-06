@@ -13,6 +13,7 @@ namespace AutoTorrentInspection.Util
         /// <param name="buffer">含有CueSheet的区块</param>
         /// <param name="type">音频格式类型</param>
         /// <returns>UTF-8编码的cue</returns>
+        /// <exception cref="T:System.ArgumentException"><paramref name="type"/> 不为 flac 或 tak。</exception>
         private static string GetCueSheet(byte[] buffer, string type)
         {
             type = type.ToLower();
