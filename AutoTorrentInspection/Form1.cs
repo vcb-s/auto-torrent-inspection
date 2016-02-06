@@ -46,10 +46,17 @@ namespace AutoTorrentInspection
             Inspection(cbCategory.Text);
         }
 
+        private const string CurrentTrackList = "http://t.acg.rip:6699/announce\n" +
+                                                "http://208.67.16.113:8000/annonuce\n" +
+                                                "udp://208.67.16.113:8000/annonuce\n" +
+                                                "udp://tracker.openbittorrent.com:80/announce";
+
         private void btnAnnounceList_Click(object sender, EventArgs e)
         {
             if (_torrent == null) return;
-            MessageBox.Show(text: string.Join("\n", _torrent.GetAnnounceList()), caption: @"Tracker List");
+            var combineList = string.Join("\n", _torrent.GetAnnounceList());
+            var currentRuler = combineList == CurrentTrackList;
+            MessageBox.Show(text: combineList, caption: $"Tracker List == {currentRuler}");
         }
 
         private void LoadFile(string filepath)
