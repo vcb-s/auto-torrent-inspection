@@ -131,7 +131,7 @@ namespace AutoTorrentInspection
                     text: $"该cue编码不是UTF-8, 是否尝试修复?{Environment.NewLine}注: 有概率失败, 此时请检查备份。");
                 if (dResult == DialogResult.OK)
                 {
-                    if (!File.Exists(fileInfo.FullPath+".bak"))
+                    if (!File.Exists(fileInfo.FullPath + ".bak"))
                     {
                         CueCurer.MakeBackup(fileInfo.FullPath);
                     }

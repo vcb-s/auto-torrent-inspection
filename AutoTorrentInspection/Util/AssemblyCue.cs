@@ -11,7 +11,7 @@ namespace AutoTorrentInspection.Util
         /// 从含有CueSheet的的区块中读取cue
         /// </summary>
         /// <param name="buffer">含有CueSheet的区块</param>
-        /// <param name="type">音频格式类型</param>
+        /// <param name="type">音频格式类型, 大小写不敏感</param>
         /// <returns>UTF-8编码的cue</returns>
         /// <exception cref="T:System.ArgumentException"><paramref name="type"/> 不为 flac 或 tak。</exception>
         private static string GetCueSheet(byte[] buffer, string type)
@@ -19,7 +19,7 @@ namespace AutoTorrentInspection.Util
             type = type.ToLower();
             if (type != "flac" && type != "tak")
             {
-                throw new ArgumentException(nameof(type));
+                throw new ArgumentException($"Invalid parameter: [{nameof(type)}], which must be 'flac' or 'tak'");
             }
             int length = buffer.Length;
             //查找 Cuesheet 标记,自动机模型,大小写不敏感
@@ -27,7 +27,7 @@ namespace AutoTorrentInspection.Util
             for (int i = 0; i < length; ++i)
             {
                 if ((buffer[i] >= 0x41) && (buffer[i] <= 0x5A))
-                    buffer[i] = (byte)(buffer[i] + 0x20);
+                    buffer[i] += 0x20;
 
                 switch ((char)buffer[i])
                 {
@@ -86,9 +86,11 @@ namespace AutoTorrentInspection.Util
                         state = 0;
                         break;
                 }
-                if (state != controlCount) continue;
-                endPos = i - controlCount; //指向0D 0A后的第一个字符
-                break;
+                if (state == controlCount)
+                {
+                    endPos = i - controlCount; //指向0D 0A后的第一个字符
+                    break;
+                }
             }
             if (beginPos == 0 || endPos <= 1) return string.Empty;
 
@@ -145,8 +147,9 @@ namespace AutoTorrentInspection.Util
             //4个字节的METADATA_BLOCK_HEADER
             do
             {
-                int length;
                 fs.Read(header, 0, 4);
+                //读取BLOCK长度
+                int length = (header[1] << 16) | (header[2] << 8) | header[3];
                 //解析
                 //检查最高位是否为1
                 if ((header[0] & 0x80) == 0x80)
@@ -154,8 +157,6 @@ namespace AutoTorrentInspection.Util
                     //最后一个METADATA_BLOCK
                     if ((header[0] & 0x7F) == 0x04)//是VORBIS_COMMENT
                     {
-                        //读取BLOCK长度
-                        length = header[1] * 0x10000 + header[2] * 0x100 + header[3];
                         buffer = new byte[length];
                         //读取BLOCK DATA
                         fs.Read(buffer, 0, length);
@@ -165,15 +166,11 @@ namespace AutoTorrentInspection.Util
                 //不是最后一个METADATA_BLOCK
                 if ((header[0] & 0x7F) == 0x04)//是VORBIS_COMMENT
                 {
-                    //读取BLOCK长度
-                    length = header[1] * 0x10000 + header[2] * 0x100 + header[3];
                     buffer = new byte[length];
                     //读取BLOCK DATA
                     fs.Read(buffer, 0, length);
                     break;
                 }
-                //读取BLOCK长度
-                length = header[1] * 0x10000 + header[2] * 0x100 + header[3];
                 //移动文件指针
                 fs.Seek(length, SeekOrigin.Current);
             } while (fs.Position <= 1048576L);
