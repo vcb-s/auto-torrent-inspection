@@ -103,7 +103,7 @@
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.dataGridView1.RowTemplate.Height = 23;
-            this.dataGridView1.Size = new System.Drawing.Size(467, 431);
+            this.dataGridView1.Size = new System.Drawing.Size(467, 435);
             this.dataGridView1.TabIndex = 9;
             this.dataGridView1.TabStop = false;
             this.dataGridView1.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellDoubleClick);
@@ -151,7 +151,7 @@
             // 
             this.cbShowAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbShowAll.AutoSize = true;
-            this.cbShowAll.Location = new System.Drawing.Point(16, 423);
+            this.cbShowAll.Location = new System.Drawing.Point(16, 427);
             this.cbShowAll.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cbShowAll.Name = "cbShowAll";
             this.cbShowAll.Size = new System.Drawing.Size(75, 21);
@@ -168,7 +168,7 @@
             this.cbState.Checked = true;
             this.cbState.CheckState = System.Windows.Forms.CheckState.Indeterminate;
             this.cbState.Cursor = System.Windows.Forms.Cursors.Default;
-            this.cbState.Location = new System.Drawing.Point(12, 394);
+            this.cbState.Location = new System.Drawing.Point(12, 398);
             this.cbState.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cbState.Name = "cbState";
             this.cbState.Size = new System.Drawing.Size(75, 21);
@@ -181,9 +181,9 @@
             // Form1
             // 
             this.AllowDrop = true;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(584, 457);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.ClientSize = new System.Drawing.Size(584, 461);
             this.Controls.Add(this.cbState);
             this.Controls.Add(this.cbShowAll);
             this.Controls.Add(this.btnAnnounceList);
@@ -194,6 +194,7 @@
             this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.MinimumSize = new System.Drawing.Size(380, 300);
             this.Name = "Form1";
             this.Text = "Auto Torrent Inspection";
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Form1_DragDrop);
