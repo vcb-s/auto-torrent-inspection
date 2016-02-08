@@ -46,10 +46,17 @@ namespace AutoTorrentInspection
             Inspection(cbCategory.Text);
         }
 
+        private const string CurrentTrackList = "http://t.acg.rip:6699/announce\n" +
+                                                "http://208.67.16.113:8000/annonuce\n" +
+                                                "udp://208.67.16.113:8000/annonuce\n" +
+                                                "udp://tracker.openbittorrent.com:80/announce";
+
         private void btnAnnounceList_Click(object sender, EventArgs e)
         {
             if (_torrent == null) return;
-            MessageBox.Show(text: string.Join("\n", _torrent.GetAnnounceList()), caption: @"Tracker List");
+            var combineList = string.Join("\n", _torrent.GetAnnounceList());
+            var currentRuler = combineList == CurrentTrackList;
+            MessageBox.Show(text: combineList, caption: $"Tracker List == {currentRuler}");
         }
 
         private void LoadFile(string filepath)
@@ -112,15 +119,45 @@ namespace AutoTorrentInspection
 
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
+            Debug.WriteLine(sender);
             if (e.RowIndex < 0) return;
-            FileDescription fileInfo = ((dataGridView1.Rows[e.RowIndex].Tag) as FileDescription);
+            FileDescription fileInfo = dataGridView1.Rows[e.RowIndex].Tag as FileDescription;
             Debug.Assert(fileInfo != null);
             if (fileInfo.Extension.ToLower() != ".cue") return;
-            if (string.IsNullOrEmpty(fileInfo.Encode))
-            {
-                fileInfo.Encode = EncodingDetector.GetEncoding(fileInfo.FullPath);
-            }
             dataGridView1.Rows[e.RowIndex].Cells[2].Value = fileInfo.Encode;
+            Application.DoEvents();
+            if (fileInfo.InValidEncode)
+            {
+                var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.OKCancel,
+                    text: $"该cue编码不是UTF-8, 是否尝试修复?{Environment.NewLine}注: 有概率失败, 此时请检查备份。");
+                if (dResult == DialogResult.OK)
+                {
+                    if (!File.Exists(fileInfo.FullPath + ".bak"))
+                    {
+                        CueCurer.MakeBackup(fileInfo.FullPath);
+                    }
+                    var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
+                    EncodingConverter.SaveAsEncoding(originContext, fileInfo.FullPath, "UTF-8");
+                    fileInfo.RecheckCueFile(dataGridView1.Rows[e.RowIndex]);
+                }
+            }
+            else if (fileInfo.InValidCue)
+            {
+                var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.OKCancel,
+                    text: $"该cue内文件名与实际文件不相符, 是否尝试修复?{Environment.NewLine}注: 非常规编码可能无法正确修复, 此时请检查备份。");
+                if (dResult == DialogResult.OK)
+                {
+                    if (!File.Exists(fileInfo.FullPath + ".bak"))
+                    {
+                        CueCurer.MakeBackup(fileInfo.FullPath);
+                    }
+                    var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
+                    var directory = Path.GetDirectoryName(fileInfo.FullPath);
+                    var editedContext = CueCurer.FixFilename(originContext, directory);
+                    EncodingConverter.SaveAsEncoding(editedContext, fileInfo.FullPath, "UTF-8");
+                    fileInfo.RecheckCueFile(dataGridView1.Rows[e.RowIndex]);
+                }
+            }
         }
     }
 }

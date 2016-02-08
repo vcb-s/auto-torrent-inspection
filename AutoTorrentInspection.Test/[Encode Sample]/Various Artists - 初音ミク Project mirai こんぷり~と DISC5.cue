@@ -1,17 +1,17 @@
-ÔªøREM DISCID 6E0FB018
+REM DISCID 6E0FB018
 REM COMMENT "ExactAudioCopy v1.1"
 CATALOG 4571374912320
 PERFORMER "Various Artists"
-TITLE "ÂàùÈü≥„Éü„ÇØ Project mirai „Åì„Çì„Å∑„Çä~„Å®"
-FILE "Various Artists - ÂàùÈü≥„Éü„ÇØ Project mirai „Åì„Çì„Å∑„Çä~„Å® DISC5.wav" WAVE
+TITLE "≥ı“Ù•ﬂ•Ø Project mirai §≥§Û§◊§Í~§»"
+FILE "Various Artists - ≥ı“Ù•ﬂ•Ø Project mirai §≥§Û§◊§Í~§» DISC5.wav" WAVE
   TRACK 01 AUDIO
     TITLE "MIRAI"
-    PERFORMER "„É©„Éû„Éº„Ç∫Ôº∞"
+    PERFORMER "•È•ﬁ©`•∫£–"
     ISRC JPJ931500131
     INDEX 01 00:00:00
   TRACK 02 AUDIO
     TITLE "DJ"
-    PERFORMER "Èºª„Åù„ÅÜ„ÇÅ„ÇìP"
+    PERFORMER "±«§Ω§¶§·§ÛP"
     ISRC JPJ931500132
     INDEX 00 02:38:30
     INDEX 01 02:40:00
@@ -23,7 +23,7 @@ FILE "Various Artists - ÂàùÈü≥„Éü„ÇØ Project mirai „Åì„Çì„Å∑„Çä~„Å® DISC5.wav" W
     INDEX 01 05:40:00
   TRACK 04 AUDIO
     TITLE "NATURE"
-    PERFORMER "„Åç„Åè„Åä"
+    PERFORMER "§≠§Ø§™"
     ISRC JPJ931500134
     INDEX 00 08:48:30
     INDEX 01 08:50:00
@@ -35,61 +35,61 @@ FILE "Various Artists - ÂàùÈü≥„Éü„ÇØ Project mirai „Åì„Çì„Å∑„Çä~„Å® DISC5.wav" W
     INDEX 01 11:18:00
   TRACK 06 AUDIO
     TITLE "WA"
-    PERFORMER ".„ÅÜ„Åï (WhiteFlame)"
+    PERFORMER ".§¶§µ (WhiteFlame)"
     ISRC JPJ931500136
     INDEX 00 14:15:30
     INDEX 01 14:17:00
   TRACK 07 AUDIO
-    TITLE "„Ç≠„É•„Éº„Éà"
+    TITLE "•≠•Â©`•»"
     PERFORMER "millstones"
     ISRC JPJ931500137
     INDEX 00 16:14:30
     INDEX 01 16:16:00
   TRACK 08 AUDIO
-    TITLE "„Éï„É•„Éº„ÉÅ„É£„Éº"
+    TITLE "•’•Â©`•¡•„©`"
     PERFORMER "tilt-six"
     ISRC JPJ931500138
     INDEX 00 19:31:30
     INDEX 01 19:33:00
   TRACK 09 AUDIO
-    TITLE "„Éä„ÉÅ„É•„Éä„É´"
+    TITLE "• •¡•Â• •Î"
     PERFORMER "effe"
     ISRC JPJ931500139
     INDEX 00 21:58:30
     INDEX 01 22:00:00
   TRACK 10 AUDIO
-    TITLE "„Éü„É§„Éì"
-    PERFORMER "„Å°„ÅàP"
+    TITLE "•ﬂ•‰•”"
+    PERFORMER "§¡§®P"
     ISRC JPJ931500140
     INDEX 00 27:03:30
     INDEX 01 27:05:00
   TRACK 11 AUDIO
-    TITLE "„ÇÜ„ÇÅ„ÇÜ„ÇÅ"
+    TITLE "§Ê§·§Ê§·"
     PERFORMER "kous"
     ISRC JPJ931500141
     INDEX 00 30:44:30
     INDEX 01 30:46:00
   TRACK 12 AUDIO
-    TITLE "„Éö„É≥„Éà„Éè„Ç¶„Çπ"
-    PERFORMER "„Å™„Åç„ÇÉ„ÇÄ„Çä„ÇÉ"
+    TITLE "•⁄•Û•»•œ•¶•π"
+    PERFORMER "§ §≠§„§‡§Í§„"
     ISRC JPJ931500142
     INDEX 00 33:10:30
     INDEX 01 33:12:00
   TRACK 13 AUDIO
-    TITLE "„Ç≥„ÉÜ„Éº„Ç∏"
-    PERFORMER "„ÅÇ„Å§„Åû„ÅÜ„Åè„Çì"
+    TITLE "•≥•∆©`•∏"
+    PERFORMER "§¢§ƒ§æ§¶§Ø§Û"
     ISRC JPJ931500143
     INDEX 00 35:48:30
     INDEX 01 35:50:00
   TRACK 14 AUDIO
     TITLE "Sunday Morning"
-    PERFORMER "„ÅÇ„Åü„Çè„ÇÅ"
+    PERFORMER "§¢§ø§Ô§·"
     ISRC JPJ931500144
     INDEX 00 39:15:30
     INDEX 01 39:17:00
   TRACK 15 AUDIO
     TITLE "Crux"
-    PERFORMER "„Å°„Å∞„Åë„Çì„ÅÑ„Å°"
+    PERFORMER "§¡§–§±§Û§§§¡"
     ISRC JPJ931500145
     INDEX 00 42:16:30
     INDEX 01 42:18:00
@@ -100,8 +100,8 @@ FILE "Various Artists - ÂàùÈü≥„Éü„ÇØ Project mirai „Åì„Çì„Å∑„Çä~„Å® DISC5.wav" W
     INDEX 00 45:27:30
     INDEX 01 45:29:00
   TRACK 17 AUDIO
-    TITLE "„ÇÇ„Åç„ÇÖ„ÇÇ„Åç„ÇÖ"
-    PERFORMER "Á´ãÁßã"
+    TITLE "§‚§≠§Â§‚§≠§Â"
+    PERFORMER "¡¢«Ô"
     ISRC JPJ931500147
     INDEX 00 48:31:30
     INDEX 01 48:33:00
@@ -112,38 +112,38 @@ FILE "Various Artists - ÂàùÈü≥„Éü„ÇØ Project mirai „Åì„Çì„Å∑„Çä~„Å® DISC5.wav" W
     INDEX 00 51:33:30
     INDEX 01 51:35:00
   TRACK 19 AUDIO
-    TITLE "Êú±"
-    PERFORMER "„Åó„ÇÅ„Å∏„Å≥"
+    TITLE "÷Ï"
+    PERFORMER "§∑§·§ÿ§”"
     ISRC JPJ931500149
     INDEX 00 54:29:30
     INDEX 01 54:31:00
   TRACK 20 AUDIO
-    TITLE "„Éê„Ç´„É≥„Çπ"
-    PERFORMER "„Åæ„ÅÜ„ÅÇ„Åç"
+    TITLE "•–•´•Û•π"
+    PERFORMER "§ﬁ§¶§¢§≠"
     ISRC JPJ931500150
     INDEX 00 57:35:30
     INDEX 01 57:37:00
   TRACK 21 AUDIO
-    TITLE "„ÇÜ„ÇÅ„ÇÜ„ÇÅ (GAME Ver.)"
+    TITLE "§Ê§·§Ê§· (GAME Ver.)"
     PERFORMER "DECO*27"
     ISRC JPJ931500151
     INDEX 00 60:30:30
     INDEX 01 60:32:00
   TRACK 22 AUDIO
-    TITLE "„Ç¢„Ç≤„Ç¢„Ç≤„Ç¢„Ç≤„Ç§„É≥ (GAME Ver.)"
+    TITLE "•¢•≤•¢•≤•¢•≤•§•Û (GAME Ver.)"
     PERFORMER "Mitchie M"
     ISRC JPJ931500152
     INDEX 00 62:09:30
     INDEX 01 62:11:00
   TRACK 23 AUDIO
-    TITLE "„ÅØ„Åò„ÇÅ„Åæ„Åó„Å¶Âú∞ÁêÉ‰∫∫„Åï„Çì (GAME Ver.)"
-    PERFORMER "„Éî„Éé„Ç≠„Ç™„Éî„Éº"
+    TITLE "§œ§∏§·§ﬁ§∑§∆µÿ«Ú»À§µ§Û (GAME Ver.)"
+    PERFORMER "•‘•Œ•≠•™•‘©`"
     ISRC JPJ931500153
     INDEX 00 63:41:30
     INDEX 01 63:43:00
   TRACK 24 AUDIO
-    TITLE "„ÅØ„Åò„ÇÅ„Åæ„Åó„Å¶Âú∞ÁêÉ‰∫∫„Åï„Çì (8bit Ver.)"
-    PERFORMER "„Éî„Éé„Ç≠„Ç™„Éî„Éº"
+    TITLE "§œ§∏§·§ﬁ§∑§∆µÿ«Ú»À§µ§Û (8bit Ver.)"
+    PERFORMER "•‘•Œ•≠•™•‘©`"
     ISRC JPJ931500154
     INDEX 00 65:20:30
     INDEX 01 65:22:00

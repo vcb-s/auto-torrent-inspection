@@ -1,31 +1,28 @@
 ﻿namespace NChardet
 {
-    /// <summary>
-    /// Description of EUCKRStatistics.
-    /// </summary>
     public class EUCKRStatistics : EUCStatistics
     {
         static float[] _mFirstByteFreq ;
-         static float   _mFirstByteStdDev;
-         static float   _mFirstByteMean;
-         static float   _mFirstByteWeight;
-         static float[] _mSecondByteFreq;
-         static float   _mSecondByteStdDev;
-         static float   _mSecondByteMean;
-         static float   _mSecondByteWeight;
+        static float   _mFirstByteStdDev;
+        static float   _mFirstByteMean;
+        static float   _mFirstByteWeight;
+        static float[] _mSecondByteFreq;
+        static float   _mSecondByteStdDev;
+        static float   _mSecondByteMean;
+        static float   _mSecondByteWeight;
 
-         public override float[] mFirstByteFreq() { return _mFirstByteFreq; }
-         public override float   mFirstByteStdDev()  { return _mFirstByteStdDev; }
-         public override float   mFirstByteMean()  { return _mFirstByteMean; }
-         public override float   mFirstByteWeight()  { return _mFirstByteWeight; }
-         public override float[] mSecondByteFreq()  { return _mSecondByteFreq; }
-         public override float   mSecondByteStdDev()  { return _mSecondByteStdDev; }
-         public override float   mSecondByteMean()  { return _mSecondByteMean; }
-         public override float   mSecondByteWeight()  { return _mSecondByteWeight; }
+        public override float[] mFirstByteFreq()    => _mFirstByteFreq;
+        public override float   mFirstByteStdDev()  => _mFirstByteStdDev;
+        public override float   mFirstByteMean()    => _mFirstByteMean;
+        public override float   mFirstByteWeight()  => _mFirstByteWeight;
+        public override float[] mSecondByteFreq()   => _mSecondByteFreq;
+        public override float   mSecondByteStdDev() => _mSecondByteStdDev;
+        public override float   mSecondByteMean()   => _mSecondByteMean;
+        public override float   mSecondByteWeight() => _mSecondByteWeight;
 
         public EUCKRStatistics() {
 
-            _mFirstByteFreq = new float[] {
+            _mFirstByteFreq = new [] {
                   0.000000f, // FreqH[a1]
                   0.000000f, // FreqH[a2]
                   0.000000f, // FreqH[a3]
@@ -127,7 +124,7 @@
         _mFirstByteMean   = 0.010638f; // Lead Byte Mean
         _mFirstByteWeight = 0.647437f; // Lead Byte Weight
 
-        _mSecondByteFreq = new float[] {
+        _mSecondByteFreq = new [] {
                   0.016694f, // FreqL[a1]
                   0.000000f, // FreqL[a2]
                   0.012778f, // FreqL[a3]

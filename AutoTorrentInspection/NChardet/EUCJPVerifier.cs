@@ -1,8 +1,5 @@
 ﻿namespace NChardet
 {
-    /// <summary>
-    /// Description of EUCJPVerifier.
-    /// </summary>
     public sealed class EUCJPVerifier : Verifier
     {
         static int[]  _cclass   ;
@@ -10,10 +7,10 @@
         static int    _stFactor ;
         static string _charset  ;
 
-        public override int[]  cclass()   { return _cclass ;   }
-        public override int[]  states()   { return _states ;   }
-        public override int    stFactor() { return _stFactor ; }
-        public override string charset()  { return _charset ;  }
+        public override int[]  cclass()   => _cclass;
+        public override int[]  states()   => _states;
+        public override int    stFactor() => _stFactor;
+        public override string charset()  => _charset;
 
         public EUCJPVerifier()
         {
@@ -52,15 +49,15 @@
             _cclass[31] = ((  ((  (5 << 4) | 0  ) << 8) | (0 << 4) | 0 ) << 16) | ((  (0 << 4) | 0 ) << 8) | (0 << 4) | 0 ;
 
             _states = new int[5] ;
-            _states[0] = ((  ((  (eError << 4) | eError  ) << 8) | (eError << 4) | eStart ) << 16) | ((  (5 << 4) | 3 ) << 8) | (4 << 4) | 3 ;
+            _states[0] = ((  ((  (eError << 4) | eError  ) << 8) | (eError << 4) | eStart ) << 16) | ((  (5      << 4) |      3 ) << 8) | (4      << 4) | 3 ;
             _states[1] = ((  ((  (eItsMe << 4) | eItsMe  ) << 8) | (eItsMe << 4) | eItsMe ) << 16) | ((  (eError << 4) | eError ) << 8) | (eError << 4) | eError ;
             _states[2] = ((  ((  (eError << 4) | eError  ) << 8) | (eError << 4) | eStart ) << 16) | ((  (eError << 4) | eStart ) << 8) | (eItsMe << 4) | eItsMe ;
-            _states[3] = ((  ((  (eError << 4) | 3  ) << 8) | (eError << 4) | eError ) << 16) | ((  (eError << 4) | eStart ) << 8) | (eError << 4) | eError ;
+            _states[3] = ((  ((  (eError << 4) |      3  ) << 8) | (eError << 4) | eError ) << 16) | ((  (eError << 4) | eStart ) << 8) | (eError << 4) | eError ;
             _states[4] = ((  ((  (eStart << 4) | eStart  ) << 8) | (eStart << 4) | eStart ) << 16) | ((  (eError << 4) | eError ) << 8) | (eError << 4) | 3 ;
 
-            _charset =  "EUC-JP";
+            _charset  =  "EUC-JP";
             _stFactor =  6;
         }
-        public override bool isUCS2() { return  false; }
+        public override bool isUCS2() => false;
     }
 }

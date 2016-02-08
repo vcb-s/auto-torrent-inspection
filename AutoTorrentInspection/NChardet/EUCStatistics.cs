@@ -1,8 +1,5 @@
 ﻿namespace NChardet
 {
-    /// <summary>
-    /// Description of EUCStatistics.
-    /// </summary>
     public abstract class EUCStatistics
     {
         public abstract float[] mFirstByteFreq() ;

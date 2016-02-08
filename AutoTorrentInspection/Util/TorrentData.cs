@@ -1,11 +1,9 @@
 ﻿using System;
-
 using System.Linq;
 using System.Text;
 using BencodeNET;
 using BencodeNET.Objects;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace AutoTorrentInspection.Util
 {
@@ -55,7 +53,7 @@ namespace AutoTorrentInspection.Util
             {
                 var name    = _torrent.Info["name"].ToString();
                 var length  = ((BNumber) _torrent.Info["length"]).Value;
-                fileDic.Add("single", new List<FileDescription> { FileDescription.CreateWithCheckTorrent(name, "", length) });
+                fileDic.Add("single", new List<FileDescription> { new FileDescription(name, "", length) });
                 return fileDic;
             }
             foreach (var bObject in files)
@@ -74,7 +72,7 @@ namespace AutoTorrentInspection.Util
                 //reason: https://www.ptt.cc/bbs/P2PSoftWare/M.1191552305.A.5CE.html
 
                 fileDic.TryAdd(category, new List<FileDescription>());
-                fileDic[category].Add(FileDescription.CreateWithCheckTorrent(name, path.ToString(), length));
+                fileDic[category].Add(new FileDescription(name, path.ToString(), length));
             }
             return fileDic;
         }

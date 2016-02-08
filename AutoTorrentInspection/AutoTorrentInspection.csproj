@@ -88,7 +88,10 @@
     <Compile Include="NChardet\UCS2LEVerifier.cs" />
     <Compile Include="NChardet\UTF8Verifier.cs" />
     <Compile Include="NChardet\Verifier.cs" />
+    <Compile Include="Util\AssemblyCue.cs" />
     <Compile Include="Util\ConvertMethod.cs" />
+    <Compile Include="Util\CueCurer.cs" />
+    <Compile Include="Util\EncodingConverter.cs" />
     <Compile Include="Util\EncodingDetector.cs" />
     <Compile Include="Util\FileDescription.cs" />
     <Compile Include="Form1.cs">

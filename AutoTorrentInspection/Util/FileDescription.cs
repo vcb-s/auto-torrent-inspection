@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Drawing;
+using System.Diagnostics;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 
@@ -9,55 +9,71 @@ namespace AutoTorrentInspection.Util
 {
     public class FileDescription
     {
-        private string FileName     {         set; get; }
-        private string ReletivePath {         set; get; }
-        public string FullPath      { private set; get; }
-        public string Extension     { private set; get; }
-        private long Length         {         set; get; }
+        private string FileName     { get; }
+        private string ReletivePath { get; }
+        public string FullPath      { get; }
+        public string Extension     { get; }
+        private long Length         { get; }
         public bool InValidFile     { private set; get; }
         public bool InValidEncode   { private set; get; }
         public bool InValidCue      { private set; get; }
-        public string Encode        {         set; get; }
+        public string Encode        { private set; get; }
 
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
 
         private static readonly Regex AnimePartten  = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ (\[.*\d*\])*\[((?<Ma>Ma10p_1080p)|(?<Hi>(Hi10p|Hi444pp)_(1080|720|480)p)|(?<EIGHT>(1080|720)p))\]\[((?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(flac|aac|ac3)\](?<SUB>(\.(sc|tc)|\.(chs|cht))*)\.((?(AVC)(mkv|mka|flac))|(?(HEVC)(mkv|mka|flac)|(?(EIGHT)mp4))|(?(SUB)ass))$");
-        private static readonly Regex MusicPartten  = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2)");
-        private static readonly Regex ExceptPartten = new Regex(@"\.(rar|7z|zip)");
+        private static readonly Regex MusicPartten  = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2)$", RegexOptions.IgnoreCase);
+        private static readonly Regex ExceptPartten = new Regex(@"\.(rar|7z|zip)$", RegexOptions.IgnoreCase);
 
-        public static FileDescription CreateWithCheckTorrent(string fileName, string reletivePath, long length)
+        private readonly Color INVALID_FILE   = Color.FromArgb(251, 153, 102);
+        private readonly Color VALID_FILE     = Color.FromArgb(146, 170, 243);
+        private readonly Color INVALID_CUE    = Color.FromArgb(255, 101, 056);
+        private readonly Color INVALID_ENCODE = Color.FromArgb(078, 079, 151);
+
+        public FileDescription(string fileName, string reletivePath, long length)//Torrent
         {
-            var temp = new FileDescription
-            {
-                FileName     = fileName,
-                ReletivePath = reletivePath,
-                Extension    = Path.GetExtension(fileName)?.ToLower(),
-                Length       = length
-            };
-            temp.CheckValidTorrent();
-            return temp;
+            FileName     = fileName;
+            ReletivePath = reletivePath;
+            Extension    = Path.GetExtension(fileName)?.ToLower();
+            Length       = length;
+            CheckValidTorrent();
         }
 
-        public static FileDescription CreateWithCheckFile(string fileName, string reletivePath, string fullPath)
+        public FileDescription(string fileName, string reletivePath, string fullPath)//file
         {
-            var temp = new FileDescription
-            {
-                FileName     = fileName,
-                ReletivePath = reletivePath,
-                FullPath     = fullPath,
-                Extension    = Path.GetExtension(fileName)?.ToLower(),
-                //Length       = fullPath.Length > 256 ? -1024*1024L : new FileInfo(fullPath).Length
-                Length       = ConvertMethod.GetFile(fullPath).Length
-            };
-            temp.CheckValidFile();
-            return temp;
+            FileName     = fileName;
+            ReletivePath = reletivePath;
+            FullPath     = fullPath;
+            Extension    = Path.GetExtension(fileName)?.ToLower();
+            //Length       = fullPath.Length > 256 ? -1024*1024L : new FileInfo(fullPath).Length
+            Length       = ConvertMethod.GetFile(fullPath).Length;
+            CheckValidFile();
         }
 
         private void CheckValidTorrent()
         {
             InValidFile = !ExceptPartten.IsMatch(Extension) &&
-                          !MusicPartten.IsMatch(FileName.ToLower()) &&
+                          !MusicPartten.IsMatch(FileName) &&
                           !AnimePartten.IsMatch(FileName);
+        }
+
+        public void RecheckCueFile(DataGridViewRow row)
+        {
+            Debug.WriteLine(@"----ReCheck----");
+            InValidCue = !CueCurer.CueMatchCheck(this);
+            Encode = EncodingDetector.GetEncoding(FullPath);
+            InValidEncode = Encode != "UTF-8";
+            row.Cells[2].Value = Encode;
+            foreach (DataGridViewCell cell in row.Cells)
+            {
+                cell.Style.ForeColor = InValidCue? INVALID_CUE : Color.Black;
+            }
+            foreach (DataGridViewCell cell in row.Cells)
+            {
+                cell.Style.BackColor = InValidEncode ? INVALID_ENCODE: VALID_FILE;
+            }
+            Application.DoEvents();
+            Debug.WriteLine(@"----ReCheck----");
         }
 
         private void CheckValidFile()
@@ -67,8 +83,11 @@ namespace AutoTorrentInspection.Util
                           !AnimePartten.IsMatch(FileName);
             if (Extension != ".cue" || FullPath.Length > 256) return;
 
-            InValidEncode = !ConvertMethod.IsUTF8(FullPath);
-            InValidCue    = !ConvertMethod.CueMatchCheck(this, !InValidEncode);
+            //InValidEncode = !ConvertMethod.IsUTF8(FullPath);
+            Encode = EncodingDetector.GetEncoding(FullPath);
+            InValidEncode = Encode != "UTF-8";
+
+            InValidCue = !CueCurer.CueMatchCheck(this);
 
         }
 
@@ -78,9 +97,9 @@ namespace AutoTorrentInspection.Util
             var row = new DataGridViewRow {Tag = this};
             var scale = Length == 0 ? 0 : (int) Math.Floor(Math.Log(Length, 1024));
             row.CreateCells(view, ReletivePath, FileName, $"{Length / Math.Pow(1024, scale):F3}{_sizeTail[scale]}");
-            row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml(InValidFile ? "#FB9966" : "#92AAF3");
-            if (InValidCue)    row.DefaultCellStyle.ForeColor = ColorTranslator.FromHtml("#FF6538");//orange
-            if (InValidEncode) row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#4E4F97");//blue
+            row.DefaultCellStyle.BackColor = InValidFile ? INVALID_FILE : VALID_FILE;
+            if (InValidCue) row.DefaultCellStyle.ForeColor = INVALID_CUE;
+            if (InValidEncode) row.DefaultCellStyle.BackColor = INVALID_ENCODE;
             return row;
         }
     }

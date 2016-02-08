@@ -1,8 +1,5 @@
 ﻿namespace NChardet
 {
-    /// <summary>
-    /// Description of CP1252Verifier.
-    /// </summary>
     public sealed class CP1252Verifier : Verifier
     {
         static int[]  _cclass   ;
@@ -10,10 +7,10 @@
         static int    _stFactor ;
         static string _charset  ;
 
-        public override int[]  cclass()   { return _cclass ;   }
-        public override int[]  states()   { return _states ;   }
-        public override int    stFactor() { return _stFactor ; }
-        public override string charset()  { return _charset ;  }
+        public override int[]  cclass()   => _cclass;
+        public override int[]  states()   => _states;
+        public override int    stFactor() => _stFactor;
+        public override string charset()  => _charset;
 
         public CP1252Verifier()
         {
@@ -52,14 +49,14 @@
             _cclass[31] = ((  ((  (1 << 4) | 1  ) << 8) | (1 << 4) | 1 ) << 16) | ((  (1 << 4) | 1 ) << 8) | (1 << 4) | 1 ;
 
             _states = new int[3] ;
-            _states[0] = ((  ((  (eItsMe << 4) | eItsMe  ) << 8) | (eError << 4) | eError ) << 16) | ((  (eError << 4) | eStart ) << 8) | (3 << 4) | eError ;
-            _states[1] = ((  ((  (eError << 4) | 4  ) << 8) | (5 << 4) | eError ) << 16) | ((  (eStart << 4) | 4 ) << 8) | (eError << 4) | eItsMe ;
-            _states[2] = ((  ((  (eStart << 4) | eStart  ) << 8) | (eStart << 4) | eStart ) << 16) | ((  (eStart << 4) | eStart ) << 8) | (4 << 4) | eError ;
+            _states[0] = ((  ((  (eItsMe << 4) | eItsMe  ) << 8) | (eError << 4) | eError ) << 16) | ((  (eError << 4) | eStart ) << 8) | (3      << 4) | eError ;
+            _states[1] = ((  ((  (eError << 4) | 4       ) << 8) | (5      << 4) | eError ) << 16) | ((  (eStart << 4) | 4      ) << 8) | (eError << 4) | eItsMe ;
+            _states[2] = ((  ((  (eStart << 4) | eStart  ) << 8) | (eStart << 4) | eStart ) << 16) | ((  (eStart << 4) | eStart ) << 8) | (4      << 4) | eError ;
 
-            _charset =  "windows-1252";
+            _charset  =  "windows-1252";
             _stFactor =  3;
         }
 
-        public override bool isUCS2() { return  false; }
+        public override bool isUCS2() => false;
     }
 }

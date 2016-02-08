@@ -15,7 +15,8 @@ namespace AutoTorrentInspection.Test.Util
         {
             foreach (var item in Directory.GetFiles(@"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Encode Sample]"))
             {
-                Console.WriteLine($"{Path.GetFileName(item)}: {ConvertMethod.IsUTF8(item)}");
+                string encode = EncodingDetector.GetEncoding(item);
+                Console.WriteLine($"{Path.GetFileName(item)}: {encode == "UTF-8"}");
             }
         }
 
@@ -42,8 +43,7 @@ namespace AutoTorrentInspection.Test.Util
             foreach (var cue in cueFiles)
             {
                 Console.WriteLine(cue);
-
-                Assert.IsTrue(ConvertMethod.CueMatchCheck(cue, ConvertMethod.IsUTF8(cue.FullPath)));
+                Assert.IsTrue(CueCurer.CueMatchCheck(cue));
             }
         }
     }

@@ -1,8 +1,5 @@
 ﻿namespace NChardet
 {
-    /// <summary>
-    /// Description of EUCJPStatistics.
-    /// </summary>
     public class EUCJPStatistics : EUCStatistics
     {
         static float[] _mFirstByteFreq ;
@@ -14,18 +11,18 @@
         static float   _mSecondByteMean;
         static float   _mSecondByteWeight;
 
-        public override float[] mFirstByteFreq() { return _mFirstByteFreq; }
-        public override float   mFirstByteStdDev()  { return _mFirstByteStdDev; }
-        public override float   mFirstByteMean()  { return _mFirstByteMean; }
-        public override float   mFirstByteWeight()  { return _mFirstByteWeight; }
-        public override float[] mSecondByteFreq()  { return _mSecondByteFreq; }
-        public override float   mSecondByteStdDev()  { return _mSecondByteStdDev; }
-        public override float   mSecondByteMean()  { return _mSecondByteMean; }
-        public override float   mSecondByteWeight()  { return _mSecondByteWeight; }
+        public override float[] mFirstByteFreq()    => _mFirstByteFreq;
+        public override float   mFirstByteStdDev()  => _mFirstByteStdDev;
+        public override float   mFirstByteMean()    => _mFirstByteMean;
+        public override float   mFirstByteWeight()  => _mFirstByteWeight;
+        public override float[] mSecondByteFreq()   => _mSecondByteFreq;
+        public override float   mSecondByteStdDev() => _mSecondByteStdDev;
+        public override float   mSecondByteMean()   => _mSecondByteMean;
+        public override float   mSecondByteWeight() => _mSecondByteWeight;
 
         public EUCJPStatistics() {
 
-            _mFirstByteFreq = new float[] {
+            _mFirstByteFreq = new[] {
                     0.364808f, // FreqH[a1]
                     0.000000f, // FreqH[a2]
                     0.000000f, // FreqH[a3]
@@ -127,7 +124,7 @@
         _mFirstByteMean = 0.010638f; // Lead Byte Mean
         _mFirstByteWeight = 0.640871f; // Lead Byte Weight
 
-        _mSecondByteFreq = new float[] {
+        _mSecondByteFreq = new [] {
                       0.002473f, // FreqL[a1]
                       0.039134f, // FreqL[a2]
                       0.152745f, // FreqL[a3]
@@ -224,7 +221,7 @@
                       0.007380f  // FreqL[fe]
         };
         _mSecondByteStdDev = 0.028247f; // Trail Byte StdDev
-        _mSecondByteMean = 0.010638f; // Trail Byte Mean
+        _mSecondByteMean   = 0.010638f; // Trail Byte Mean
         _mSecondByteWeight = 0.359129f; // Trial Byte Weight
         }
     }
