@@ -119,8 +119,9 @@ namespace AutoTorrentInspection
 
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
+            Debug.WriteLine(sender);
             if (e.RowIndex < 0) return;
-            FileDescription fileInfo = ((dataGridView1.Rows[e.RowIndex].Tag) as FileDescription);
+            FileDescription fileInfo = dataGridView1.Rows[e.RowIndex].Tag as FileDescription;
             Debug.Assert(fileInfo != null);
             if (fileInfo.Extension.ToLower() != ".cue") return;
             dataGridView1.Rows[e.RowIndex].Cells[2].Value = fileInfo.Encode;
