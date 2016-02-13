@@ -13,7 +13,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void IsUTF8Test()
         {
-            foreach (var item in Directory.GetFiles(@"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Encode Sample]"))
+            foreach (var item in Directory.GetFiles(@"..\..\[Encode Sample]"))
             {
                 string encode = EncodingDetector.GetEncoding(item);
                 Console.WriteLine($"{Path.GetFileName(item)}: {encode == "UTF-8"}");
@@ -23,7 +23,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void GetFileListTest()
         {
-            var result = ConvertMethod.GetFileList(@"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Folder Sample]");
+            var result = ConvertMethod.GetFileList(@"..\..\[Folder Sample]");
             result.Values.ToList().ForEach(category => category.ForEach(Console.WriteLine));
             Assert.IsTrue(result.Count              == 3);
             Assert.IsTrue(result["root"].Count      == 1);
@@ -35,7 +35,7 @@ namespace AutoTorrentInspection.Test.Util
         public void CueMatchCheckTest()
         {
             var cueFiles = new List<FileDescription>();
-            foreach (var folder in ConvertMethod.GetFileList(@"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Match Sample]").Values)
+            foreach (var folder in ConvertMethod.GetFileList(@"..\..\[Match Sample]").Values)
             {
                 cueFiles.AddRange(folder.Where(file => file.Extension.ToLower() == ".cue"));
             }
