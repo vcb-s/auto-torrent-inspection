@@ -118,7 +118,7 @@ namespace AutoTorrentInspection.Util
             if (Encoding.ASCII.GetString(header, 0, 4) != "tBaK")
             {
                 fs.Close();
-                throw new InvalidDataException($"Except an flac but get an {Encoding.ASCII.GetString(header, 0, 4)}");
+                throw new InvalidDataException($"Except a tak but get an {Encoding.ASCII.GetString(header, 0, 4)}");
             }
             fs.Seek(-20480, SeekOrigin.End);
             var buffer = new byte[20480];
