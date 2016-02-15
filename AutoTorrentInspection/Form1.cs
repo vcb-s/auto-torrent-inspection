@@ -46,10 +46,10 @@ namespace AutoTorrentInspection
             Inspection(cbCategory.Text);
         }
 
-        private const string CurrentTrackList = "http://t.acg.rip:6699/announce\n" +
-                                                "http://208.67.16.113:8000/annonuce\n" +
+        private const string CurrentTrackList = "http://208.67.16.113:8000/annonuce\n" +
                                                 "udp://208.67.16.113:8000/annonuce\n" +
-                                                "udp://tracker.openbittorrent.com:80/announce";
+                                                "udp://tracker.openbittorrent.com:80/announce\n"+
+                                                "http://t.acg.rip:6699/announce";
 
         private void btnAnnounceList_Click(object sender, EventArgs e)
         {
