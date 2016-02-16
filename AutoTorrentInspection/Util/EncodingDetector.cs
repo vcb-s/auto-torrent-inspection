@@ -1,7 +1,9 @@
+using System;
 using NChardet;
 using System.IO;
 using System.Linq;
 using System.Diagnostics;
+using Ude;
 
 namespace AutoTorrentInspection.Util
 {
@@ -10,7 +12,7 @@ namespace AutoTorrentInspection.Util
         /// <summary>
         /// 获取文本文件使用的编码
         /// </summary>
-        public static string GetEncoding(string filename)
+        public static string GetEncodingN(string filename)
         {
             Stream stream = null;
             try
@@ -72,13 +74,31 @@ namespace AutoTorrentInspection.Util
 
                 var probEncode = prob.Aggregate("", (current, item) => current + item + " ");
                 Debug.WriteLine($"Probable Charset = {probEncode}");
-                return prob.First();
+                return prob.First() == "nomatch" ? "ASCII" : prob.First();
             }
             finally
             {
                 stream?.Close();
             }
         }
+
+        public static string GetEncodingU(string filename)
+        {
+            using (FileStream fs = File.OpenRead(filename))
+            {
+                Ude.ICharsetDetector cdet = new CharsetDetector();
+                cdet.Feed(fs);
+                cdet.DataEnd();
+                if (cdet.Charset != null)
+                {
+                    Debug.WriteLine($"Charset: {cdet.Charset}, confidence: {cdet.Confidence}");
+                    return cdet.Charset;
+                }
+                Debug.WriteLine(@"Detection failed.");
+                return "UTF-8";
+            }
+        }
+
 
         // 0000 0000-0000 007F - 0xxxxxxx                   (ascii converts to 1 octet!)
         // 0000 0080-0000 07FF - 110xxxxx 10xxxxxx          ( 2 octet format)

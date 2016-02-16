@@ -61,7 +61,9 @@ namespace AutoTorrentInspection.Util
         {
             Debug.WriteLine(@"----ReCheck----");
             InValidCue = !CueCurer.CueMatchCheck(this);
-            Encode = EncodingDetector.GetEncoding(FullPath);
+            //Encode = EncodingDetector.GetEncodingN(FullPath);
+            Encode = EncodingDetector.GetEncodingU(FullPath);
+
             InValidEncode = Encode != "UTF-8";
             row.Cells[2].Value = Encode;
             foreach (DataGridViewCell cell in row.Cells)
@@ -84,7 +86,8 @@ namespace AutoTorrentInspection.Util
             if (Extension != ".cue" || FullPath.Length > 256) return;
 
             //InValidEncode = !ConvertMethod.IsUTF8(FullPath);
-            Encode = EncodingDetector.GetEncoding(FullPath);
+            //Encode = EncodingDetector.GetEncodingN(FullPath);
+            Encode = EncodingDetector.GetEncodingU(FullPath);
             InValidEncode = Encode != "UTF-8";
 
             InValidCue = !CueCurer.CueMatchCheck(this);
