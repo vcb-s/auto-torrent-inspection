@@ -108,7 +108,7 @@ namespace AutoTorrentInspection
         {
             foreach (var item in _data[category].Where(item => item.InValidFile || item.InValidCue || item.InValidEncode || cbShowAll.Checked))
             {
-                dataGridView1.Rows.Add(item.ToRow(dataGridView1));
+                dataGridView1.Rows.Add(item.ToRow());
                 Application.DoEvents();
             }
             cbState.CheckState = dataGridView1.Rows.Count == 0 ? CheckState.Checked : CheckState.Unchecked;

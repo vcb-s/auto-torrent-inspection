@@ -92,11 +92,13 @@ namespace AutoTorrentInspection.Util
         }
 
         private readonly string[] _sizeTail = {"B", "KB", "MB", "GB", "TB", "PB"};
-        public DataGridViewRow ToRow(DataGridView view)
+        public DataGridViewRow ToRow()
         {
             var row = new DataGridViewRow {Tag = this};
             var scale = Length == 0 ? 0 : (int) Math.Floor(Math.Log(Length, 1024));
-            row.CreateCells(view, ReletivePath, FileName, $"{Length / Math.Pow(1024, scale):F3}{_sizeTail[scale]}");
+            row.Cells.Add(new DataGridViewTextBoxCell {Value = ReletivePath});
+            row.Cells.Add(new DataGridViewTextBoxCell {Value = FileName});
+            row.Cells.Add(new DataGridViewTextBoxCell {Value = $"{Length/Math.Pow(1024, scale):F3}{_sizeTail[scale]}"});
             row.DefaultCellStyle.BackColor = InValidFile ? INVALID_FILE : VALID_FILE;
             if (InValidCue) row.DefaultCellStyle.ForeColor = INVALID_CUE;
             if (InValidEncode) row.DefaultCellStyle.BackColor = INVALID_ENCODE;
