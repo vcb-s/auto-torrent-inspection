@@ -106,7 +106,7 @@ namespace AutoTorrentInspection.Util
                 //var path = singleFile.Aggregate(new StringBuilder(), (current, item) => current.Append($"{item}\\"));
                 var name = singleFile.Last().ToString();
                 if (name.Contains("_____padding_file_")) continue;
-                //reason: https://www.ptt.cc/bbs/P2PSoftWare/M.1191552305.A.5CE.html
+                //reason: https://zh.wikipedia.org/zh-hant/BitComet#.E6.96.87.E4.BB.B6.E5.88.86.E5.A1.8A.E5.B0.8D.E9.BD.8A
 
                 fileDic.TryAdd(category, new List<FileDescription>());
                 fileDic[category].Add(new FileDescription(name, path.ToString(), length));
