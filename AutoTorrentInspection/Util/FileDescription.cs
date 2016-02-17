@@ -77,7 +77,7 @@ namespace AutoTorrentInspection.Util
             row.Cells[2].Value = Encode;
             foreach (DataGridViewCell cell in row.Cells)
             {
-                cell.Style.ForeColor = InValidCue? INVALID_CUE : Color.Black;
+                cell.Style.ForeColor = InValidCue ? INVALID_CUE : Color.Black;
             }
             foreach (DataGridViewCell cell in row.Cells)
             {

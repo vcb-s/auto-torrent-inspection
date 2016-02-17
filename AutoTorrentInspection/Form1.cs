@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
 using System.Windows.Forms;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
 using AutoTorrentInspection.Util;
 
 namespace AutoTorrentInspection
@@ -14,9 +13,13 @@ namespace AutoTorrentInspection
         public Form1()
         {
             InitializeComponent();
-            //this.Icon = Icon.ExtractAssociatedIcon(System.Windows.Forms.Application.ExecutablePath);
         }
 
+        private string FilePath
+        {
+            get { return _paths[0]; }
+            set { _paths[0] = value; }
+        }
         private string[] _paths = new string[20];
         private TorrentData _torrent;
         private Dictionary<string, List<FileDescription>> _data;
@@ -29,9 +32,9 @@ namespace AutoTorrentInspection
         private void Form1_DragDrop(object sender, DragEventArgs e)
         {
             _paths = e.Data.GetData(DataFormats.FileDrop) as string[];
-            if (string.IsNullOrEmpty(_paths?[0])) return;
-            if (Path.GetExtension(_paths[0]).ToLower() != ".torrent" && !Directory.Exists(_paths[0])) return;
-            LoadFile(_paths[0]);
+            if (string.IsNullOrEmpty(FilePath)) return;
+            if (Path.GetExtension(FilePath).ToLower() != ".torrent" && !Directory.Exists(FilePath)) return;
+            LoadFile(FilePath);
         }
 
         private void btnLoadFile_Click(object sender, EventArgs e)
@@ -105,7 +108,7 @@ namespace AutoTorrentInspection
             {
                 cbCategory.SelectedIndex = cbCategory.SelectedIndex == -1 ? 0 : cbCategory.SelectedIndex;
             }
-            Text = $"Auto Torrent Inspection - {(_torrent != null?_torrent.TorrentName : _paths[0])} - By [{_torrent?.CreatedBy ?? "folder"}] - {_torrent?.CreationDate}";
+            Text = $"Auto Torrent Inspection - {(_torrent != null?_torrent.TorrentName : FilePath)} - By [{_torrent?.CreatedBy ?? "folder"}] - {_torrent?.CreationDate}";
         }
 
         private void Inspection(string category)

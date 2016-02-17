@@ -81,7 +81,7 @@ namespace Ude
 
         public void Feed(Stream stream)
         {
-            byte[] buff = new byte[1024];
+            var buff = new byte[1024];
             int read;
             while ((read = stream.Read(buff, 0, buff.Length)) > 0 && !done)
             {
