@@ -142,6 +142,7 @@
             // 
             // btnAnnounceList
             // 
+            this.btnAnnounceList.Enabled = false;
             this.btnAnnounceList.Location = new System.Drawing.Point(12, 95);
             this.btnAnnounceList.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnAnnounceList.Name = "btnAnnounceList";
