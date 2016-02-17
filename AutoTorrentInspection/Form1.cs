@@ -178,7 +178,7 @@ namespace AutoTorrentInspection
         private void OpenFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(_filePosition)) return;
-            Process.Start("Explorer.exe", "/select," + _filePosition);
+            Process.Start("Explorer.exe", "/select," + $"\"{_filePosition}\"");
             _filePosition = string.Empty;
         }
     }
