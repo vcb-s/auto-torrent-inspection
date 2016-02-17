@@ -36,8 +36,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-using System;
-
 /// <summary>
 /// Escaped charsets state machines
 /// </summary>
@@ -45,7 +43,7 @@ namespace Ude.Core
 {
     public class HZSMModel : SMModel
     {
-        private readonly static int[] HZ_cls = {
+        private static readonly int[] HZ_cls = {
             BitPackage.Pack4bits(1,0,0,0,0,0,0,0),  // 00 - 07
             BitPackage.Pack4bits(0,0,0,0,0,0,0,0),  // 08 - 0f
             BitPackage.Pack4bits(0,0,0,0,0,0,0,0),  // 10 - 17

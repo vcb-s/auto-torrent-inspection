@@ -36,8 +36,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-using System;
-
 namespace Ude.Core
 {
     /// <summary>
@@ -68,11 +66,10 @@ namespace Ude.Core
 
         public override ProbingState HandleData(byte[] buf, int offset, int len)
         {
-            int codingState;
             int max = offset + len;
 
             for (int i = offset; i < max; i++) {
-                codingState = codingSM.NextState(buf[i]);
+                var codingState = codingSM.NextState(buf[i]);
                 if (codingState == SMModel.ERROR) {
                     state = ProbingState.NotMe;
                     break;

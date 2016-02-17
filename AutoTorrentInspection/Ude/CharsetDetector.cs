@@ -36,9 +36,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-using System;
 using System.IO;
-
 using Ude.Core;
 
 namespace Ude
@@ -71,10 +69,9 @@ namespace Ude
     /// </summary>
     public class CharsetDetector : UniversalDetector, ICharsetDetector
     {
-        private string charset;
+        public string Charset { get; private set; }
 
-        private float confidence;
-
+        public float Confidence { get; private set; }
         //public event DetectorFinished Finished;
 
         public CharsetDetector() : base(FILTER_ALL)
@@ -99,23 +96,15 @@ namespace Ude
 
         public override void Reset()
         {
-            this.charset = null;
-            this.confidence = 0.0f;
+            Charset = null;
+            Confidence = 0.0f;
             base.Reset();
-        }
-
-        public string Charset {
-            get { return charset; }
-        }
-
-        public float Confidence {
-            get { return confidence; }
         }
 
         protected override void Report(string charset, float confidence)
         {
-            this.charset = charset;
-            this.confidence = confidence;
+            Charset = charset;
+            Confidence = confidence;
 //            if (Finished != null) {
 //                Finished(charset, confidence);
 //            }

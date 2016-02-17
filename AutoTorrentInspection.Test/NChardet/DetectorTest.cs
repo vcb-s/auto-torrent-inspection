@@ -28,7 +28,6 @@ namespace NChardet.Tests
             {
                 Console.WriteLine($"{Path.GetFileName(item)}: ");
                 Console.WriteLine(EncodingDetector.GetEncodingN(item));
-                Console.WriteLine(@"-----------------------------");
             }
         }
 

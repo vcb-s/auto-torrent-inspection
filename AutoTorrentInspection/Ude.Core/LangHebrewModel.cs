@@ -36,8 +36,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-using System;
-
 namespace Ude.Core
 {
     public abstract class HebrewModel : SequenceModel
@@ -48,7 +46,7 @@ namespace Ude.Core
         //first 1024 sequences: 1.5981%
         //rest  sequences:      0.087%
         //negative sequences:   0.0015%
-        private readonly static byte[] HEBREW_LANG_MODEL = {
+        private static readonly byte[] HEBREW_LANG_MODEL = {
             0,3,3,3,3,3,3,3,3,3,3,2,3,3,3,3,3,3,3,3,3,3,3,2,3,2,1,2,0,1,0,0,
             3,0,3,1,0,0,1,3,2,0,1,1,2,0,2,2,2,1,1,1,1,2,1,1,1,2,0,0,2,2,0,1,
             3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,
@@ -195,10 +193,10 @@ namespace Ude.Core
         */
         //Windows-1255 language model
         //Character Mapping Table:
-        private readonly static byte[] WIN1255_CHAR_TO_ORDER_MAP = {
+        private static readonly byte[] WIN1255_CHAR_TO_ORDER_MAP = {
             255,255,255,255,255,255,255,255,255,255,254,255,255,254,255,255,  //00
             255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,  //10
-            +253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,  //20
+            253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,  //20
             252,252,252,252,252,252,252,252,252,252,253,253,253,253,253,253,  //30
             253, 69, 91, 79, 80, 92, 89, 97, 90, 68,111,112, 82, 73, 95, 85,  //40
              78,121, 86, 71, 67,102,107, 84,114,103,115,253,253,253,253,253,  //50

@@ -46,7 +46,7 @@ namespace Ude.Core
     public class MBCSGroupProber : CharsetProber
     {
         private const int PROBERS_NUM = 7;
-        private readonly static string[] ProberName =
+        private static readonly string[] ProberName =
             { "UTF8", "SJIS", "EUCJP", "GB18030", "EUCKR", "Big5", "EUCTW" };
         private CharsetProber[] probers = new CharsetProber[PROBERS_NUM];
         private bool[] isActive = new bool[PROBERS_NUM];
@@ -113,17 +113,16 @@ namespace Ude.Core
                 }
             }
 
-            ProbingState st = ProbingState.NotMe;
-
             for (int i = 0; i < probers.Length; i++) {
                 if (!isActive[i])
                     continue;
-                st = probers[i].HandleData(highbyteBuf, 0, hptr);
+                var st = probers[i].HandleData(highbyteBuf, 0, hptr);
                 if (st == ProbingState.FoundIt) {
                     bestGuess = i;
                     state = ProbingState.FoundIt;
                     break;
-                } else if (st == ProbingState.NotMe) {
+                }
+                if (st == ProbingState.NotMe) {
                     isActive[i] = false;
                     activeNum--;
                     if (activeNum <= 0) {
@@ -138,7 +137,6 @@ namespace Ude.Core
         public override float GetConfidence()
         {
             float bestConf = 0.0f;
-            float cf = 0.0f;
 
             if (state == ProbingState.FoundIt) {
                 return 0.99f;
@@ -148,7 +146,7 @@ namespace Ude.Core
                 for (int i = 0; i < PROBERS_NUM; i++) {
                     if (!isActive[i])
                         continue;
-                    cf = probers[i].GetConfidence();
+                    var cf = probers[i].GetConfidence();
                     if (bestConf < cf) {
                         bestConf = cf;
                         bestGuess = i;

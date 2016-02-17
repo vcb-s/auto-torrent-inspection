@@ -53,26 +53,18 @@ namespace Ude.Core
         public BitPackage stateTable;
         public int[] charLenTable;
 
-        private string name;
+        public string Name { get; }
 
-        public string Name {
-            get { return name;  }
-        }
-
-        private int classFactor;
-
-        public int ClassFactor {
-            get { return classFactor;  }
-        }
+        public int ClassFactor { get; }
 
         public SMModel(BitPackage classTable, int classFactor,
             BitPackage stateTable, int[] charLenTable, String name)
         {
             this.classTable = classTable;
-            this.classFactor = classFactor;
+            this.ClassFactor = classFactor;
             this.stateTable = stateTable;
             this.charLenTable = charLenTable;
-            this.name = name;
+            this.Name = name;
         }
 
         public int GetClass(byte b)

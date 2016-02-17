@@ -37,8 +37,6 @@
  * ***** END LICENSE BLOCK ***** */
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Ude.Core
 {
@@ -140,10 +138,9 @@ namespace Ude.Core
             return 0.01f;
             */
             // POSITIVE_APPROACH
-            float r = 0.0f;
 
             if (totalSeqs > 0) {
-                r = 1.0f * seqCounters[POSITIVE_CAT] / totalSeqs / model.TypicalPositiveRatio;
+                var r = 1.0f * seqCounters[POSITIVE_CAT] / totalSeqs / model.TypicalPositiveRatio;
                 r = r * freqChar / totalChar;
                 if (r >= 1.0f)
                     r = 0.99f;

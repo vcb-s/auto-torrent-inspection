@@ -35,10 +35,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Ude.Core
 {
     /// <summary>
@@ -80,7 +76,7 @@ namespace Ude.Core
         /// <summary>
         /// Feed a block of data and do distribution analysis
         /// </summary>
-        /// </param>
+        /// <param></param>
         //public abstract void HandleData(byte[] buf, int offset, int len);
 
         /// <summary>
@@ -3137,7 +3133,7 @@ namespace Ude.Core
         /// </summary>
         public override int GetOrder(byte[] buf, int offset)
         {
-            int order = 0;
+            int order;
 
             if (buf[offset] >= 0x81 && buf[offset] <= 0x9F)
                 order = 188 * (buf[offset] - 0x81);
