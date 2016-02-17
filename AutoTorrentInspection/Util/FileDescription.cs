@@ -7,6 +7,12 @@ using System.Text.RegularExpressions;
 
 namespace AutoTorrentInspection.Util
 {
+    public enum SourceTypeEnum
+    {
+        RealFile,
+        Torrent
+    }
+
     public class FileDescription
     {
         private string FileName     { get; }
@@ -18,6 +24,7 @@ namespace AutoTorrentInspection.Util
         public bool InValidEncode   { private set; get; }
         public bool InValidCue      { private set; get; }
         public string Encode        { private set; get; }
+        public SourceTypeEnum SourceType { private set; get; }
 
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
 
@@ -36,6 +43,7 @@ namespace AutoTorrentInspection.Util
             ReletivePath = reletivePath;
             Extension    = Path.GetExtension(fileName)?.ToLower();
             Length       = length;
+            SourceType   = SourceTypeEnum.Torrent;
             CheckValidTorrent();
         }
 
@@ -47,6 +55,7 @@ namespace AutoTorrentInspection.Util
             Extension    = Path.GetExtension(fileName)?.ToLower();
             //Length       = fullPath.Length > 256 ? -1024*1024L : new FileInfo(fullPath).Length
             Length       = ConvertMethod.GetFile(fullPath).Length;
+            SourceType   = SourceTypeEnum.RealFile;
             CheckValidFile();
         }
 

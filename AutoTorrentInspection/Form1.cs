@@ -161,8 +161,9 @@ namespace AutoTorrentInspection
         private void dataGridView1_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
-            contextMenuOpenFolder.Show(MousePosition);
             var fd = (FileDescription)dataGridView1.Rows[e.RowIndex].Tag;
+            if (fd.SourceType != SourceTypeEnum.RealFile) return;
+            contextMenuOpenFolder.Show(MousePosition);
             _filePosition = fd.FullPath;
         }
 
