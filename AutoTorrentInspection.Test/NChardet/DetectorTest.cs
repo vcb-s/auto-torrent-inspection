@@ -22,16 +22,6 @@ namespace NChardet.Tests
         }
 
         [TestMethod()]
-        public void EncodeTestN()
-        {
-            foreach (var item in Directory.GetFiles(@"..\..\[Encoding All Star]"))
-            {
-                Console.WriteLine($"{Path.GetFileName(item)}: ");
-                Console.WriteLine(EncodingDetector.GetEncodingN(item));
-            }
-        }
-
-        [TestMethod()]
         public void EncodeTestU()
         {
             foreach (var item in Directory.GetFiles(@"..\..\[Encoding All Star]"))
