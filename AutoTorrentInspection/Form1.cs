@@ -101,7 +101,10 @@ namespace AutoTorrentInspection
                 cbCategory.Items.Add(item);
                 Inspection(item);
             }
-            cbCategory.SelectedIndex = cbCategory.SelectedIndex == -1 ? 0 : cbCategory.SelectedIndex;
+            if (cbCategory.Items.Count > 0)
+            {
+                cbCategory.SelectedIndex = cbCategory.SelectedIndex == -1 ? 0 : cbCategory.SelectedIndex;
+            }
             Text = $"Auto Torrent Inspection - {(_torrent != null?_torrent.TorrentName : _paths[0])} - By [{_torrent?.CreatedBy ?? "folder"}] - {_torrent?.CreationDate}";
         }
 
