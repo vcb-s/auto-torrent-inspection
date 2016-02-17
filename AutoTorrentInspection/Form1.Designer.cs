@@ -42,7 +42,10 @@
             this.cbShowAll = new System.Windows.Forms.CheckBox();
             this.cbState = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.contextMenuOpenFolder = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.OpenFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            this.contextMenuOpenFolder.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLoadFile
@@ -107,6 +110,7 @@
             this.dataGridView1.TabIndex = 9;
             this.dataGridView1.TabStop = false;
             this.dataGridView1.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellDoubleClick);
+            this.dataGridView1.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseClick);
             // 
             // ColPath
             // 
@@ -178,6 +182,20 @@
             this.cbState.ThreeState = true;
             this.cbState.UseVisualStyleBackColor = true;
             // 
+            // contextMenuOpenFolder
+            // 
+            this.contextMenuOpenFolder.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.OpenFolderToolStripMenuItem});
+            this.contextMenuOpenFolder.Name = "contextMenuOpenFolder";
+            this.contextMenuOpenFolder.Size = new System.Drawing.Size(161, 26);
+            // 
+            // OpenFolderToolStripMenuItem
+            // 
+            this.OpenFolderToolStripMenuItem.Name = "OpenFolderToolStripMenuItem";
+            this.OpenFolderToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.OpenFolderToolStripMenuItem.Text = "打开所在文件夹";
+            this.OpenFolderToolStripMenuItem.Click += new System.EventHandler(this.OpenFolderToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AllowDrop = true;
@@ -200,6 +218,7 @@
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Form1_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.Form1_DragEnter);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            this.contextMenuOpenFolder.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -219,6 +238,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ColPath;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColFileName;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColSize;
+        private System.Windows.Forms.ContextMenuStrip contextMenuOpenFolder;
+        private System.Windows.Forms.ToolStripMenuItem OpenFolderToolStripMenuItem;
     }
 }
 

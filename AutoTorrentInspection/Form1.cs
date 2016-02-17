@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using AutoTorrentInspection.Util;
 
 namespace AutoTorrentInspection
@@ -153,6 +154,23 @@ namespace AutoTorrentInspection
                     fileInfo.RecheckCueFile(dataGridView1.Rows[e.RowIndex]);
                 }
             }
+        }
+
+        private string _filePosition = string.Empty;
+
+        private void dataGridView1_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+            contextMenuOpenFolder.Show(MousePosition);
+            var fd = (FileDescription)dataGridView1.Rows[e.RowIndex].Tag;
+            _filePosition = fd.FullPath;
+        }
+
+        private void OpenFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(_filePosition)) return;
+            Process.Start("Explorer.exe", "/select," + _filePosition);
+            _filePosition = string.Empty;
         }
     }
 }
