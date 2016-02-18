@@ -192,6 +192,8 @@
             this.cbFixCue.TabIndex = 10;
             this.cbFixCue.Text = "cue 修复";
             this.cbFixCue.UseVisualStyleBackColor = true;
+            this.cbFixCue.MouseEnter += new System.EventHandler(this.cbFixCue_MouseEnter);
+            this.cbFixCue.MouseLeave += new System.EventHandler(this.cbFixCue_MouseLeave);
             // 
             // statusStrip1
             // 

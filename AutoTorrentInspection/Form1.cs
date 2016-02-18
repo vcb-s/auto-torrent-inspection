@@ -131,6 +131,13 @@ namespace AutoTorrentInspection
 
         private void cbCategory_MouseLeave(object sender, EventArgs e) => toolTip1.Hide(cbCategory);
 
+        private void cbFixCue_MouseEnter(object sender, EventArgs e)
+        {
+            toolTip1.Show("如果编码检测置信度比较低的时候, \n请使用其他工具修正, 爆炸几率有点大。\n另, 注意删除bak文件。", cbFixCue);
+        }
+
+        private void cbFixCue_MouseLeave(object sender, EventArgs e) => toolTip1.Hide(cbFixCue);
+
         private void CueFix(FileDescription fileInfo, int rowIndex)
         {
             Debug.WriteLine($"GridView[R = {rowIndex}]");
@@ -217,5 +224,7 @@ namespace AutoTorrentInspection
                 CueFix(fileInfo, rowIndex);
             }
         }
+
+
     }
 }
