@@ -54,7 +54,7 @@
             // 
             // btnLoadFile
             // 
-            this.btnLoadFile.Location = new System.Drawing.Point(12, 13);
+            this.btnLoadFile.Location = new System.Drawing.Point(12, 12);
             this.btnLoadFile.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnLoadFile.Name = "btnLoadFile";
             this.btnLoadFile.Size = new System.Drawing.Size(87, 33);
@@ -66,7 +66,7 @@
             // btnRefresh
             // 
             this.btnRefresh.AllowDrop = true;
-            this.btnRefresh.Location = new System.Drawing.Point(12, 54);
+            this.btnRefresh.Location = new System.Drawing.Point(12, 53);
             this.btnRefresh.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(87, 33);
@@ -79,7 +79,7 @@
             // 
             this.cbCategory.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbCategory.FormattingEnabled = true;
-            this.cbCategory.Location = new System.Drawing.Point(13, 136);
+            this.cbCategory.Location = new System.Drawing.Point(13, 135);
             this.cbCategory.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cbCategory.Name = "cbCategory";
             this.cbCategory.Size = new System.Drawing.Size(85, 25);
@@ -147,7 +147,7 @@
             // btnAnnounceList
             // 
             this.btnAnnounceList.Enabled = false;
-            this.btnAnnounceList.Location = new System.Drawing.Point(12, 95);
+            this.btnAnnounceList.Location = new System.Drawing.Point(12, 94);
             this.btnAnnounceList.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnAnnounceList.Name = "btnAnnounceList";
             this.btnAnnounceList.Size = new System.Drawing.Size(87, 33);

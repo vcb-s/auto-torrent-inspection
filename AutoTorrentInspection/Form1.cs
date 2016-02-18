@@ -122,9 +122,8 @@ namespace AutoTorrentInspection
                 dataGridView1.Rows.Add(item.ToRow());
                 Application.DoEvents();
             }
-            toolStripStatusLabel_Status.Text = dataGridView1.Rows.Count == 0
-                ? "状态正常, All Green"
-                : $"发现世界的扭曲点 {dataGridView1.Rows.Count} 个" + (cbShowAll.Checked ? "(并不是)" : "");
+            toolStripStatusLabel_Status.Text = dataGridView1.Rows.Count == 0 ? "状态正常, All Green"
+                : $"发现 {dataGridView1.Rows.Count} 个世界的扭曲点" + (cbShowAll.Checked ? "(并不是)" : "");
         }
 
         private void cbCategory_MouseEnter(object sender, EventArgs e) => toolTip1.Show(cbCategory.Text, cbCategory);
