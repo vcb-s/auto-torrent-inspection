@@ -247,6 +247,7 @@
             this.MinimumSize = new System.Drawing.Size(380, 300);
             this.Name = "Form1";
             this.Text = "Auto Torrent Inspection";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Form1_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.Form1_DragEnter);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
