@@ -202,10 +202,13 @@ namespace AutoTorrentInspection
 
         private void dataGridView1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (dataGridView1.SelectedCells.Count != 1 || e.KeyCode != Keys.Enter) return;
+            if (dataGridView1.SelectedCells.Count != 1) return;
             var rowIndex = dataGridView1.SelectedCells[0].RowIndex;
             FileDescription fileInfo = dataGridView1.Rows[rowIndex].Tag as FileDescription;
-            if (cbFixCue.Checked)
+            if (fileInfo == null) return;
+            var confindence = fileInfo.Confidence;
+            toolStripStatusLabel_Encode.Text = fileInfo.Encode + (confindence > 0.99F ? "" : $"({confindence:F2})");
+            if (cbFixCue.Checked && e.KeyCode == Keys.Enter)
             {
                 CueFix(fileInfo, rowIndex);
             }
