@@ -120,7 +120,9 @@ namespace AutoTorrentInspection
                 dataGridView1.Rows.Add(item.ToRow());
                 Application.DoEvents();
             }
-            cbState.CheckState = dataGridView1.Rows.Count == 0 ? CheckState.Checked : CheckState.Unchecked;
+            toolStripStatusLabel_Status.Text = dataGridView1.Rows.Count == 0
+                ? "状态正常, All Green"
+                : $"发现世界的扭曲点 {dataGridView1.Rows.Count} 个";
         }
 
         private void cbCategory_MouseEnter(object sender, EventArgs e) => toolTip1.Show(cbCategory.Text, cbCategory);
@@ -135,8 +137,6 @@ namespace AutoTorrentInspection
             Debug.Assert(fileInfo != null);
             if (fileInfo.Extension.ToLower() != ".cue") return;
             var confindence = fileInfo.Confidence;
-            dataGridView1.Rows[rowIndex].Cells[2].Value = fileInfo.Encode + (confindence > 0.99F ? "" : $"({confindence:F2})");
-            Application.DoEvents();
             if (fileInfo.InValidEncode)
             {
                 var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.OKCancel,
@@ -173,6 +173,9 @@ namespace AutoTorrentInspection
         {
             FileDescription fileInfo = dataGridView1.Rows[e.RowIndex].Tag as FileDescription;
             if (fileInfo == null)  return;
+            var confindence = fileInfo.Confidence;
+            toolStripStatusLabel_Encode.Text = fileInfo.Encode + (confindence > 0.99F ? "" : $"({confindence:F2})");
+            Application.DoEvents();
             switch (e.Button)
             {
                 case MouseButtons.Left:
