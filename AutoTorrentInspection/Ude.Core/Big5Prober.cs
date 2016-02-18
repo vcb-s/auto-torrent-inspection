@@ -93,7 +93,7 @@ namespace Ude.Core
 
         public override string GetCharsetName()
         {
-            return "Big-5";
+            return "Big5";
         }
 
         public override float GetConfidence()
