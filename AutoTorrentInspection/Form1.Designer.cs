@@ -218,6 +218,7 @@
             // toolStripStatusLabel_Encode
             // 
             this.toolStripStatusLabel_Encode.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripStatusLabel_Encode.Font = new System.Drawing.Font("Consolas", 9F);
             this.toolStripStatusLabel_Encode.Name = "toolStripStatusLabel_Encode";
             this.toolStripStatusLabel_Encode.Size = new System.Drawing.Size(284, 17);
             this.toolStripStatusLabel_Encode.Spring = true;
