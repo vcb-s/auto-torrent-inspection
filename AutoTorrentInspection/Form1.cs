@@ -127,31 +127,34 @@ namespace AutoTorrentInspection
 
         private void cbCategory_MouseLeave(object sender, EventArgs e) => toolTip1.Hide(cbCategory);
 
-        private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private void CueFix(FileDescription fileInfo, int rowIndex)
         {
-            Debug.WriteLine($"GridView[R = {e.RowIndex},C = {e.ColumnIndex}]");
-            if (e.RowIndex < 0) return;
-            FileDescription fileInfo = dataGridView1.Rows[e.RowIndex].Tag as FileDescription;
+            Debug.WriteLine($"GridView[R = {rowIndex}]");
+            if (rowIndex < 0) return;
+
             Debug.Assert(fileInfo != null);
             if (fileInfo.Extension.ToLower() != ".cue") return;
-            dataGridView1.Rows[e.RowIndex].Cells[2].Value = fileInfo.Encode;
+            var confindence = fileInfo.Confidence;
+            dataGridView1.Rows[rowIndex].Cells[2].Value = fileInfo.Encode + (confindence > 0.99F ? "" : $"({confindence:F2})");
             Application.DoEvents();
             if (fileInfo.InValidEncode)
             {
                 var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.OKCancel,
-                    text: $"该cue编码不是UTF-8, 是否尝试修复?{Environment.NewLine}注: 有概率失败, 此时请检查备份。");
+                    text:
+                        $"该cue编码不是UTF-8, 是否尝试修复?\n注: 有" + (confindence > 0.6 ? "小" : "大") +
+                        @"概率失败, 此时请检查备份。");
                 if (dResult == DialogResult.OK)
                 {
                     CueCurer.MakeBackup(fileInfo.FullPath);
                     var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
                     EncodingConverter.SaveAsEncoding(originContext, fileInfo.FullPath, "UTF-8");
-                    fileInfo.RecheckCueFile(dataGridView1.Rows[e.RowIndex]);
+                    fileInfo.RecheckCueFile(dataGridView1.Rows[rowIndex]);
                 }
             }
             else if (fileInfo.InValidCue)
             {
                 var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.OKCancel,
-                    text: $"该cue内文件名与实际文件不相符, 是否尝试修复?{Environment.NewLine}注: 非常规编码可能无法正确修复, 此时请检查备份。");
+                    text: $"该cue内文件名与实际文件不相符, 是否尝试修复?\n注: 非常规编码可能无法正确修复, 此时请检查备份。");
                 if (dResult == DialogResult.OK)
                 {
                     CueCurer.MakeBackup(fileInfo.FullPath);
@@ -159,7 +162,7 @@ namespace AutoTorrentInspection
                     var directory = Path.GetDirectoryName(fileInfo.FullPath);
                     var editedContext = CueCurer.FixFilename(originContext, directory);
                     EncodingConverter.SaveAsEncoding(editedContext, fileInfo.FullPath, "UTF-8");
-                    fileInfo.RecheckCueFile(dataGridView1.Rows[e.RowIndex]);
+                    fileInfo.RecheckCueFile(dataGridView1.Rows[rowIndex]);
                 }
             }
         }
@@ -168,11 +171,23 @@ namespace AutoTorrentInspection
 
         private void dataGridView1_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            if (e.Button != MouseButtons.Right) return;
-            var fd = (FileDescription)dataGridView1.Rows[e.RowIndex].Tag;
-            if (fd.SourceType != SourceTypeEnum.RealFile) return;
-            contextMenuOpenFolder.Show(MousePosition);
-            _filePosition = fd.FullPath;
+            FileDescription fileInfo = dataGridView1.Rows[e.RowIndex].Tag as FileDescription;
+            if (fileInfo == null)  return;
+            switch (e.Button)
+            {
+                case MouseButtons.Left:
+                    if (cbFixCue.Checked)
+                    {
+                        CueFix(fileInfo,e.RowIndex);
+                    }
+                    break;
+                case MouseButtons.Right:
+                    if (fileInfo.SourceType != SourceTypeEnum.RealFile) return;
+                    contextMenuOpenFolder.Show(MousePosition);
+                    _filePosition = fileInfo.FullPath;
+                    break;
+            }
+
         }
 
         private void OpenFolderToolStripMenuItem_Click(object sender, EventArgs e)
@@ -180,6 +195,17 @@ namespace AutoTorrentInspection
             if (string.IsNullOrEmpty(_filePosition)) return;
             Process.Start("Explorer.exe", "/select," + $"\"{_filePosition}\"");
             _filePosition = string.Empty;
+        }
+
+        private void dataGridView1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (dataGridView1.SelectedCells.Count != 1 || e.KeyCode != Keys.Enter) return;
+            var rowIndex = dataGridView1.SelectedCells[0].RowIndex;
+            FileDescription fileInfo = dataGridView1.Rows[rowIndex].Tag as FileDescription;
+            if (cbFixCue.Checked)
+            {
+                CueFix(fileInfo, rowIndex);
+            }
         }
     }
 }

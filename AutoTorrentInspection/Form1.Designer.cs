@@ -44,6 +44,7 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.contextMenuOpenFolder = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.OpenFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cbFixCue = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.contextMenuOpenFolder.SuspendLayout();
             this.SuspendLayout();
@@ -109,8 +110,8 @@
             this.dataGridView1.Size = new System.Drawing.Size(467, 435);
             this.dataGridView1.TabIndex = 9;
             this.dataGridView1.TabStop = false;
-            this.dataGridView1.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellDoubleClick);
             this.dataGridView1.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseClick);
+            this.dataGridView1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dataGridView1_KeyDown);
             // 
             // ColPath
             // 
@@ -156,7 +157,7 @@
             // 
             this.cbShowAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbShowAll.AutoSize = true;
-            this.cbShowAll.Location = new System.Drawing.Point(16, 427);
+            this.cbShowAll.Location = new System.Drawing.Point(16, 370);
             this.cbShowAll.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cbShowAll.Name = "cbShowAll";
             this.cbShowAll.Size = new System.Drawing.Size(75, 21);
@@ -173,7 +174,7 @@
             this.cbState.Checked = true;
             this.cbState.CheckState = System.Windows.Forms.CheckState.Indeterminate;
             this.cbState.Cursor = System.Windows.Forms.Cursors.Default;
-            this.cbState.Location = new System.Drawing.Point(12, 398);
+            this.cbState.Location = new System.Drawing.Point(12, 426);
             this.cbState.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cbState.Name = "cbState";
             this.cbState.Size = new System.Drawing.Size(75, 21);
@@ -197,12 +198,24 @@
             this.OpenFolderToolStripMenuItem.Text = "打开所在文件夹";
             this.OpenFolderToolStripMenuItem.Click += new System.EventHandler(this.OpenFolderToolStripMenuItem_Click);
             // 
+            // cbFixCue
+            // 
+            this.cbFixCue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cbFixCue.AutoSize = true;
+            this.cbFixCue.Location = new System.Drawing.Point(16, 398);
+            this.cbFixCue.Name = "cbFixCue";
+            this.cbFixCue.Size = new System.Drawing.Size(71, 21);
+            this.cbFixCue.TabIndex = 10;
+            this.cbFixCue.Text = "cue修复";
+            this.cbFixCue.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(584, 461);
+            this.Controls.Add(this.cbFixCue);
             this.Controls.Add(this.cbState);
             this.Controls.Add(this.cbShowAll);
             this.Controls.Add(this.btnAnnounceList);
@@ -241,6 +254,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ColSize;
         private System.Windows.Forms.ContextMenuStrip contextMenuOpenFolder;
         private System.Windows.Forms.ToolStripMenuItem OpenFolderToolStripMenuItem;
+        private System.Windows.Forms.CheckBox cbFixCue;
     }
 }
 

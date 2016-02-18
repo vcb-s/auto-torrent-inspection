@@ -24,6 +24,8 @@ namespace AutoTorrentInspection.Util
         public bool InValidEncode   { private set; get; }
         public bool InValidCue      { private set; get; }
         public string Encode        { private set; get; }
+        public float Confidence => _confindece;
+        private float _confindece;
         public SourceTypeEnum SourceType { private set; get; }
 
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
@@ -71,7 +73,7 @@ namespace AutoTorrentInspection.Util
             Debug.WriteLine(@"----ReCheck----");
             InValidCue = !CueCurer.CueMatchCheck(this);
             //Encode = EncodingDetector.GetEncodingN(FullPath);
-            Encode = EncodingDetector.GetEncodingU(FullPath);
+            Encode = EncodingDetector.GetEncodingU(FullPath, out _confindece);
 
             InValidEncode = Encode != "UTF-8";
             row.Cells[2].Value = Encode;
@@ -96,7 +98,7 @@ namespace AutoTorrentInspection.Util
 
             //InValidEncode = !ConvertMethod.IsUTF8(FullPath);
             //Encode = EncodingDetector.GetEncodingN(FullPath);
-            Encode = EncodingDetector.GetEncodingU(FullPath);
+            Encode = EncodingDetector.GetEncodingU(FullPath, out _confindece);
             InValidEncode = Encode != "UTF-8";
 
             InValidCue = !CueCurer.CueMatchCheck(this);

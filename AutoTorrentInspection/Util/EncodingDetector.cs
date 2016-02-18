@@ -6,8 +6,9 @@ namespace AutoTorrentInspection.Util
 {
     public static class EncodingDetector
     {
-        public static string GetEncodingU(string filename)
+        public static string GetEncodingU(string filename, out float confindece)
         {
+            confindece = 0.0f;
             using (FileStream fs = File.OpenRead(filename))
             {
                 ICharsetDetector cdet = new CharsetDetector();
@@ -16,6 +17,7 @@ namespace AutoTorrentInspection.Util
                 if (cdet.Charset != null)
                 {
                     Debug.WriteLine($"Charset: {cdet.Charset}, confidence: {cdet.Confidence}");
+                    confindece = cdet.Confidence;
                     return cdet.Charset;
                 }
                 Debug.WriteLine(@"Detection failed.");
