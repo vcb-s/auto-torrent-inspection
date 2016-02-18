@@ -68,6 +68,8 @@ namespace AutoTorrentInspection
             _torrent = null;
             try
             {
+                toolStripStatusLabel_Status.Text = @"读取并检查文件中…";
+                Application.DoEvents();
                 if (Directory.Exists(filepath))
                 {
                     _data = ConvertMethod.GetFileList(filepath);

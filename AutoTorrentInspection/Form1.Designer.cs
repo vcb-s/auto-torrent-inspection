@@ -160,7 +160,7 @@
             // 
             this.cbShowAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbShowAll.AutoSize = true;
-            this.cbShowAll.Location = new System.Drawing.Point(16, 386);
+            this.cbShowAll.Location = new System.Drawing.Point(13, 386);
             this.cbShowAll.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cbShowAll.Name = "cbShowAll";
             this.cbShowAll.Size = new System.Drawing.Size(75, 21);
@@ -186,11 +186,11 @@
             // 
             this.cbFixCue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbFixCue.AutoSize = true;
-            this.cbFixCue.Location = new System.Drawing.Point(16, 414);
+            this.cbFixCue.Location = new System.Drawing.Point(13, 412);
             this.cbFixCue.Name = "cbFixCue";
-            this.cbFixCue.Size = new System.Drawing.Size(71, 21);
+            this.cbFixCue.Size = new System.Drawing.Size(75, 21);
             this.cbFixCue.TabIndex = 10;
-            this.cbFixCue.Text = "cue修复";
+            this.cbFixCue.Text = "cue 修复";
             this.cbFixCue.UseVisualStyleBackColor = true;
             // 
             // statusStrip1
