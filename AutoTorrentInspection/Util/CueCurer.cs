@@ -42,7 +42,6 @@ namespace AutoTorrentInspection.Util
             {
                 //找到目录里的所有主文件名相同的文件
                 files = Directory.GetFiles(directory, filename.Split('.')[0] + ".*", SearchOption.TopDirectoryOnly);
-
             }
             if (files != null && files.Length > 0)
             {
@@ -56,7 +55,6 @@ namespace AutoTorrentInspection.Util
                     }
                 }
             }
-
             return original;
         }
 
@@ -77,6 +75,7 @@ namespace AutoTorrentInspection.Util
 
         public static void MakeBackup(string filename)
         {
+            if (File.Exists(filename + ".bak")) return;
             try
             {
                 FileInfo fi = new FileInfo(filename);

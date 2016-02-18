@@ -40,14 +40,21 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.btnAnnounceList = new System.Windows.Forms.Button();
             this.cbShowAll = new System.Windows.Forms.CheckBox();
-            this.cbState = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.contextMenuOpenFolder = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.OpenFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cbFixCue = new System.Windows.Forms.CheckBox();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel_Status = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel_Encode = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            this.contextMenuOpenFolder.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLoadFile
             // 
-            this.btnLoadFile.Location = new System.Drawing.Point(12, 13);
+            this.btnLoadFile.Location = new System.Drawing.Point(12, 12);
             this.btnLoadFile.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnLoadFile.Name = "btnLoadFile";
             this.btnLoadFile.Size = new System.Drawing.Size(87, 33);
@@ -59,7 +66,8 @@
             // btnRefresh
             // 
             this.btnRefresh.AllowDrop = true;
-            this.btnRefresh.Location = new System.Drawing.Point(12, 54);
+            this.btnRefresh.Enabled = false;
+            this.btnRefresh.Location = new System.Drawing.Point(12, 53);
             this.btnRefresh.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(87, 33);
@@ -71,8 +79,9 @@
             // cbCategory
             // 
             this.cbCategory.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbCategory.Enabled = false;
             this.cbCategory.FormattingEnabled = true;
-            this.cbCategory.Location = new System.Drawing.Point(13, 136);
+            this.cbCategory.Location = new System.Drawing.Point(13, 135);
             this.cbCategory.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cbCategory.Name = "cbCategory";
             this.cbCategory.Size = new System.Drawing.Size(85, 25);
@@ -103,10 +112,11 @@
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.dataGridView1.RowTemplate.Height = 23;
-            this.dataGridView1.Size = new System.Drawing.Size(467, 435);
+            this.dataGridView1.Size = new System.Drawing.Size(467, 415);
             this.dataGridView1.TabIndex = 9;
             this.dataGridView1.TabStop = false;
-            this.dataGridView1.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellDoubleClick);
+            this.dataGridView1.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseClick);
+            this.dataGridView1.KeyUp += new System.Windows.Forms.KeyEventHandler(this.dataGridView1_KeyUp);
             // 
             // ColPath
             // 
@@ -138,7 +148,8 @@
             // 
             // btnAnnounceList
             // 
-            this.btnAnnounceList.Location = new System.Drawing.Point(12, 95);
+            this.btnAnnounceList.Enabled = false;
+            this.btnAnnounceList.Location = new System.Drawing.Point(12, 94);
             this.btnAnnounceList.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnAnnounceList.Name = "btnAnnounceList";
             this.btnAnnounceList.Size = new System.Drawing.Size(87, 33);
@@ -151,7 +162,7 @@
             // 
             this.cbShowAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbShowAll.AutoSize = true;
-            this.cbShowAll.Location = new System.Drawing.Point(16, 427);
+            this.cbShowAll.Location = new System.Drawing.Point(13, 386);
             this.cbShowAll.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cbShowAll.Name = "cbShowAll";
             this.cbShowAll.Size = new System.Drawing.Size(75, 21);
@@ -159,24 +170,62 @@
             this.cbShowAll.Text = "显示全部";
             this.cbShowAll.UseVisualStyleBackColor = true;
             // 
-            // cbState
+            // contextMenuOpenFolder
             // 
-            this.cbState.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.cbState.AutoCheck = false;
-            this.cbState.AutoSize = true;
-            this.cbState.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.cbState.Checked = true;
-            this.cbState.CheckState = System.Windows.Forms.CheckState.Indeterminate;
-            this.cbState.Cursor = System.Windows.Forms.Cursors.Default;
-            this.cbState.Location = new System.Drawing.Point(12, 398);
-            this.cbState.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.cbState.Name = "cbState";
-            this.cbState.Size = new System.Drawing.Size(75, 21);
-            this.cbState.TabIndex = 8;
-            this.cbState.TabStop = false;
-            this.cbState.Text = "状态正常";
-            this.cbState.ThreeState = true;
-            this.cbState.UseVisualStyleBackColor = true;
+            this.contextMenuOpenFolder.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.OpenFolderToolStripMenuItem});
+            this.contextMenuOpenFolder.Name = "contextMenuOpenFolder";
+            this.contextMenuOpenFolder.Size = new System.Drawing.Size(161, 26);
+            // 
+            // OpenFolderToolStripMenuItem
+            // 
+            this.OpenFolderToolStripMenuItem.Name = "OpenFolderToolStripMenuItem";
+            this.OpenFolderToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.OpenFolderToolStripMenuItem.Text = "打开所在文件夹";
+            this.OpenFolderToolStripMenuItem.Click += new System.EventHandler(this.OpenFolderToolStripMenuItem_Click);
+            // 
+            // cbFixCue
+            // 
+            this.cbFixCue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cbFixCue.AutoSize = true;
+            this.cbFixCue.Location = new System.Drawing.Point(13, 412);
+            this.cbFixCue.Name = "cbFixCue";
+            this.cbFixCue.Size = new System.Drawing.Size(75, 21);
+            this.cbFixCue.TabIndex = 10;
+            this.cbFixCue.Text = "cue 修复";
+            this.cbFixCue.UseVisualStyleBackColor = true;
+            this.cbFixCue.MouseEnter += new System.EventHandler(this.cbFixCue_MouseEnter);
+            this.cbFixCue.MouseLeave += new System.EventHandler(this.cbFixCue_MouseLeave);
+            // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel_Status,
+            this.toolStripStatusLabel_Encode});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 439);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(584, 22);
+            this.statusStrip1.TabIndex = 11;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // toolStripStatusLabel_Status
+            // 
+            this.toolStripStatusLabel_Status.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripStatusLabel_Status.Name = "toolStripStatusLabel_Status";
+            this.toolStripStatusLabel_Status.Size = new System.Drawing.Size(284, 17);
+            this.toolStripStatusLabel_Status.Spring = true;
+            this.toolStripStatusLabel_Status.Text = "请载入文件或文件夹";
+            this.toolStripStatusLabel_Status.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // toolStripStatusLabel_Encode
+            // 
+            this.toolStripStatusLabel_Encode.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripStatusLabel_Encode.Font = new System.Drawing.Font("Consolas", 9F);
+            this.toolStripStatusLabel_Encode.Name = "toolStripStatusLabel_Encode";
+            this.toolStripStatusLabel_Encode.Size = new System.Drawing.Size(284, 17);
+            this.toolStripStatusLabel_Encode.Spring = true;
+            this.toolStripStatusLabel_Encode.Text = " (0.00)";
+            this.toolStripStatusLabel_Encode.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // Form1
             // 
@@ -184,7 +233,8 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(584, 461);
-            this.Controls.Add(this.cbState);
+            this.Controls.Add(this.statusStrip1);
+            this.Controls.Add(this.cbFixCue);
             this.Controls.Add(this.cbShowAll);
             this.Controls.Add(this.btnAnnounceList);
             this.Controls.Add(this.dataGridView1);
@@ -200,6 +250,9 @@
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Form1_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.Form1_DragEnter);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            this.contextMenuOpenFolder.ResumeLayout(false);
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -214,11 +267,16 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.Button btnAnnounceList;
         private System.Windows.Forms.CheckBox cbShowAll;
-        private System.Windows.Forms.CheckBox cbState;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColPath;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColFileName;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColSize;
+        private System.Windows.Forms.ContextMenuStrip contextMenuOpenFolder;
+        private System.Windows.Forms.ToolStripMenuItem OpenFolderToolStripMenuItem;
+        private System.Windows.Forms.CheckBox cbFixCue;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel_Status;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel_Encode;
     }
 }
 

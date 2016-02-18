@@ -25,16 +25,49 @@ namespace AutoTorrentInspection.Util
             get
             {
                 TimeSpan timeZoneOffset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
-                DateTime utcTime = _torrent.CreationDate;
+                DateTime utcTime        = _torrent.CreationDate;
                 return utcTime.Add(timeZoneOffset);
             }
         }
 
         public string Comment => _torrent.Comment;
 
-        public string Source => _torrent.Info.ContainsKey("source") ? _torrent.Info["source"].ToString() : "";
+        public string Source
+        {
+            get
+            {
+                string source = string.Empty;
+                if (_torrent.Info.ContainsKey("source"))
+                {
+                    source = _torrent.Info["source"].ToString();
+                }
+                else
+                {
+                    if (_torrent.Info.ContainsKey("publisher"))
+                    {
+                        source = _torrent.Info.ContainsKey("publisher").ToString();
+                    }
+                    if (_torrent.Info.ContainsKey("publisher.utf-8"))
+                    {
+                        source = _torrent.Info["publisher.utf-8"].ToString();
+                    }
+                }
+                return source;
+            }
+        }
 
-        public string TorrentName => _torrent.Info["name"].ToString();
+
+        public string TorrentName
+        {
+            get
+            {
+                if (_torrent.Info.ContainsKey("name.utf-8"))
+                {
+                    return _torrent.Info["name.utf-8"].ToString();
+                }
+                return _torrent.Info["name"].ToString();
+            }
+        }
 
         public bool IsPrivate
         {
@@ -48,20 +81,24 @@ namespace AutoTorrentInspection.Util
         public Dictionary<string, List<FileDescription>> GetFileList()
         {
             var fileDic = new Dictionary<string, List<FileDescription>>();
-            var files = (BList)_torrent.Info["files"];
-            if (files == null)
+            if (!_torrent.Info.ContainsKey("files"))
             {
-                var name    = _torrent.Info["name"].ToString();
-                var length  = ((BNumber) _torrent.Info["length"]).Value;
+                var name = TorrentName;
+                var length = ((BNumber)_torrent.Info["length"]).Value;
                 fileDic.Add("single", new List<FileDescription> { new FileDescription(name, "", length) });
                 return fileDic;
             }
-            foreach (var bObject in files)
+            var files = (BList)_torrent.Info["files"];
+            foreach (var file in files)
             {
-                var singleFile = (BList) ((BDictionary) bObject)["path"];
-                var length     = ((BNumber) ((BDictionary) bObject)["length"]).Value;
+                BList singleFile = (BList) ((BDictionary) file)["path"];
+                if (((BDictionary) file).ContainsKey("path.utf-8"))
+                {
+                    singleFile = (BList) ((BDictionary) file)["path.utf-8"];
+                }
+                var length     = ((BNumber) ((BDictionary) file)["length"]).Value;
                 var category   = singleFile.Count != 1 ? singleFile.First().ToString() : "root";
-                var path = new StringBuilder();
+                var path       = new StringBuilder();
                 for (int i = 0; i < singleFile.Count - 1; i++)
                 {
                     path.Append($"{singleFile[i]}\\");
@@ -69,7 +106,7 @@ namespace AutoTorrentInspection.Util
                 //var path = singleFile.Aggregate(new StringBuilder(), (current, item) => current.Append($"{item}\\"));
                 var name = singleFile.Last().ToString();
                 if (name.Contains("_____padding_file_")) continue;
-                //reason: https://www.ptt.cc/bbs/P2PSoftWare/M.1191552305.A.5CE.html
+                //reason: https://zh.wikipedia.org/zh-hant/BitComet#.E6.96.87.E4.BB.B6.E5.88.86.E5.A1.8A.E5.B0.8D.E9.BD.8A
 
                 fileDic.TryAdd(category, new List<FileDescription>());
                 fileDic[category].Add(new FileDescription(name, path.ToString(), length));

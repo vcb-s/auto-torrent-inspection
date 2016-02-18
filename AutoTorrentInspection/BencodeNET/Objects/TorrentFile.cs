@@ -42,7 +42,7 @@ namespace BencodeNET.Objects
         /// <summary>
         /// The optional string showing who/what created the .torrent
         /// </summary>
-        public string CreatedBy => _data.ContainsKey("created by") ? _data["created by"].ToString() : null;
+        public string CreatedBy => _data.ContainsKey("created by") ? _data["created by"].ToString() : "null";
 
         /// <summary>
         /// The encoding used by the client that created the .torrent file

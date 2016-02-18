@@ -24,7 +24,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent1()
         {
-            const string torrentPath = @"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Torrent Sample]\Comment.torrent";
+            const string torrentPath = @"..\..\[Torrent Sample]\Comment.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.dmhy.org/announce?secure=securecode");
@@ -44,7 +44,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent2()
         {
-            const string torrentPath = @"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Torrent Sample]\SingleFile.torrent";
+            const string torrentPath = @"..\..\[Torrent Sample]\SingleFile.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.dmhy.org/announce?secure=securecode");
@@ -63,12 +63,12 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent3()
         {
-            const string torrentPath = @"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Torrent Sample]\Martian.torrent";
+            const string torrentPath = @"..\..\[Torrent Sample]\Martian.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.hdtime.org/announce.php?passkey=passkey");
             Assert.IsTrue(string.IsNullOrEmpty(_torrent.Comment));
-            Assert.IsTrue(_torrent.CreatedBy == null);
+            Assert.IsTrue(_torrent.CreatedBy == "null");
             Assert.IsTrue(_torrent.CreationDate == new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Add(TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now)));
             Assert.IsFalse(_torrent.IsPrivate);
             Assert.IsTrue(_torrent.Source == "[hdtime.org] HDTIME");
@@ -82,7 +82,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent4()
         {
-            const string torrentPath = @"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Torrent Sample]\USO.torrent";
+            const string torrentPath = @"..\..\[Torrent Sample]\USO.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             var fileList = _torrent.GetFileList();
@@ -92,7 +92,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent5()
         {
-            const string torrentPath = @"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Torrent Sample]\FZ.torrent";
+            const string torrentPath = @"..\..\[Torrent Sample]\FZ.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             var fileList = _torrent.GetFileList();
@@ -102,7 +102,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent6()
         {
-            const string torrentPath = @"C:\Users\TautCony\Documents\auto-torrent-inspection\AutoTorrentInspection.Test\[Torrent Sample]\Padding_file.torrent";
+            const string torrentPath = @"..\..\[Torrent Sample]\Padding_file.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             var fileList = _torrent.GetFileList();

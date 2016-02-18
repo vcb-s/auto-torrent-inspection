@@ -1,43 +1,45 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
 using System.Text;
+using System.Collections.Generic;
 
 namespace AutoTorrentInspection.Util
 {
     public static class ConvertMethod
     {
-        private static KeyValuePair<string, IEnumerable<string>>  EnumerateFolder(string folderPath)
+        private static IEnumerable<string> EnumerateFolder(string folderPath)
         {
             Func<string[], IEnumerable<string>> splitFunc =
                 array => array.Select(item => item.Substring(folderPath.Length + 1));
-            var fileList = new List<string>(splitFunc(Directory.GetFiles(folderPath)));
+            foreach (var file in splitFunc(Directory.GetFiles(folderPath)))
+            {
+                yield return file;
+            }
             var folderQueue = new Queue<string>();
             folderQueue.EnqueueRange(Directory.GetDirectories(folderPath));
             while (folderQueue.Count > 0)
             {
                 var currentFolder = folderQueue.Dequeue();
-                fileList.AddRange(splitFunc(Directory.GetFiles(currentFolder)));
+                foreach (var file in splitFunc(Directory.GetFiles(currentFolder)))
+                {
+                    yield return file;
+                }
                 folderQueue.EnqueueRange(Directory.GetDirectories(currentFolder));
             }
-            return new KeyValuePair<string, IEnumerable<string>>(folderPath, fileList);
         }
 
         public static Dictionary<string, List<FileDescription>> GetFileList(string folderPath)
         {
             var fileDic = new Dictionary<string, List<FileDescription>>();
-            var rawList = EnumerateFolder(folderPath);
-            var fileList = rawList.Value.ToList();
-            if (!fileList.Any()) return fileDic;
-            foreach (var file in fileList)
+            foreach (var file in EnumerateFolder(folderPath))
             {
                 var categorySlashPosition = file.IndexOf("\\", StringComparison.Ordinal);
                 var category = categorySlashPosition > -1 ? file.Substring(0, categorySlashPosition) : "root";
                 var pathSlashPosition = file.LastIndexOf("\\", StringComparison.Ordinal);
                 var relativePath = category == "root" ? "" : file.Substring(0, pathSlashPosition);
                 fileDic.TryAdd(category, new List<FileDescription>());
-                fileDic[category].Add(new FileDescription(Path.GetFileName(file), relativePath, $"{rawList.Key}\\{file}"));
+                fileDic[category].Add(new FileDescription(Path.GetFileName(file), relativePath, $"{folderPath}\\{file}"));
             }
             return fileDic;
         }
