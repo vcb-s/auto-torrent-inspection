@@ -66,6 +66,7 @@ namespace AutoTorrentInspection
         private void LoadFile(string filepath)
         {
             _torrent = null;
+            btnRefresh.Enabled = true;
             try
             {
                 toolStripStatusLabel_Status.Text = @"读取并检查文件中…";
@@ -91,6 +92,7 @@ namespace AutoTorrentInspection
                 }
                 Inspection:
                 ThroughInspection();
+                cbCategory.Enabled = cbCategory.Items.Count > 1;
             }
             catch (Exception ex)
             {

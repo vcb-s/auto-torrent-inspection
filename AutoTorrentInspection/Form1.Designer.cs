@@ -66,6 +66,7 @@
             // btnRefresh
             // 
             this.btnRefresh.AllowDrop = true;
+            this.btnRefresh.Enabled = false;
             this.btnRefresh.Location = new System.Drawing.Point(12, 53);
             this.btnRefresh.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnRefresh.Name = "btnRefresh";
@@ -78,6 +79,7 @@
             // cbCategory
             // 
             this.cbCategory.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbCategory.Enabled = false;
             this.cbCategory.FormattingEnabled = true;
             this.cbCategory.Location = new System.Drawing.Point(13, 135);
             this.cbCategory.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
