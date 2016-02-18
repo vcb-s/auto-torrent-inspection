@@ -91,6 +91,7 @@ namespace AutoTorrentInspection
                 }
                 Inspection:
                 ThroughInspection();
+                cbCategory.Enabled = cbCategory.Items.Count > 1;
             }
             catch (Exception ex)
             {
