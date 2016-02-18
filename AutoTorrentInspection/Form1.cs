@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Collections.Generic;
@@ -13,6 +14,11 @@ namespace AutoTorrentInspection
         public Form1()
         {
             InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Text = $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version}";
         }
 
         private string FilePath
@@ -114,7 +120,7 @@ namespace AutoTorrentInspection
             {
                 cbCategory.SelectedIndex = cbCategory.SelectedIndex == -1 ? 0 : cbCategory.SelectedIndex;
             }
-            Text = $"Auto Torrent Inspection - {(_torrent != null?_torrent.TorrentName : FilePath)} - By [{_torrent?.CreatedBy ?? "folder"}] - {_torrent?.CreationDate}";
+            Text = $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version} - {(_torrent != null?_torrent.TorrentName : FilePath)} - By [{_torrent?.CreatedBy ?? "folder"}] - {_torrent?.CreationDate}";
         }
 
         private void Inspection(string category)
@@ -225,7 +231,5 @@ namespace AutoTorrentInspection
                 CueFix(fileInfo, rowIndex);
             }
         }
-
-
     }
 }
