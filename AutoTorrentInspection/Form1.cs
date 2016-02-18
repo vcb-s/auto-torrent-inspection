@@ -75,11 +75,13 @@ namespace AutoTorrentInspection
                 {
                     _data = ConvertMethod.GetFileList(filepath);
                     btnAnnounceList.Enabled = false;
+                    cbFixCue.Enabled = true;
                     goto Inspection;
                 }
                 _torrent = new TorrentData(filepath);
                 _data    = _torrent.GetFileList();
                 btnAnnounceList.Enabled = true;
+                cbFixCue.Enabled = false;
                 if (_torrent.IsPrivate)
                 {
                     MessageBox.Show(caption: @"ATI Warning",       text: @"This torrent has been set as a private torrent",

@@ -188,6 +188,7 @@
             // 
             this.cbFixCue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbFixCue.AutoSize = true;
+            this.cbFixCue.Enabled = false;
             this.cbFixCue.Location = new System.Drawing.Point(13, 412);
             this.cbFixCue.Name = "cbFixCue";
             this.cbFixCue.Size = new System.Drawing.Size(75, 21);
