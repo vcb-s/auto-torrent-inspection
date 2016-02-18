@@ -122,7 +122,7 @@ namespace AutoTorrentInspection
             }
             toolStripStatusLabel_Status.Text = dataGridView1.Rows.Count == 0
                 ? "状态正常, All Green"
-                : $"发现世界的扭曲点 {dataGridView1.Rows.Count} 个";
+                : $"发现世界的扭曲点 {dataGridView1.Rows.Count} 个" + (cbShowAll.Checked ? "(并不是)" : "");
         }
 
         private void cbCategory_MouseEnter(object sender, EventArgs e) => toolTip1.Show(cbCategory.Text, cbCategory);
@@ -200,8 +200,9 @@ namespace AutoTorrentInspection
             _filePosition = string.Empty;
         }
 
-        private void dataGridView1_KeyDown(object sender, KeyEventArgs e)
+        private void dataGridView1_KeyUp(object sender, KeyEventArgs e)
         {
+            Debug.WriteLine($"{e.KeyCode} - {dataGridView1.SelectedCells[0].RowIndex}");
             if (dataGridView1.SelectedCells.Count != 1) return;
             var rowIndex = dataGridView1.SelectedCells[0].RowIndex;
             FileDescription fileInfo = dataGridView1.Rows[rowIndex].Tag as FileDescription;

@@ -114,7 +114,7 @@
             this.dataGridView1.TabIndex = 9;
             this.dataGridView1.TabStop = false;
             this.dataGridView1.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseClick);
-            this.dataGridView1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dataGridView1_KeyDown);
+            this.dataGridView1.KeyUp += new System.Windows.Forms.KeyEventHandler(this.dataGridView1_KeyUp);
             // 
             // ColPath
             // 
@@ -219,7 +219,7 @@
             this.toolStripStatusLabel_Encode.Name = "toolStripStatusLabel_Encode";
             this.toolStripStatusLabel_Encode.Size = new System.Drawing.Size(284, 17);
             this.toolStripStatusLabel_Encode.Spring = true;
-            this.toolStripStatusLabel_Encode.Text = " ";
+            this.toolStripStatusLabel_Encode.Text = " (0.00)";
             this.toolStripStatusLabel_Encode.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // Form1
