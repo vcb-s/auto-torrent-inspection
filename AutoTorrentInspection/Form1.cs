@@ -42,6 +42,8 @@ namespace AutoTorrentInspection
         private void Form1_Load(object sender, EventArgs e)
         {
             Text = $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version}";
+            RegistryStorage.Save(Application.ExecutablePath);
+            RegistryStorage.RegistryAddCount(@"Software\AutoTorrentInspection\Statistics", @"count");
         }
 
         private string FilePath
