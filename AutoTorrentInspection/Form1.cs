@@ -16,6 +16,29 @@ namespace AutoTorrentInspection
             InitializeComponent();
         }
 
+        public Form1(string args)
+        {
+            InitializeComponent();
+            FilePath = args;
+            try
+            {
+                Debug.Assert(FilePath != null);
+                if (Path.GetExtension(FilePath).ToLower() != ".torrent" && !Directory.Exists(FilePath))
+                {
+                    MessageBox.Show(caption: @"ATI Warning", text: $"无效的路径",
+                    buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Hand);
+                    Environment.Exit(0);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(caption: @"ATI Warning", text: $"Exception Message: \n\n    {ex.Message}",
+                    buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Hand);
+                Environment.Exit(0);
+            }
+            LoadFile(FilePath);
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
             Text = $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version}";
