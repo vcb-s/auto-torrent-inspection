@@ -47,6 +47,8 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel_Status = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel_Encode = new System.Windows.Forms.ToolStripStatusLabel();
+            this.OpenFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.contextMenuOpenFolder.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -173,9 +175,11 @@
             // contextMenuOpenFolder
             // 
             this.contextMenuOpenFolder.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.OpenFolderToolStripMenuItem});
+            this.OpenFolderToolStripMenuItem,
+            this.toolStripSeparator1,
+            this.OpenFileToolStripMenuItem});
             this.contextMenuOpenFolder.Name = "contextMenuOpenFolder";
-            this.contextMenuOpenFolder.Size = new System.Drawing.Size(161, 26);
+            this.contextMenuOpenFolder.Size = new System.Drawing.Size(161, 76);
             // 
             // OpenFolderToolStripMenuItem
             // 
@@ -228,6 +232,18 @@
             this.toolStripStatusLabel_Encode.Text = " (0.00)";
             this.toolStripStatusLabel_Encode.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
+            // OpenFileToolStripMenuItem
+            // 
+            this.OpenFileToolStripMenuItem.Name = "OpenFileToolStripMenuItem";
+            this.OpenFileToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.OpenFileToolStripMenuItem.Text = "打开选中文件";
+            this.OpenFileToolStripMenuItem.Click += new System.EventHandler(this.OpenFileToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(157, 6);
+            // 
             // Form1
             // 
             this.AllowDrop = true;
@@ -279,6 +295,8 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel_Status;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel_Encode;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem OpenFileToolStripMenuItem;
     }
 }
 

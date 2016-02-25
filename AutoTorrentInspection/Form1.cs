@@ -242,6 +242,13 @@ namespace AutoTorrentInspection
             _filePosition = string.Empty;
         }
 
+        private void OpenFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(_filePosition)) return;
+            Process.Start($"\"{_filePosition}\"");
+            _filePosition = string.Empty;
+        }
+
         private void dataGridView1_KeyUp(object sender, KeyEventArgs e)
         {
             Debug.WriteLine($"{e.KeyCode} - {dataGridView1.SelectedCells[0].RowIndex}");

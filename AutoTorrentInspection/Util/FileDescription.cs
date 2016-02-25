@@ -70,13 +70,12 @@ namespace AutoTorrentInspection.Util
 
         public void RecheckCueFile(DataGridViewRow row)
         {
-            Debug.WriteLine(@"----ReCheck----");
+            Debug.WriteLine(@"----ReCheck--Begin--");
             InValidCue = !CueCurer.CueMatchCheck(this);
             //Encode = EncodingDetector.GetEncodingN(FullPath);
             Encode = EncodingDetector.GetEncodingU(FullPath, out _confindece);
 
             InValidEncode = Encode != "UTF-8";
-            row.Cells[2].Value = Encode;
             foreach (DataGridViewCell cell in row.Cells)
             {
                 cell.Style.ForeColor = InValidCue ? INVALID_CUE : Color.Black;
@@ -86,7 +85,7 @@ namespace AutoTorrentInspection.Util
                 cell.Style.BackColor = InValidEncode ? INVALID_ENCODE: VALID_FILE;
             }
             Application.DoEvents();
-            Debug.WriteLine(@"----ReCheck----");
+            Debug.WriteLine(@"----ReCheck--End--");
         }
 
         private void CheckValidFile()
