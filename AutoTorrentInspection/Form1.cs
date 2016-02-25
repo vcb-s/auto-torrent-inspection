@@ -172,8 +172,11 @@ namespace AutoTorrentInspection
 
         private void cbFixCue_MouseLeave(object sender, EventArgs e) => toolTip1.Hide(cbFixCue);
 
+        private bool _fixing;
+
         private void CueFix(FileDescription fileInfo, int rowIndex)
         {
+            _fixing = true;
             Debug.WriteLine($"GridView[R = {rowIndex}]");
             if (rowIndex < 0) return;
 
@@ -214,10 +217,11 @@ namespace AutoTorrentInspection
 
         private void dataGridView1_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
+            if (e.RowIndex < 0) return;
             FileDescription fileInfo = dataGridView1.Rows[e.RowIndex].Tag as FileDescription;
             if (fileInfo == null)  return;
             var confindence = fileInfo.Confidence;
-            toolStripStatusLabel_Encode.Text = fileInfo.Encode + (confindence > 0.99F ? "" : $"({confindence:F2})");
+            toolStripStatusLabel_Encode.Text = $"{fileInfo.Encode}({confindence:F2})";
             Application.DoEvents();
             switch (e.Button)
             {
@@ -251,6 +255,7 @@ namespace AutoTorrentInspection
 
         private void dataGridView1_KeyUp(object sender, KeyEventArgs e)
         {
+            if (_fixing) return;
             Debug.WriteLine($"{e.KeyCode} - {dataGridView1.SelectedCells[0].RowIndex}");
 
             if (dataGridView1.SelectedCells.Count != 1) return;
@@ -259,10 +264,11 @@ namespace AutoTorrentInspection
             if (fileInfo == null) return;
 
             var confindence = fileInfo.Confidence;
-            toolStripStatusLabel_Encode.Text = fileInfo.Encode + (confindence > 0.99F ? "" : $"({confindence:F2})");
+            toolStripStatusLabel_Encode.Text = $"{fileInfo.Encode}({confindence:F2})";
             if (cbFixCue.Checked && e.KeyCode == Keys.Enter)
             {
                 CueFix(fileInfo, rowIndex);
+                _fixing = false;
             }
         }
     }
