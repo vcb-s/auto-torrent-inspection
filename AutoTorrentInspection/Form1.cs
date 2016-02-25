@@ -255,16 +255,15 @@ namespace AutoTorrentInspection
 
         private void dataGridView1_KeyUp(object sender, KeyEventArgs e)
         {
-            if (_fixing) return;
+            if (_fixing || dataGridView1.SelectedCells.Count != 1) return;
             Debug.WriteLine($"{e.KeyCode} - {dataGridView1.SelectedCells[0].RowIndex}");
-
-            if (dataGridView1.SelectedCells.Count != 1) return;
             var rowIndex = dataGridView1.SelectedCells[0].RowIndex;
             FileDescription fileInfo = dataGridView1.Rows[rowIndex].Tag as FileDescription;
             if (fileInfo == null) return;
 
             var confindence = fileInfo.Confidence;
             toolStripStatusLabel_Encode.Text = $"{fileInfo.Encode}({confindence:F2})";
+            Application.DoEvents();
             if (cbFixCue.Checked && e.KeyCode == Keys.Enter)
             {
                 CueFix(fileInfo, rowIndex);

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace AutoTorrentInspection.Util
@@ -33,45 +35,22 @@ namespace AutoTorrentInspection.Util
         public static string FixFilename(string original, string directory)
         {
             string filename = CueFileNameRegex.Match(original).Groups["fileName"].ToString();
-            if (!directory.EndsWith("\\"))
-            {
-                directory += "\\";
-            }
-            string[] files = null;
-            if (!File.Exists(directory + filename))
+            if (!directory.EndsWith("\\")) directory += "\\";
+            try
             {
                 //找到目录里的所有主文件名相同的文件
-                files = Directory.GetFiles(directory, filename.Split('.')[0] + ".*", SearchOption.TopDirectoryOnly);
+                var files = Directory.GetFiles(directory, filename.Substring(0, filename.LastIndexOf('.')) + ".*", SearchOption.TopDirectoryOnly);
+                var matchedFile = files.Select(file => new FileInfo(file)).First(fi => RAudioExt.IsMatch(fi.Extension));
+                original        = original.Replace(filename, matchedFile.Name);
             }
-            if (files != null && files.Length > 0)
+            catch(Exception exception)
             {
-                foreach (var file in files)
-                {
-                    var fi = new FileInfo(file);
-                    if (ExtIsAudioFile(fi.Extension))
-                    {
-                        fi = new FileInfo(file);
-                        original = original.Replace(filename, fi.Name);
-                    }
-                }
+                Debug.WriteLine(exception.Message + '\n' + directory);
             }
             return original;
         }
 
-        private static bool ExtIsAudioFile(string ext)
-        {
-            if (ext.StartsWith("."))
-            {
-                ext = ext.TrimStart('.');
-            }
-            return ext.Equals("flac", StringComparison.CurrentCultureIgnoreCase) ||
-                   ext.Equals("m4a",  StringComparison.CurrentCultureIgnoreCase) ||
-                   ext.Equals("tak",  StringComparison.CurrentCultureIgnoreCase) ||
-                   ext.Equals("wav",  StringComparison.CurrentCultureIgnoreCase) ||
-                   ext.Equals("mp3",  StringComparison.CurrentCultureIgnoreCase) ||
-                   ext.Equals("bin",  StringComparison.CurrentCultureIgnoreCase) ||
-                   ext.Equals("img",  StringComparison.CurrentCultureIgnoreCase);
-        }
+        private static readonly Regex RAudioExt = new Regex(@"\.(flac|m4a|tak|ape|tta|wav|mp3|bin|img)");
 
         public static void MakeBackup(string filename)
         {
@@ -79,14 +58,16 @@ namespace AutoTorrentInspection.Util
             try
             {
                 FileInfo fi = new FileInfo(filename);
-                if (!File.Exists(fi.DirectoryName + "\\" + fi.Name + ".bak"))
+                var bakPath = $"{fi.DirectoryName}\\{fi.Name}.bak";
+                if (!File.Exists(bakPath))
                 {
-                    fi.CopyTo(fi.DirectoryName + "\\" + fi.Name + ".bak");
+                    fi.CopyTo(bakPath);
                 }
             }
-
-            catch (IOException)
-            { }
+            catch (IOException exception)
+            {
+                Debug.WriteLine(exception.Message);
+            }
         }
     }
 }
