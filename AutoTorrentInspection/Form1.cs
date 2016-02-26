@@ -177,7 +177,7 @@ namespace AutoTorrentInspection
         private void CueFix(FileDescription fileInfo, int rowIndex)
         {
             _fixing = true;
-            Debug.WriteLine($"GridView[R = {rowIndex}]");
+            Debug.WriteLine($"CueFix: GridView[R = {rowIndex}]");
             if (rowIndex < 0) return;
 
             Debug.Assert(fileInfo != null);
