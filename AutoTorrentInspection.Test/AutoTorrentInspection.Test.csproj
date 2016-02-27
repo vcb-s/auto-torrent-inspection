@@ -55,6 +55,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\AssemblyCueTest.cs" />
     <Compile Include="Util\ConvertMethodTest.cs" />
+    <Compile Include="Util\CRC32Test.cs" />
     <Compile Include="Util\TorrentDataTest.cs" />
   </ItemGroup>
   <ItemGroup>
