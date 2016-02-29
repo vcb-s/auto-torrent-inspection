@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.Globalization;
 using AutoTorrentInspection.Util;
 
 namespace AutoTorrentInspection
@@ -14,11 +15,13 @@ namespace AutoTorrentInspection
         public Form1()
         {
             InitializeComponent();
+            AddCommand();
         }
 
         public Form1(string args)
         {
             InitializeComponent();
+            AddCommand();
             FilePath = args;
             try
             {
@@ -45,6 +48,41 @@ namespace AutoTorrentInspection
             RegistryStorage.Save(Application.ExecutablePath);
             RegistryStorage.RegistryAddCount(@"Software\AutoTorrentInspection\Statistics", @"count");
         }
+
+        private SystemMenu _systemMenu;
+
+        private void AddCommand()
+        {
+            _systemMenu = new SystemMenu(this);
+            _systemMenu.AddCommand("检查更新(&U)", Updater.CheckUpdate, true);
+        }
+
+        protected override void WndProc(ref Message msg)
+        {
+            base.WndProc(ref msg);
+
+            // Let it know all messages so it can handle WM_SYSCOMMAND
+            // (This method is inlined)
+            _systemMenu.HandleMessage(ref msg);
+        }
+
+        private static void CheckUpdate()
+        {
+            var reg = RegistryStorage.Load(@"Software\AutoTorrentInspection", "LastCheck");
+            if (string.IsNullOrEmpty(reg))
+            {
+                RegistryStorage.Save(DateTime.Now.ToString(CultureInfo.InvariantCulture), @"Software\AutoTorrentInspection", "LastCheck");
+                return;
+            }
+            var lastCheckTime = DateTime.Parse(reg);
+            if (DateTime.Now - lastCheckTime > new TimeSpan(7, 0, 0, 0))
+            {
+                Updater.CheckUpdate();
+                RegistryStorage.Save(DateTime.Now.ToString(CultureInfo.InvariantCulture), @"Software\AutoTorrentInspection", "LastCheck");
+                return;
+            }
+        }
+
 
         private string FilePath
         {

@@ -61,6 +61,12 @@
     <Compile Include="BencodeNET\Objects\IBObject.cs" />
     <Compile Include="BencodeNET\Objects\TorrentFile.cs" />
     <Compile Include="BencodeNET\UtilityExtensions.cs" />
+    <Compile Include="FormUpdater.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormUpdater.designer.cs">
+      <DependentUpon>FormUpdater.cs</DependentUpon>
+    </Compile>
     <Compile Include="Ude.Core\Big5Prober.cs" />
     <Compile Include="Ude.Core\BitPackage.cs" />
     <Compile Include="Ude.Core\CharDistributionAnalyser.cs" />
@@ -110,9 +116,14 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\RegistryStorage.cs" />
+    <Compile Include="Util\SystemMenu.cs" />
     <Compile Include="Util\TorrentData.cs" />
+    <Compile Include="Util\Updater.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormUpdater.resx">
+      <DependentUpon>FormUpdater.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
