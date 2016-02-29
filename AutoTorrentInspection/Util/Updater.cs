@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Reflection;
@@ -48,6 +49,24 @@ namespace AutoTorrentInspection.Util
             WebRequest webRequest = WebRequest.Create("http://tcupdate.applinzi.com/index.php");
             webRequest.Credentials = CredentialCache.DefaultCredentials;
             webRequest.BeginGetResponse(OnResponse, webRequest);
+        }
+
+        public static bool CheckUpdateWeekly(string program)
+        {
+            var reg = RegistryStorage.Load(@"Software\" + program, "LastCheck");
+            if (string.IsNullOrEmpty(reg))
+            {
+                RegistryStorage.Save(DateTime.Now.ToString(CultureInfo.InvariantCulture), @"Software\" + program, "LastCheck");
+                return false;
+            }
+            var lastCheckTime = DateTime.Parse(reg);
+            if (DateTime.Now - lastCheckTime > new TimeSpan(7, 0, 0, 0))
+            {
+                CheckUpdate();
+                RegistryStorage.Save(DateTime.Now.ToString(CultureInfo.InvariantCulture), @"Software\" + program, "LastCheck");
+                return true;
+            }
+            return false;
         }
 
         private static bool IsConnectInternet()

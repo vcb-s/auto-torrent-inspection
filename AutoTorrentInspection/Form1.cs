@@ -47,6 +47,7 @@ namespace AutoTorrentInspection
             Text = $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version}";
             RegistryStorage.Save(Application.ExecutablePath);
             RegistryStorage.RegistryAddCount(@"Software\AutoTorrentInspection\Statistics", @"count");
+            Updater.CheckUpdateWeekly("AutoTorrentInspection");
         }
 
         private SystemMenu _systemMenu;
@@ -65,24 +66,6 @@ namespace AutoTorrentInspection
             // (This method is inlined)
             _systemMenu.HandleMessage(ref msg);
         }
-
-        private static void CheckUpdate()
-        {
-            var reg = RegistryStorage.Load(@"Software\AutoTorrentInspection", "LastCheck");
-            if (string.IsNullOrEmpty(reg))
-            {
-                RegistryStorage.Save(DateTime.Now.ToString(CultureInfo.InvariantCulture), @"Software\AutoTorrentInspection", "LastCheck");
-                return;
-            }
-            var lastCheckTime = DateTime.Parse(reg);
-            if (DateTime.Now - lastCheckTime > new TimeSpan(7, 0, 0, 0))
-            {
-                Updater.CheckUpdate();
-                RegistryStorage.Save(DateTime.Now.ToString(CultureInfo.InvariantCulture), @"Software\AutoTorrentInspection", "LastCheck");
-                return;
-            }
-        }
-
 
         private string FilePath
         {
