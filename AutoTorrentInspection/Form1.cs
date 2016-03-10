@@ -76,16 +76,56 @@ namespace AutoTorrentInspection
         private TorrentData _torrent;
         private Dictionary<string, List<FileDescription>> _data;
 
+
+        private bool _isUrl = false;
+
         private void Form1_DragEnter(object sender, DragEventArgs e)
         {
-            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else if (e.Data.GetDataPresent(DataFormats.Text))
+            {
+                _isUrl = true;
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
         }
 
         private void Form1_DragDrop(object sender, DragEventArgs e)
         {
-            _paths = e.Data.GetData(DataFormats.FileDrop) as string[];
-            if (string.IsNullOrEmpty(FilePath)) return;
-            if (Path.GetExtension(FilePath).ToLower() != ".torrent" && !Directory.Exists(FilePath)) return;
+            if (_isUrl)
+            {
+                string url = e.Data.GetData("Text") as string;
+                if (string.IsNullOrEmpty(url) || !url.ToLower().EndsWith(".torrent"))
+                {
+                    return;
+                }
+                string filePath = Path.GetTempPath() + Path.GetFileName(url);
+                using (System.Net.WebClient wc = new System.Net.WebClient())
+                {
+                    try
+                    {
+                        wc.DownloadFile(url, filePath);
+                        FilePath = filePath;
+                    }
+                    catch
+                    {
+                        MessageBox.Show(@"种子文件下载失败", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        FilePath = string.Empty;
+                    }
+                }
+            }
+            else
+            {
+                _paths = e.Data.GetData(DataFormats.FileDrop) as string[];
+                if (string.IsNullOrEmpty(FilePath)) return;
+                if (Path.GetExtension(FilePath).ToLower() != ".torrent" && !Directory.Exists(FilePath)) return;
+            }
             LoadFile(FilePath);
         }
 
