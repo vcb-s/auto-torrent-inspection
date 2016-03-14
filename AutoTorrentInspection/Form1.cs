@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Collections.Generic;
-using System.Globalization;
 using AutoTorrentInspection.Util;
 
 namespace AutoTorrentInspection
@@ -77,7 +76,7 @@ namespace AutoTorrentInspection
         private Dictionary<string, List<FileDescription>> _data;
 
 
-        private bool _isUrl = false;
+        private bool _isUrl;
 
         private void Form1_DragEnter(object sender, DragEventArgs e)
         {
@@ -303,7 +302,7 @@ namespace AutoTorrentInspection
         private void OpenFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(_filePosition)) return;
-            Process.Start("Explorer.exe", "/select," + $"\"{_filePosition}\"");
+            Process.Start("Explorer.exe", $"/select,\"{_filePosition}\"");
             _filePosition = string.Empty;
         }
 

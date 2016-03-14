@@ -16,7 +16,17 @@ namespace AutoTorrentInspection.Util
         {
             Regex versionRegex = new Regex(@"AutoTorrentInspection (\d+)\.(\d+)\.(\d+)\.(\d+)");
             WebRequest webRequest = (WebRequest)ar.AsyncState;
-            Stream responseStream = webRequest.EndGetResponse(ar).GetResponseStream();
+            Stream responseStream;
+            try
+            {
+                responseStream = webRequest.EndGetResponse(ar).GetResponseStream();
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(string.Format("检查更新失败, 错误信息:{0}{1}{0}请联系TC以了解详情",
+                    Environment.NewLine, exception.Message), @"Update Check Fail");
+                responseStream = null;
+            }
             if (responseStream == null) return;
 
             StreamReader streamReader = new StreamReader(responseStream);
