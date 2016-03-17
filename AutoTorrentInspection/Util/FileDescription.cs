@@ -30,7 +30,7 @@ namespace AutoTorrentInspection.Util
 
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
 
-        private static readonly Regex AnimePartten  = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ (\[.*\d*\])*\[((?<Ma>Ma10p_1080p)|(?<Hi>(Hi10p|Hi444pp)_(2160|1080|720|480)p)|(?<EIGHT>(1080|720)p))\]\[((?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(flac|aac|ac3)\](?<SUB>(\.(sc|tc)|\.(chs|cht))*)\.((?(AVC)(mkv|mka|flac))|(?(HEVC)(mkv|mka|flac)|(?(EIGHT)mp4))|(?(SUB)ass))$");
+        private static readonly Regex AnimePartten  = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ (\[.*\d*\])*\[((((?<Ma>Ma10p)|(?<Hi>(Hi(10|444p)p)))_(2160|1080|720|480)p)|(?<EIGHT>(1080|720)p))\]\[((?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(flac|aac|ac3)\](\.(sc|tc|chs|cht))*\.((?(AVC)(mkv|mka|flac))|(?(HEVC)(mkv|mka|flac)|(?(EIGHT)mp4))|ass)$");
         private static readonly Regex MusicPartten  = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2)$", RegexOptions.IgnoreCase);
         private static readonly Regex ExceptPartten = new Regex(@"\.(rar|7z|zip)$", RegexOptions.IgnoreCase);
 
@@ -70,13 +70,12 @@ namespace AutoTorrentInspection.Util
 
         public void RecheckCueFile(DataGridViewRow row)
         {
-            Debug.WriteLine(@"----ReCheck----");
+            Debug.WriteLine(@"----ReCheck--Begin--");
             InValidCue = !CueCurer.CueMatchCheck(this);
             //Encode = EncodingDetector.GetEncodingN(FullPath);
             Encode = EncodingDetector.GetEncodingU(FullPath, out _confindece);
 
             InValidEncode = Encode != "UTF-8";
-            row.Cells[2].Value = Encode;
             foreach (DataGridViewCell cell in row.Cells)
             {
                 cell.Style.ForeColor = InValidCue ? INVALID_CUE : Color.Black;
@@ -86,7 +85,7 @@ namespace AutoTorrentInspection.Util
                 cell.Style.BackColor = InValidEncode ? INVALID_ENCODE: VALID_FILE;
             }
             Application.DoEvents();
-            Debug.WriteLine(@"----ReCheck----");
+            Debug.WriteLine(@"----ReCheck--End--");
         }
 
         private void CheckValidFile()

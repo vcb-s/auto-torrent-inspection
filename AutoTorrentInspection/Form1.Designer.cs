@@ -34,19 +34,21 @@
             this.btnRefresh = new System.Windows.Forms.Button();
             this.cbCategory = new System.Windows.Forms.ComboBox();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.ColPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.btnAnnounceList = new System.Windows.Forms.Button();
             this.cbShowAll = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.contextMenuOpenFolder = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.OpenFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.OpenFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cbFixCue = new System.Windows.Forms.CheckBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel_Status = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel_Encode = new System.Windows.Forms.ToolStripStatusLabel();
+            this.ColPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.contextMenuOpenFolder.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -118,30 +120,6 @@
             this.dataGridView1.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseClick);
             this.dataGridView1.KeyUp += new System.Windows.Forms.KeyEventHandler(this.dataGridView1_KeyUp);
             // 
-            // ColPath
-            // 
-            this.ColPath.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.ColPath.HeaderText = "路径";
-            this.ColPath.Name = "ColPath";
-            this.ColPath.ReadOnly = true;
-            this.ColPath.Width = 57;
-            // 
-            // ColFileName
-            // 
-            this.ColFileName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.ColFileName.HeaderText = "文件名";
-            this.ColFileName.Name = "ColFileName";
-            this.ColFileName.ReadOnly = true;
-            this.ColFileName.Width = 69;
-            // 
-            // ColSize
-            // 
-            this.ColSize.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.ColSize.HeaderText = "大小";
-            this.ColSize.Name = "ColSize";
-            this.ColSize.ReadOnly = true;
-            this.ColSize.Width = 57;
-            // 
             // openFileDialog1
             // 
             this.openFileDialog1.Filter = "torrent File|*.torrent";
@@ -173,9 +151,11 @@
             // contextMenuOpenFolder
             // 
             this.contextMenuOpenFolder.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.OpenFolderToolStripMenuItem});
+            this.OpenFolderToolStripMenuItem,
+            this.toolStripSeparator1,
+            this.OpenFileToolStripMenuItem});
             this.contextMenuOpenFolder.Name = "contextMenuOpenFolder";
-            this.contextMenuOpenFolder.Size = new System.Drawing.Size(161, 26);
+            this.contextMenuOpenFolder.Size = new System.Drawing.Size(161, 54);
             // 
             // OpenFolderToolStripMenuItem
             // 
@@ -184,10 +164,23 @@
             this.OpenFolderToolStripMenuItem.Text = "打开所在文件夹";
             this.OpenFolderToolStripMenuItem.Click += new System.EventHandler(this.OpenFolderToolStripMenuItem_Click);
             // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(157, 6);
+            // 
+            // OpenFileToolStripMenuItem
+            // 
+            this.OpenFileToolStripMenuItem.Name = "OpenFileToolStripMenuItem";
+            this.OpenFileToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.OpenFileToolStripMenuItem.Text = "打开选中文件";
+            this.OpenFileToolStripMenuItem.Click += new System.EventHandler(this.OpenFileToolStripMenuItem_Click);
+            // 
             // cbFixCue
             // 
             this.cbFixCue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbFixCue.AutoSize = true;
+            this.cbFixCue.Enabled = false;
             this.cbFixCue.Location = new System.Drawing.Point(13, 412);
             this.cbFixCue.Name = "cbFixCue";
             this.cbFixCue.Size = new System.Drawing.Size(75, 21);
@@ -226,6 +219,31 @@
             this.toolStripStatusLabel_Encode.Spring = true;
             this.toolStripStatusLabel_Encode.Text = " (0.00)";
             this.toolStripStatusLabel_Encode.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // ColPath
+            // 
+            this.ColPath.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ColPath.HeaderText = "路径";
+            this.ColPath.Name = "ColPath";
+            this.ColPath.ReadOnly = true;
+            this.ColPath.Width = 57;
+            // 
+            // ColFileName
+            // 
+            this.ColFileName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ColFileName.HeaderText = "文件名";
+            this.ColFileName.Name = "ColFileName";
+            this.ColFileName.ReadOnly = true;
+            this.ColFileName.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.ColFileName.Width = 50;
+            // 
+            // ColSize
+            // 
+            this.ColSize.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ColSize.HeaderText = "大小";
+            this.ColSize.Name = "ColSize";
+            this.ColSize.ReadOnly = true;
+            this.ColSize.Width = 57;
             // 
             // Form1
             // 
@@ -269,15 +287,17 @@
         private System.Windows.Forms.Button btnAnnounceList;
         private System.Windows.Forms.CheckBox cbShowAll;
         private System.Windows.Forms.ToolTip toolTip1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColPath;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColFileName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColSize;
         private System.Windows.Forms.ContextMenuStrip contextMenuOpenFolder;
         private System.Windows.Forms.ToolStripMenuItem OpenFolderToolStripMenuItem;
         private System.Windows.Forms.CheckBox cbFixCue;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel_Status;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel_Encode;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem OpenFileToolStripMenuItem;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColSize;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColFileName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColPath;
     }
 }
 

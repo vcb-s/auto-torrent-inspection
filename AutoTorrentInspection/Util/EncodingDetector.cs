@@ -20,7 +20,7 @@ namespace AutoTorrentInspection.Util
                     confindece = cdet.Confidence;
                     return cdet.Charset;
                 }
-                Debug.WriteLine(@"Detection failed.");
+                Debug.WriteLine($"Detection failed.\n{filename}");
                 return "UTF-8";
             }
         }

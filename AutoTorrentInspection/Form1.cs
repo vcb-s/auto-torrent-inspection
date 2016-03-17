@@ -14,11 +14,56 @@ namespace AutoTorrentInspection
         public Form1()
         {
             InitializeComponent();
+            AddCommand();
+        }
+
+        public Form1(string args)
+        {
+            InitializeComponent();
+            AddCommand();
+            FilePath = args;
+            try
+            {
+                Debug.Assert(FilePath != null);
+                if (Path.GetExtension(FilePath).ToLower() != ".torrent" && !Directory.Exists(FilePath))
+                {
+                    MessageBox.Show(caption: @"ATI Warning", text: $"无效的路径",
+                    buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Hand);
+                    Environment.Exit(0);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(caption: @"ATI Warning", text: $"Exception Message: \n\n    {ex.Message}",
+                    buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Hand);
+                Environment.Exit(0);
+            }
+            LoadFile(FilePath);
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             Text = $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version}";
+            RegistryStorage.Save(Application.ExecutablePath);
+            RegistryStorage.RegistryAddCount(@"Software\AutoTorrentInspection\Statistics", @"count");
+            Updater.CheckUpdateWeekly("AutoTorrentInspection");
+        }
+
+        private SystemMenu _systemMenu;
+
+        private void AddCommand()
+        {
+            _systemMenu = new SystemMenu(this);
+            _systemMenu.AddCommand("检查更新(&U)", Updater.CheckUpdate, true);
+        }
+
+        protected override void WndProc(ref Message msg)
+        {
+            base.WndProc(ref msg);
+
+            // Let it know all messages so it can handle WM_SYSCOMMAND
+            // (This method is inlined)
+            _systemMenu.HandleMessage(ref msg);
         }
 
         private string FilePath
@@ -30,16 +75,56 @@ namespace AutoTorrentInspection
         private TorrentData _torrent;
         private Dictionary<string, List<FileDescription>> _data;
 
+
+        private bool _isUrl;
+
         private void Form1_DragEnter(object sender, DragEventArgs e)
         {
-            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else if (e.Data.GetDataPresent(DataFormats.Text))
+            {
+                _isUrl = true;
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
         }
 
         private void Form1_DragDrop(object sender, DragEventArgs e)
         {
-            _paths = e.Data.GetData(DataFormats.FileDrop) as string[];
-            if (string.IsNullOrEmpty(FilePath)) return;
-            if (Path.GetExtension(FilePath).ToLower() != ".torrent" && !Directory.Exists(FilePath)) return;
+            if (_isUrl)
+            {
+                string url = e.Data.GetData("Text") as string;
+                if (string.IsNullOrEmpty(url) || !url.ToLower().EndsWith(".torrent"))
+                {
+                    return;
+                }
+                string filePath = Path.GetTempPath() + Path.GetFileName(url);
+                using (System.Net.WebClient wc = new System.Net.WebClient())
+                {
+                    try
+                    {
+                        wc.DownloadFile(url, filePath);
+                        FilePath = filePath;
+                    }
+                    catch
+                    {
+                        MessageBox.Show(@"种子文件下载失败", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        FilePath = string.Empty;
+                    }
+                }
+            }
+            else
+            {
+                _paths = e.Data.GetData(DataFormats.FileDrop) as string[];
+                if (string.IsNullOrEmpty(FilePath)) return;
+                if (Path.GetExtension(FilePath).ToLower() != ".torrent" && !Directory.Exists(FilePath)) return;
+            }
             LoadFile(FilePath);
         }
 
@@ -81,11 +166,13 @@ namespace AutoTorrentInspection
                 {
                     _data = ConvertMethod.GetFileList(filepath);
                     btnAnnounceList.Enabled = false;
+                    cbFixCue.Enabled = true;
                     goto Inspection;
                 }
                 _torrent = new TorrentData(filepath);
                 _data    = _torrent.GetFileList();
                 btnAnnounceList.Enabled = true;
+                cbFixCue.Enabled = false;
                 if (_torrent.IsPrivate)
                 {
                     MessageBox.Show(caption: @"ATI Warning",       text: @"This torrent has been set as a private torrent",
@@ -145,9 +232,12 @@ namespace AutoTorrentInspection
 
         private void cbFixCue_MouseLeave(object sender, EventArgs e) => toolTip1.Hide(cbFixCue);
 
+        private bool _fixing;
+
         private void CueFix(FileDescription fileInfo, int rowIndex)
         {
-            Debug.WriteLine($"GridView[R = {rowIndex}]");
+            _fixing = true;
+            Debug.WriteLine($"CueFix: GridView[R = {rowIndex}]");
             if (rowIndex < 0) return;
 
             Debug.Assert(fileInfo != null);
@@ -187,10 +277,11 @@ namespace AutoTorrentInspection
 
         private void dataGridView1_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
+            if (e.RowIndex < 0) return;
             FileDescription fileInfo = dataGridView1.Rows[e.RowIndex].Tag as FileDescription;
             if (fileInfo == null)  return;
             var confindence = fileInfo.Confidence;
-            toolStripStatusLabel_Encode.Text = fileInfo.Encode + (confindence > 0.99F ? "" : $"({confindence:F2})");
+            toolStripStatusLabel_Encode.Text = $"{fileInfo.Encode}({confindence:F2})";
             Application.DoEvents();
             switch (e.Button)
             {
@@ -211,24 +302,32 @@ namespace AutoTorrentInspection
         private void OpenFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(_filePosition)) return;
-            Process.Start("Explorer.exe", "/select," + $"\"{_filePosition}\"");
+            Process.Start("Explorer.exe", $"/select,\"{_filePosition}\"");
+            _filePosition = string.Empty;
+        }
+
+        private void OpenFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(_filePosition)) return;
+            Process.Start($"\"{_filePosition}\"");
             _filePosition = string.Empty;
         }
 
         private void dataGridView1_KeyUp(object sender, KeyEventArgs e)
         {
+            if (_fixing || dataGridView1.SelectedCells.Count != 1) return;
             Debug.WriteLine($"{e.KeyCode} - {dataGridView1.SelectedCells[0].RowIndex}");
-
-            if (dataGridView1.SelectedCells.Count != 1) return;
             var rowIndex = dataGridView1.SelectedCells[0].RowIndex;
             FileDescription fileInfo = dataGridView1.Rows[rowIndex].Tag as FileDescription;
             if (fileInfo == null) return;
 
             var confindence = fileInfo.Confidence;
-            toolStripStatusLabel_Encode.Text = fileInfo.Encode + (confindence > 0.99F ? "" : $"({confindence:F2})");
+            toolStripStatusLabel_Encode.Text = $"{fileInfo.Encode}({confindence:F2})";
+            Application.DoEvents();
             if (cbFixCue.Checked && e.KeyCode == Keys.Enter)
             {
                 CueFix(fileInfo, rowIndex);
+                _fixing = false;
             }
         }
     }
