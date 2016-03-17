@@ -14,7 +14,7 @@ namespace AutoTorrentInspection.Util
     {
         private static void OnResponse(IAsyncResult ar)
         {
-            Regex versionRegex = new Regex(@"RPChecker (\d+\.\d+\.\d+\.\d+)");
+            Regex versionRegex = new Regex(@"AutoTorrentInspection (\d+\.\d+\.\d+\.\d+)");
             WebRequest webRequest = (WebRequest)ar.AsyncState;
             Stream responseStream;
             try
