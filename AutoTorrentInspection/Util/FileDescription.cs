@@ -98,6 +98,7 @@ namespace AutoTorrentInspection.Util
                           !MusicPartten.IsMatch(FileName.ToLower()) &&
                           !AnimePartten.IsMatch(FileName);
             InValidPathLength = FullPath.Length > 245;
+            Debug.WriteLine(FullPath.Length);
             if (Extension != ".cue" || FullPath.Length > 256) return;
 
             //InValidEncode = !ConvertMethod.IsUTF8(FullPath);
