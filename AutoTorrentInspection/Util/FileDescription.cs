@@ -15,15 +15,16 @@ namespace AutoTorrentInspection.Util
 
     public class FileDescription
     {
-        private string FileName     { get; }
-        private string ReletivePath { get; }
-        public string FullPath      { get; }
-        public string Extension     { get; }
-        private long Length         { get; }
-        public bool InValidFile     { private set; get; }
-        public bool InValidEncode   { private set; get; }
-        public bool InValidCue      { private set; get; }
-        public string Encode        { private set; get; }
+        private string FileName          { get; }
+        private string ReletivePath      { get; }
+        public string FullPath           { get; }
+        public string Extension          { get; }
+        private long Length              { get; }
+        public bool InValidFile          { private set; get; }
+        public bool InValidEncode        { private set; get; }
+        public bool InValidCue           { private set; get; }
+        public bool InValidPathLength    { private set; get; }
+        public string Encode             { private set; get; }
         public float Confidence => _confindece;
         private float _confindece;
         public SourceTypeEnum SourceType { private set; get; }
@@ -34,10 +35,12 @@ namespace AutoTorrentInspection.Util
         private static readonly Regex MusicPartten  = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2)$", RegexOptions.IgnoreCase);
         private static readonly Regex ExceptPartten = new Regex(@"\.(rar|7z|zip)$", RegexOptions.IgnoreCase);
 
-        private readonly Color INVALID_FILE   = Color.FromArgb(251, 153, 102);
-        private readonly Color VALID_FILE     = Color.FromArgb(146, 170, 243);
-        private readonly Color INVALID_CUE    = Color.FromArgb(255, 101, 056);
-        private readonly Color INVALID_ENCODE = Color.FromArgb(078, 079, 151);
+        private readonly Color INVALID_FILE        = Color.FromArgb(251, 153, 102);
+        private readonly Color VALID_FILE          = Color.FromArgb(146, 170, 243);
+        private readonly Color INVALID_CUE         = Color.FromArgb(255, 101, 056);
+        private readonly Color INVALID_ENCODE      = Color.FromArgb(078, 079, 151);
+        private readonly Color INVALID_PATH_LENGTH = Color.FromArgb(255, 010, 050);
+
 
         public FileDescription(string fileName, string reletivePath, long length)//Torrent
         {
@@ -66,6 +69,7 @@ namespace AutoTorrentInspection.Util
             InValidFile = !ExceptPartten.IsMatch(Extension) &&
                           !MusicPartten.IsMatch(FileName) &&
                           !AnimePartten.IsMatch(FileName);
+            InValidPathLength = ReletivePath.Length > 245;
         }
 
         public void RecheckCueFile(DataGridViewRow row)
@@ -93,6 +97,8 @@ namespace AutoTorrentInspection.Util
             InValidFile = !ExceptPartten.IsMatch(Extension) &&
                           !MusicPartten.IsMatch(FileName.ToLower()) &&
                           !AnimePartten.IsMatch(FileName);
+            InValidPathLength = FullPath.Length > 245;
+            Debug.WriteLine(FullPath.Length);
             if (Extension != ".cue" || FullPath.Length > 256) return;
 
             //InValidEncode = !ConvertMethod.IsUTF8(FullPath);
@@ -115,6 +121,7 @@ namespace AutoTorrentInspection.Util
             row.DefaultCellStyle.BackColor = InValidFile ? INVALID_FILE : VALID_FILE;
             if (InValidCue) row.DefaultCellStyle.ForeColor = INVALID_CUE;
             if (InValidEncode) row.DefaultCellStyle.BackColor = INVALID_ENCODE;
+            if (InValidPathLength) row.DefaultCellStyle.BackColor = INVALID_PATH_LENGTH;
             return row;
         }
     }

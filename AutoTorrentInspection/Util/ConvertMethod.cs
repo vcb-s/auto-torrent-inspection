@@ -35,9 +35,9 @@ namespace AutoTorrentInspection.Util
             foreach (var file in EnumerateFolder(folderPath))
             {
                 var categorySlashPosition = file.IndexOf("\\", StringComparison.Ordinal);
-                var category = categorySlashPosition > -1 ? file.Substring(0, categorySlashPosition) : "root";
-                var pathSlashPosition = file.LastIndexOf("\\", StringComparison.Ordinal);
-                var relativePath = category == "root" ? "" : file.Substring(0, pathSlashPosition);
+                var category              = categorySlashPosition > -1 ? file.Substring(0, categorySlashPosition) : "root";
+                var pathSlashPosition     = file.LastIndexOf("\\", StringComparison.Ordinal);
+                var relativePath          = category == "root" ? "" : file.Substring(0, pathSlashPosition);
                 fileDic.TryAdd(category, new List<FileDescription>());
                 fileDic[category].Add(new FileDescription(Path.GetFileName(file), relativePath, $"{folderPath}\\{file}"));
             }
@@ -55,8 +55,6 @@ namespace AutoTorrentInspection.Util
             return Encoding.UTF8.GetString(buffer);
         }
 
-
-
         // Only call GetFileWithLongPath() if the path is too long
         // ... otherwise, new FileInfo() is sufficient
         //source from http://stackoverflow.com/questions/12204186/error-file-path-is-too-long
@@ -69,8 +67,8 @@ namespace AutoTorrentInspection.Util
             return new FileInfo(path);
         }
 
-        static int MAX_FILE_PATH = 260;
-        static int MAX_DIR_PATH = 248;
+        private static int MAX_FILE_PATH = 260;
+        private static int MAX_DIR_PATH  = 248;
 
         private static FileInfo GetFileWithLongPath(string path)
         {
@@ -117,9 +115,6 @@ namespace AutoTorrentInspection.Util
             // we get a max path length error.
             return dir.GetFiles().First(item => item.Name == subpaths[subpaths.Length - 1]);
         }
-
-
-
 
         /// <summary>
         /// 将指定集合的元素添加到 <see cref= "T:System.Collections.Generic.Queue`1"/> 的结尾处。
