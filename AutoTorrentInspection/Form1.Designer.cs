@@ -34,6 +34,9 @@
             this.btnRefresh = new System.Windows.Forms.Button();
             this.cbCategory = new System.Windows.Forms.ComboBox();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.ColPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.btnAnnounceList = new System.Windows.Forms.Button();
             this.cbShowAll = new System.Windows.Forms.CheckBox();
@@ -46,9 +49,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel_Status = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel_Encode = new System.Windows.Forms.ToolStripStatusLabel();
-            this.ColPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnWebP = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.contextMenuOpenFolder.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -119,6 +120,31 @@
             this.dataGridView1.TabStop = false;
             this.dataGridView1.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseClick);
             this.dataGridView1.KeyUp += new System.Windows.Forms.KeyEventHandler(this.dataGridView1_KeyUp);
+            // 
+            // ColPath
+            // 
+            this.ColPath.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ColPath.HeaderText = "路径";
+            this.ColPath.Name = "ColPath";
+            this.ColPath.ReadOnly = true;
+            this.ColPath.Width = 57;
+            // 
+            // ColFileName
+            // 
+            this.ColFileName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ColFileName.HeaderText = "文件名";
+            this.ColFileName.Name = "ColFileName";
+            this.ColFileName.ReadOnly = true;
+            this.ColFileName.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.ColFileName.Width = 50;
+            // 
+            // ColSize
+            // 
+            this.ColSize.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.ColSize.HeaderText = "大小";
+            this.ColSize.Name = "ColSize";
+            this.ColSize.ReadOnly = true;
+            this.ColSize.Width = 57;
             // 
             // openFileDialog1
             // 
@@ -220,30 +246,17 @@
             this.toolStripStatusLabel_Encode.Text = " (0.00)";
             this.toolStripStatusLabel_Encode.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // ColPath
+            // btnWebP
             // 
-            this.ColPath.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.ColPath.HeaderText = "路径";
-            this.ColPath.Name = "ColPath";
-            this.ColPath.ReadOnly = true;
-            this.ColPath.Width = 57;
-            // 
-            // ColFileName
-            // 
-            this.ColFileName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.ColFileName.HeaderText = "文件名";
-            this.ColFileName.Name = "ColFileName";
-            this.ColFileName.ReadOnly = true;
-            this.ColFileName.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.ColFileName.Width = 50;
-            // 
-            // ColSize
-            // 
-            this.ColSize.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.ColSize.HeaderText = "大小";
-            this.ColSize.Name = "ColSize";
-            this.ColSize.ReadOnly = true;
-            this.ColSize.Width = 57;
+            this.btnWebP.Enabled = false;
+            this.btnWebP.Location = new System.Drawing.Point(12, 344);
+            this.btnWebP.Name = "btnWebP";
+            this.btnWebP.Size = new System.Drawing.Size(87, 33);
+            this.btnWebP.TabIndex = 12;
+            this.btnWebP.Text = "WebP";
+            this.btnWebP.UseVisualStyleBackColor = true;
+            this.btnWebP.Visible = false;
+            this.btnWebP.Click += new System.EventHandler(this.btnWebP_Click);
             // 
             // Form1
             // 
@@ -251,6 +264,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(584, 461);
+            this.Controls.Add(this.btnWebP);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.cbFixCue);
             this.Controls.Add(this.cbShowAll);
@@ -298,6 +312,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ColSize;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColFileName;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColPath;
+        private System.Windows.Forms.Button btnWebP;
     }
 }
 

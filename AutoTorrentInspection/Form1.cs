@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using AutoTorrentInspection.Properties;
 using AutoTorrentInspection.Util;
 
 namespace AutoTorrentInspection
@@ -156,6 +157,7 @@ namespace AutoTorrentInspection
 
         private void LoadFile(string filepath)
         {
+            btnWebP.Visible = btnWebP.Enabled = false;
             _torrent = null;
             btnRefresh.Enabled = true;
             try
@@ -184,6 +186,20 @@ namespace AutoTorrentInspection
                                     text:    $"Comment: {_torrent.Comment ?? "无可奉告"}{Environment.NewLine}Source: {_torrent.Source}");
                 }
                 Inspection:
+                if (_data.Any(catalog => catalog.Value.Any(item => item.Extension == ".webp")))
+                {
+                    if (_data.ContainsKey("root"))
+                    {
+                        if (!_data["root"].Any(item => item.FullPath.Contains("readme about WebP.txt")))
+                        {
+                            MessageBox.Show(@"发现WebP格式图片但未在根目录发现readme about WebP.txt");
+                            if (_torrent == null)
+                            {
+                                btnWebP.Visible = btnWebP.Enabled = true;
+                            }
+                        }
+                    }
+                }
                 ThroughInspection();
                 cbCategory.Enabled = cbCategory.Items.Count > 1;
             }
@@ -191,6 +207,22 @@ namespace AutoTorrentInspection
             {
                 MessageBox.Show(caption: @"ATI Warning",       text: $"Exception Message: \n\n    {ex.Message}",
                                 buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Hand);
+            }
+        }
+        private void btnWebP_Click(object sender, EventArgs e)
+        {
+            string txtpath = Path.Combine(FilePath, "readme about WebP.txt");
+            if (MessageBox.Show(@"是否在根目录生成 readme about WebP.txt", @"ATI Tips", MessageBoxButtons.OKCancel) == DialogResult.OK)
+            {
+                try
+                {
+                    File.WriteAllText(txtpath, Resources.ReadmeAboutWebP);
+                    btnWebP.Visible = btnWebP.Enabled = false;
+                }
+                catch (Exception exception)
+                {
+                    MessageBox.Show($"生成失败\n{exception.Message}");
+                }
             }
         }
 
