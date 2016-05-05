@@ -107,7 +107,7 @@ namespace AutoTorrentInspection.Util
 
         public static string GetCueFromTak(string takPath)
         {
-            var fs = File.Open(takPath, FileMode.Open);
+            var fs = File.Open(takPath, FileMode.Open, FileAccess.Read);
             if (fs.Length < 1048576)// 小于1M，文档太小了
             {
                 fs.Close();
@@ -129,7 +129,7 @@ namespace AutoTorrentInspection.Util
 
         public static string GetCueFromFlac(string flacPath)
         {
-            var fs = File.Open(flacPath, FileMode.Open);
+            var fs = File.Open(flacPath, FileMode.Open, FileAccess.Read);
             if (fs.Length < 1048576)// 小于1M，文档太小了
             {
                 fs.Close();

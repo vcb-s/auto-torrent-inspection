@@ -243,7 +243,7 @@ namespace AutoTorrentInspection
 
         private void Inspection(string category)
         {
-            Func<FileDescription, bool> check = item => item.InValidFile || item.InValidCue || item.InValidEncode || item.InValidPathLength || cbShowAll.Checked;
+            Func<FileDescription, bool> check = item => item.State != FileState.ValidFile || cbShowAll.Checked;
             foreach (var item in _data[category].Where(item => check(item)))
             {
                 dataGridView1.Rows.Add(item.ToRow());
@@ -275,7 +275,7 @@ namespace AutoTorrentInspection
             Debug.Assert(fileInfo != null);
             if (fileInfo.Extension.ToLower() != ".cue") return;
             var confindence = fileInfo.Confidence;
-            if (fileInfo.InValidEncode)
+            if (fileInfo.State == FileState.InValidEncode)
             {
                 var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.OKCancel,
                     text:
@@ -289,7 +289,7 @@ namespace AutoTorrentInspection
                     fileInfo.RecheckCueFile(dataGridView1.Rows[rowIndex]);
                 }
             }
-            else if (fileInfo.InValidCue)
+            else if (fileInfo.State == FileState.InValidCue)
             {
                 var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.OKCancel,
                     text: $"该cue内文件名与实际文件不相符, 是否尝试修复?\n注: 非常规编码可能无法正确修复, 此时请检查备份。");
