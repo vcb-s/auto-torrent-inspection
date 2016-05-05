@@ -31,7 +31,7 @@ namespace AutoTorrentInspection.Util
 
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
 
-        private static readonly Regex AnimePartten  = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ (\[.*\d*\])*\[((((?<Ma>Ma10p)|(?<Hi>(Hi(10|444p)p)))_(2160|1080|720|480)p)|(?<EIGHT>(1080|720)p))\]\[((?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(flac|aac|ac3)\](\.(sc|tc|chs|cht))*\.((?(AVC)(mkv|mka|flac))|(?(HEVC)(mkv|mka|flac)|(?(EIGHT)mp4))|ass)$");
+        private static readonly Regex AnimePartten  = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ (\[.*\d*\])*\[((((?<Ma>Ma10p)|(?<Hi>(Hi(10|444p)p)))_(2160|1080|720|576|480)p)|(?<EIGHT>(1080|576|720)p))\]\[((?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(flac|aac|ac3)\](\.(sc|tc|chs|cht))*\.((?(AVC)(mkv|mka|flac))|(?(HEVC)(mkv|mka|flac)|(?(EIGHT)mp4))|ass)$");
         private static readonly Regex MusicPartten  = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2|webp)$", RegexOptions.IgnoreCase);
         private static readonly Regex ExceptPartten = new Regex(@"\.(rar|7z|zip)$", RegexOptions.IgnoreCase);
 

@@ -212,17 +212,16 @@ namespace AutoTorrentInspection
         private void btnWebP_Click(object sender, EventArgs e)
         {
             string txtpath = Path.Combine(FilePath, "readme about WebP.txt");
-            if (MessageBox.Show(@"是否在根目录生成 readme about WebP.txt", @"ATI Tips", MessageBoxButtons.OKCancel) == DialogResult.OK)
+            if (MessageBox.Show(@"是否在根目录生成 readme about WebP.txt", @"ATI Tips", MessageBoxButtons.OKCancel)
+                != DialogResult.OK) return;
+            try
             {
-                try
-                {
-                    File.WriteAllText(txtpath, Resources.ReadmeAboutWebP);
-                    btnWebP.Visible = btnWebP.Enabled = false;
-                }
-                catch (Exception exception)
-                {
-                    MessageBox.Show($"生成失败\n{exception.Message}");
-                }
+                File.WriteAllText(txtpath, Resources.ReadmeAboutWebP);
+                btnWebP.Visible = btnWebP.Enabled = false;
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show($"生成失败\n{exception.Message}");
             }
         }
 
