@@ -36,11 +36,11 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-/// <summary>
-/// Escaped charsets state machines
-/// </summary>
 namespace Ude.Core
 {
+    /// <summary>
+    /// Escaped charsets state machines
+    /// </summary>
     public class HZSMModel : SMModel
     {
         private static readonly int[] HZ_cls = {

@@ -94,6 +94,7 @@ namespace Ude.Core
         /// </summary>
         /// <param name="buf">A <see cref="System.Byte"/></param>
         /// <param name="offset">buf offset</param>
+        /// <param name="charLen"></param>
         public void HandleOneChar(byte[] buf, int offset, int charLen)
         {
             //we only care about 2-bytes character in our distribution analysis

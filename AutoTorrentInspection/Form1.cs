@@ -275,33 +275,37 @@ namespace AutoTorrentInspection
             Debug.Assert(fileInfo != null);
             if (fileInfo.Extension.ToLower() != ".cue") return;
             var confindence = fileInfo.Confidence;
-            if (fileInfo.State == FileState.InValidEncode)
+
+            switch (fileInfo.State)
             {
-                var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.OKCancel,
-                    text:
-                        $"该cue编码不是UTF-8, 是否尝试修复?\n注: 有" + (confindence > 0.6 ? "小" : "大") +
-                        @"概率失败, 此时请检查备份。");
-                if (dResult == DialogResult.OK)
+                case FileState.InValidEncode:
                 {
-                    CueCurer.MakeBackup(fileInfo.FullPath);
-                    var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
-                    EncodingConverter.SaveAsEncoding(originContext, fileInfo.FullPath, "UTF-8");
-                    fileInfo.RecheckCueFile(dataGridView1.Rows[rowIndex]);
+                    var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.YesNo,
+                        text: $"该cue编码不是UTF-8, 是否尝试修复?\n注: 有{(confindence > 0.6 ? "小" : "大")}概率失败, 此时请检查备份。");
+                    if (dResult == DialogResult.Yes)
+                    {
+                        CueCurer.MakeBackup(fileInfo.FullPath);
+                        var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
+                        EncodingConverter.SaveAsEncoding(originContext, fileInfo.FullPath, "UTF-8");
+                        fileInfo.RecheckCueFile(dataGridView1.Rows[rowIndex]);
+                    }
                 }
-            }
-            else if (fileInfo.State == FileState.InValidCue)
-            {
-                var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.OKCancel,
-                    text: $"该cue内文件名与实际文件不相符, 是否尝试修复?\n注: 非常规编码可能无法正确修复, 此时请检查备份。");
-                if (dResult == DialogResult.OK)
+                break;
+                case FileState.InValidCue:
                 {
-                    CueCurer.MakeBackup(fileInfo.FullPath);
-                    var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
-                    var directory = Path.GetDirectoryName(fileInfo.FullPath);
-                    var editedContext = CueCurer.FixFilename(originContext, directory);
-                    EncodingConverter.SaveAsEncoding(editedContext, fileInfo.FullPath, "UTF-8");
-                    fileInfo.RecheckCueFile(dataGridView1.Rows[rowIndex]);
+                    var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.YesNo,
+                        text: $"该cue内文件名与实际文件不相符, 是否尝试修复?\n注: 非常规编码可能无法正确修复, 此时请检查备份。");
+                    if (dResult == DialogResult.Yes)
+                    {
+                        CueCurer.MakeBackup(fileInfo.FullPath);
+                        var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
+                        var directory = Path.GetDirectoryName(fileInfo.FullPath);
+                        var editedContext = CueCurer.FixFilename(originContext, directory);
+                        EncodingConverter.SaveAsEncoding(editedContext, fileInfo.FullPath, "UTF-8");
+                        fileInfo.RecheckCueFile(dataGridView1.Rows[rowIndex]);
+                    }
                 }
+                break;
             }
         }
 
