@@ -279,7 +279,7 @@ namespace AutoTorrentInspection
             {
                 var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.OKCancel,
                     text:
-                        @"该cue编码不是UTF-8, 是否尝试修复?\n注: 有" + (confindence > 0.6 ? "小" : "大") +
+                        $"该cue编码不是UTF-8, 是否尝试修复?\n注: 有" + (confindence > 0.6 ? "小" : "大") +
                         @"概率失败, 此时请检查备份。");
                 if (dResult == DialogResult.OK)
                 {

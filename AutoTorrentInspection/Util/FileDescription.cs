@@ -96,23 +96,32 @@ namespace AutoTorrentInspection.Util
         {
             State = FileState.ValidFile;
             Debug.WriteLine(@"----ReCheck--Begin----");
-            if (!CueCurer.CueMatchCheck(this))
-            {
-                State = FileState.InValidCue;
-            }
             Encode = EncodingDetector.GetEncodingU(FullPath, out _confindece);
             if (Encode != "UTF-8")
             {
                 State = FileState.InValidEncode;
+                goto ReSetColor;
             }
-            //InValidEncode = Encode != "UTF-8";
+            if (!CueCurer.CueMatchCheck(this))
+            {
+                State = FileState.InValidCue;
+            }
+
+            ReSetColor:
+            Color rowColor = VALID_FILE;
+            switch (State)
+            {
+                case FileState.InValidCue:
+                    rowColor = INVALID_CUE;
+                    break;
+                case FileState.InValidEncode:
+                    rowColor = INVALID_ENCODE;
+                    break;
+            }
+
             foreach (DataGridViewCell cell in row.Cells)
             {
-                cell.Style.ForeColor = State == FileState.InValidCue ? INVALID_CUE : Color.Black;
-            }
-            foreach (DataGridViewCell cell in row.Cells)
-            {
-                cell.Style.BackColor = State == FileState.InValidEncode ? INVALID_ENCODE: VALID_FILE;
+                cell.Style.BackColor = rowColor;
             }
             Application.DoEvents();
             Debug.WriteLine(@"----ReCheck--End----");
@@ -145,6 +154,7 @@ namespace AutoTorrentInspection.Util
             if (Encode != "UTF-8")
             {
                 State = FileState.InValidEncode;
+                return;
             }
             if (!CueCurer.CueMatchCheck(this))
             {
@@ -172,7 +182,7 @@ namespace AutoTorrentInspection.Util
                     row.DefaultCellStyle.BackColor = INVALID_FILE;
                     break;
                 case FileState.InValidCue:
-                    row.DefaultCellStyle.ForeColor = INVALID_CUE;
+                    row.DefaultCellStyle.BackColor = INVALID_CUE;
                     break;
                 case FileState.InValidEncode:
                     row.DefaultCellStyle.BackColor = INVALID_ENCODE;
