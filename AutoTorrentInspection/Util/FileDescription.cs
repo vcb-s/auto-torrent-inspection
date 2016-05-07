@@ -79,18 +79,23 @@ namespace AutoTorrentInspection.Util
                 State = FileState.InValidPathLength;
                 return;
             }
-            if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) || MenuPngPattern.IsMatch(FileName))
+            if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) ||
+                MenuPngPattern.IsMatch(FileName))
             {
                 State = FileState.ValidFile;
                 return;
             }
             State = FileState.InValidFile;
+            if (FileName == "readme about WebP.txt")
+            {
+                State = FileState.ValidFile;
+            }
         }
 
         public void RecheckCueFile(DataGridViewRow row)
         {
             State = FileState.ValidFile;
-            Debug.WriteLine(@"----ReCheck--Begin--");
+            Debug.WriteLine(@"----ReCheck--Begin----");
             if (!CueCurer.CueMatchCheck(this))
             {
                 State = FileState.InValidCue;
@@ -110,7 +115,7 @@ namespace AutoTorrentInspection.Util
                 cell.Style.BackColor = State == FileState.InValidEncode ? INVALID_ENCODE: VALID_FILE;
             }
             Application.DoEvents();
-            Debug.WriteLine(@"----ReCheck--End--");
+            Debug.WriteLine(@"----ReCheck--End----");
         }
 
         private void CheckValidFile()
@@ -129,7 +134,11 @@ namespace AutoTorrentInspection.Util
             {
                 State = FileState.InValidFile;
             }
-
+            if (FileName == "readme about WebP.txt")
+            {
+                State = FileState.ValidFile;
+                return;
+            }
             if (Extension != ".cue"/* || FullPath.Length > 256*/) return;
 
             Encode = EncodingDetector.GetEncodingU(FullPath, out _confindece);

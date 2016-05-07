@@ -56,7 +56,6 @@ namespace AutoTorrentInspection.Util
             }
         }
 
-
         public string TorrentName
         {
             get
@@ -77,6 +76,8 @@ namespace AutoTorrentInspection.Util
                 return pri != null && (BNumber) pri != 0 && (BNumber) pri == 1;
             }
         }
+
+        public string Encoding => _torrent.Encoding;
 
         public Dictionary<string, List<FileDescription>> GetFileList()
         {

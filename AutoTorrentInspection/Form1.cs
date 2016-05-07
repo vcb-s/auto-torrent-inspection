@@ -28,7 +28,7 @@ namespace AutoTorrentInspection
                 Debug.Assert(FilePath != null);
                 if (Path.GetExtension(FilePath).ToLower() != ".torrent" && !Directory.Exists(FilePath))
                 {
-                    MessageBox.Show(caption: @"ATI Warning", text: $"无效的路径",
+                    MessageBox.Show(caption: @"ATI Warning", text: @"无效的路径",
                     buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Hand);
                     Environment.Exit(0);
                 }
@@ -192,7 +192,7 @@ namespace AutoTorrentInspection
                     {
                         if (!_data["root"].Any(item => item.FullPath.Contains("readme about WebP.txt")))
                         {
-                            MessageBox.Show(@"发现WebP格式图片但未在根目录发现readme about WebP.txt");
+                            MessageBox.Show($"发现WebP格式图片\n但未在根目录发现readme about WebP.txt", @"ATI Tips");
                             if (_torrent == null)
                             {
                                 btnWebP.Visible = btnWebP.Enabled = true;
@@ -212,8 +212,8 @@ namespace AutoTorrentInspection
         private void btnWebP_Click(object sender, EventArgs e)
         {
             string txtpath = Path.Combine(FilePath, "readme about WebP.txt");
-            if (MessageBox.Show(@"是否在根目录生成 readme about WebP.txt", @"ATI Tips", MessageBoxButtons.OKCancel)
-                != DialogResult.OK) return;
+            if (MessageBox.Show(@"是否在根目录生成 readme about WebP.txt", @"ATI Tips", MessageBoxButtons.YesNo)
+                != DialogResult.Yes) return;
             try
             {
                 File.WriteAllText(txtpath, Resources.ReadmeAboutWebP);
@@ -238,7 +238,7 @@ namespace AutoTorrentInspection
             {
                 cbCategory.SelectedIndex = cbCategory.SelectedIndex == -1 ? 0 : cbCategory.SelectedIndex;
             }
-            Text = $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version} - {(_torrent != null?_torrent.TorrentName : FilePath)} - By [{_torrent?.CreatedBy ?? "folder"}] - {_torrent?.CreationDate}";
+            Text = $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version} - {_torrent?.TorrentName ?? FilePath} - By [{_torrent?.CreatedBy ?? "folder"}] - {_torrent?.Encoding} - {_torrent?.CreationDate}";
         }
 
         private void Inspection(string category)
@@ -279,7 +279,7 @@ namespace AutoTorrentInspection
             {
                 var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.OKCancel,
                     text:
-                        $"该cue编码不是UTF-8, 是否尝试修复?\n注: 有" + (confindence > 0.6 ? "小" : "大") +
+                        @"该cue编码不是UTF-8, 是否尝试修复?\n注: 有" + (confindence > 0.6 ? "小" : "大") +
                         @"概率失败, 此时请检查备份。");
                 if (dResult == DialogResult.OK)
                 {
