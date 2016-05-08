@@ -71,10 +71,7 @@ namespace BencodeNET.Objects
         /// <summary>
         /// Gets the length in bytes of the string.
         /// </summary>
-        public int Length
-        {
-            get { return Value.Length; }
-        }
+        public int Length => Value.Length;
 
         public static implicit operator BString(string value)
         {

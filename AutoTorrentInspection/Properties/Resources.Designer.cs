@@ -59,5 +59,14 @@ namespace AutoTorrentInspection.Properties {
                 resourceCulture = value;
             }
         }
+
+        /// <summary>
+        ///   返回 'readme about WebP.txt' 的内容
+        /// </summary>
+        internal static string ReadmeAboutWebP {
+            get {
+                return ResourceManager.GetString("ReadmeAboutWebP", resourceCulture);
+            }
+        }
     }
 }

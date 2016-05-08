@@ -38,7 +38,7 @@ namespace AutoTorrentInspection.Test.Util
             Assert.IsTrue(fileList.Count == 2);
             Assert.IsTrue(fileList["root"].Count == 4);
             Assert.IsTrue(fileList["スキャン"].Count == 12);
-            Assert.IsTrue(fileList.Keys.Sum(category => fileList[category].Count(item => item.InValidFile)) == 14);
+            Assert.IsTrue(fileList.Keys.Sum(category => fileList[category].Count(item => item.State == FileState.InValidFile)) == 14);
         }
 
         [TestMethod()]
@@ -57,7 +57,7 @@ namespace AutoTorrentInspection.Test.Util
             var fileList = _torrent.GetFileList();
             Assert.IsTrue(fileList.Count == 1);
             Assert.IsTrue(fileList["single"].Count == 1);
-            Assert.IsTrue(fileList.Keys.Sum(category => fileList[category].Count(item => item.InValidFile)) == 0);
+            Assert.IsTrue(fileList.Keys.Sum(category => fileList[category].Count(item => item.State == FileState.InValidFile)) == 0);
         }
 
         [TestMethod()]
@@ -76,7 +76,7 @@ namespace AutoTorrentInspection.Test.Util
             var fileList = _torrent.GetFileList();
             Assert.IsTrue(fileList.Count == 1);
             Assert.IsTrue(fileList["root"].Count == 2);
-            Assert.IsTrue(fileList.Keys.Sum(category => fileList[category].Count(item => item.InValidFile)) == 2);
+            Assert.IsTrue(fileList.Keys.Sum(category => fileList[category].Count(item => item.State == FileState.InValidFile)) == 2);
         }
 
         [TestMethod()]
@@ -86,7 +86,7 @@ namespace AutoTorrentInspection.Test.Util
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             var fileList = _torrent.GetFileList();
-            Assert.IsTrue(fileList.Keys.Sum(category => fileList[category].Count(item => item.InValidFile)) == 33);
+            Assert.IsTrue(fileList.Keys.Sum(category => fileList[category].Count(item => item.State == FileState.InValidFile)) == 33);
         }
 
         [TestMethod()]
@@ -96,7 +96,7 @@ namespace AutoTorrentInspection.Test.Util
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             var fileList = _torrent.GetFileList();
-            Assert.IsTrue(fileList.Keys.Sum(category => fileList[category].Count(item => item.InValidFile)) == 1);
+            Assert.IsTrue(fileList.Keys.Sum(category => fileList[category].Count(item => item.State == FileState.InValidFile)) == 1);
         }
 
         [TestMethod()]

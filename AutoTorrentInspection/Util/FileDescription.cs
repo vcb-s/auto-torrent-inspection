@@ -13,6 +13,15 @@ namespace AutoTorrentInspection.Util
         Torrent
     }
 
+    public enum FileState
+    {
+        ValidFile,
+        InValidPathLength,
+        InValidFile,
+        InValidCue,
+        InValidEncode
+    }
+
     public class FileDescription
     {
         private string FileName          { get; }
@@ -20,10 +29,9 @@ namespace AutoTorrentInspection.Util
         public string FullPath           { get; }
         public string Extension          { get; }
         private long Length              { get; }
-        public bool InValidFile          { private set; get; }
-        public bool InValidEncode        { private set; get; }
-        public bool InValidCue           { private set; get; }
-        public bool InValidPathLength    { private set; get; }
+
+        public FileState State { get; private set; } = FileState.InValidFile;
+
         public string Encode             { private set; get; }
         public float Confidence => _confindece;
         private float _confindece;
@@ -31,16 +39,16 @@ namespace AutoTorrentInspection.Util
 
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
 
-        private static readonly Regex AnimePartten  = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ (\[.*\d*\])*\[((((?<Ma>Ma10p)|(?<Hi>(Hi(10|444p)p)))_(2160|1080|720|480)p)|(?<EIGHT>(1080|720)p))\]\[((?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(flac|aac|ac3)\](\.(sc|tc|chs|cht))*\.((?(AVC)(mkv|mka|flac))|(?(HEVC)(mkv|mka|flac)|(?(EIGHT)mp4))|ass)$");
-        private static readonly Regex MusicPartten  = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2)$", RegexOptions.IgnoreCase);
-        private static readonly Regex ExceptPartten = new Regex(@"\.(rar|7z|zip)$", RegexOptions.IgnoreCase);
+        private static readonly Regex AnimePattern  = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ (\[.*\d*\])*\[((((?<Ma>Ma10p)|(?<Hi>(Hi(10|444p)p)))_(2160|1080|720|576|480)p)|(?<EIGHT>(1080|576|720)p))\]\[((?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(flac|aac|ac3)\](\.(sc|tc|chs|cht))*\.((?(AVC)(mkv|mka|flac))|(?(HEVC)(mkv|mka|flac)|(?(EIGHT)mp4))|ass)$");
+        private static readonly Regex MenuPngPattern = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ \[Menu[^\[\]]*\]\.png$");
+        private static readonly Regex MusicPattern  = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2|webp)$", RegexOptions.IgnoreCase);
+        private static readonly Regex ExceptPattern = new Regex(@"\.(rar|7z|zip)$", RegexOptions.IgnoreCase);
 
-        private readonly Color INVALID_FILE        = Color.FromArgb(251, 153, 102);
-        private readonly Color VALID_FILE          = Color.FromArgb(146, 170, 243);
-        private readonly Color INVALID_CUE         = Color.FromArgb(255, 101, 056);
-        private readonly Color INVALID_ENCODE      = Color.FromArgb(078, 079, 151);
-        private readonly Color INVALID_PATH_LENGTH = Color.FromArgb(255, 010, 050);
-
+        private static readonly Color INVALID_FILE        = Color.FromArgb(251, 153, 102);
+        private static readonly Color VALID_FILE          = Color.FromArgb(146, 170, 243);
+        private static readonly Color INVALID_CUE         = Color.FromArgb(255, 101, 056);
+        private static readonly Color INVALID_ENCODE      = Color.FromArgb(078, 079, 151);
+        private static readonly Color INVALID_PATH_LENGTH = Color.FromArgb(255, 010, 050);
 
         public FileDescription(string fileName, string reletivePath, long length)//Torrent
         {
@@ -66,48 +74,92 @@ namespace AutoTorrentInspection.Util
 
         private void CheckValidTorrent()
         {
-            InValidFile = !ExceptPartten.IsMatch(Extension) &&
-                          !MusicPartten.IsMatch(FileName) &&
-                          !AnimePartten.IsMatch(FileName);
-            InValidPathLength = ReletivePath.Length > 245;
+            if (ReletivePath.Length > 245)
+            {
+                State = FileState.InValidPathLength;
+                return;
+            }
+            if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) ||
+                MenuPngPattern.IsMatch(FileName))
+            {
+                State = FileState.ValidFile;
+                return;
+            }
+            State = FileState.InValidFile;
+            if (FileName == "readme about WebP.txt")
+            {
+                State = FileState.ValidFile;
+            }
         }
 
         public void RecheckCueFile(DataGridViewRow row)
         {
-            Debug.WriteLine(@"----ReCheck--Begin--");
-            InValidCue = !CueCurer.CueMatchCheck(this);
-            //Encode = EncodingDetector.GetEncodingN(FullPath);
+            State = FileState.ValidFile;
+            Debug.WriteLine(@"----ReCheck--Begin----");
             Encode = EncodingDetector.GetEncodingU(FullPath, out _confindece);
-
-            InValidEncode = Encode != "UTF-8";
-            foreach (DataGridViewCell cell in row.Cells)
+            if (Encode != "UTF-8")
             {
-                cell.Style.ForeColor = InValidCue ? INVALID_CUE : Color.Black;
+                State = FileState.InValidEncode;
+                goto ReSetColor;
             }
+            if (!CueCurer.CueMatchCheck(this))
+            {
+                State = FileState.InValidCue;
+            }
+
+            ReSetColor:
+            Color rowColor = VALID_FILE;
+            switch (State)
+            {
+                case FileState.InValidCue:
+                    rowColor = INVALID_CUE;
+                    break;
+                case FileState.InValidEncode:
+                    rowColor = INVALID_ENCODE;
+                    break;
+            }
+
             foreach (DataGridViewCell cell in row.Cells)
             {
-                cell.Style.BackColor = InValidEncode ? INVALID_ENCODE: VALID_FILE;
+                cell.Style.BackColor = rowColor;
             }
             Application.DoEvents();
-            Debug.WriteLine(@"----ReCheck--End--");
+            Debug.WriteLine(@"----ReCheck--End----");
         }
 
         private void CheckValidFile()
         {
-            InValidFile = !ExceptPartten.IsMatch(Extension) &&
-                          !MusicPartten.IsMatch(FileName.ToLower()) &&
-                          !AnimePartten.IsMatch(FileName);
-            InValidPathLength = FullPath.Length > 245;
-            Debug.WriteLine(FullPath.Length);
-            if (Extension != ".cue" || FullPath.Length > 256) return;
+            //Debug.WriteLine(FullPath.Length);
+            if (ReletivePath.Length > 245)
+            {
+                State = FileState.InValidPathLength;
+                return;
+            }
+            if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) || MenuPngPattern.IsMatch(FileName))
+            {
+                State = FileState.ValidFile;
+            }
+            else
+            {
+                State = FileState.InValidFile;
+            }
+            if (FileName == "readme about WebP.txt")
+            {
+                State = FileState.ValidFile;
+                return;
+            }
+            if (Extension != ".cue"/* || FullPath.Length > 256*/) return;
 
-            //InValidEncode = !ConvertMethod.IsUTF8(FullPath);
-            //Encode = EncodingDetector.GetEncodingN(FullPath);
             Encode = EncodingDetector.GetEncodingU(FullPath, out _confindece);
-            InValidEncode = Encode != "UTF-8";
-
-            InValidCue = !CueCurer.CueMatchCheck(this);
-
+            if (Encode != "UTF-8")
+            {
+                State = FileState.InValidEncode;
+                return;
+            }
+            if (!CueCurer.CueMatchCheck(this))
+            {
+                State = FileState.InValidCue;
+            }
         }
 
         private readonly string[] _sizeTail = {"B", "KB", "MB", "GB", "TB", "PB"};
@@ -118,10 +170,26 @@ namespace AutoTorrentInspection.Util
             row.Cells.Add(new DataGridViewTextBoxCell {Value = ReletivePath});
             row.Cells.Add(new DataGridViewTextBoxCell {Value = FileName});
             row.Cells.Add(new DataGridViewTextBoxCell {Value = $"{Length/Math.Pow(1024, scale):F3}{_sizeTail[scale]}"});
-            row.DefaultCellStyle.BackColor = InValidFile ? INVALID_FILE : VALID_FILE;
-            if (InValidCue) row.DefaultCellStyle.ForeColor = INVALID_CUE;
-            if (InValidEncode) row.DefaultCellStyle.BackColor = INVALID_ENCODE;
-            if (InValidPathLength) row.DefaultCellStyle.BackColor = INVALID_PATH_LENGTH;
+            switch (State)
+            {
+                case FileState.ValidFile:
+                    row.DefaultCellStyle.BackColor = VALID_FILE;
+                    break;
+                case FileState.InValidPathLength:
+                    row.DefaultCellStyle.BackColor = INVALID_PATH_LENGTH;
+                    break;
+                case FileState.InValidFile:
+                    row.DefaultCellStyle.BackColor = INVALID_FILE;
+                    break;
+                case FileState.InValidCue:
+                    row.DefaultCellStyle.BackColor = INVALID_CUE;
+                    break;
+                case FileState.InValidEncode:
+                    row.DefaultCellStyle.BackColor = INVALID_ENCODE;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             return row;
         }
     }

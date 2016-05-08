@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using System.ComponentModel;
 
-namespace ChapterTool.Forms
+namespace AutoTorrentInspection
 {
     public partial class FormUpdater : Form
     {
