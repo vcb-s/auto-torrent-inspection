@@ -65,23 +65,23 @@ namespace BencodeNET.Objects
 
         #region IList<IBObject> Members
 
-        public int Count { get { return Value.Count; } }
+        public int Count => Value.Count;
 
-        public bool IsReadOnly { get { return Value.IsReadOnly; } }
+        public bool IsReadOnly => Value.IsReadOnly;
 
         public IBObject this[int index]
         {
             get { return Value[index]; }
             set
             {
-                if (value == null) throw new ArgumentNullException("value");
+                if (value == null) throw new ArgumentNullException(nameof(value));
                 Value[index] = value;
             }
         }
 
         public void Add(IBObject item)
         {
-            if (item == null) throw new ArgumentNullException("item");
+            if (item == null) throw new ArgumentNullException(nameof(item));
             Value.Add(item);
         }
 

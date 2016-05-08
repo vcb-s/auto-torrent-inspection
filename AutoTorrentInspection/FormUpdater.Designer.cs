@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace ChapterTool.Forms
+namespace AutoTorrentInspection
 {
     partial class FormUpdater
     {

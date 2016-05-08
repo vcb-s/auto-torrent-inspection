@@ -101,15 +101,16 @@ namespace AutoTorrentInspection
             if (_isUrl)
             {
                 string url = e.Data.GetData("Text") as string;
+                Debug.WriteLine(url ?? "null");
                 if (string.IsNullOrEmpty(url) || !url.ToLower().EndsWith(".torrent"))
                 {
                     return;
                 }
-                string filePath = Path.GetTempPath() + Path.GetFileName(url);
                 using (System.Net.WebClient wc = new System.Net.WebClient())
                 {
                     try
                     {
+                        string filePath = Path.Combine(Path.GetTempPath(), Path.GetFileName(url));
                         wc.DownloadFile(url, filePath);
                         FilePath = filePath;
                     }
@@ -238,7 +239,13 @@ namespace AutoTorrentInspection
             {
                 cbCategory.SelectedIndex = cbCategory.SelectedIndex == -1 ? 0 : cbCategory.SelectedIndex;
             }
-            Text = $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version} - {_torrent?.TorrentName ?? FilePath} - By [{_torrent?.CreatedBy ?? "folder"}] - {_torrent?.Encoding} - {_torrent?.CreationDate}";
+            DateTime time = DateTime.Now;
+            try {
+                time = _torrent?.CreationDate ?? new DirectoryInfo(FilePath).LastWriteTime;
+            } catch { /* ignored */ }
+            Text = $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version} - " +
+                   $"{_torrent?.TorrentName ?? FilePath} - By [{_torrent?.CreatedBy ?? "Folder"}] - " +
+                   $"{_torrent?.Encoding ?? "UND"} - {time}";
         }
 
         private void Inspection(string category)
@@ -250,7 +257,7 @@ namespace AutoTorrentInspection
                 Application.DoEvents();
             }
             toolStripStatusLabel_Status.Text = dataGridView1.Rows.Count == 0 ? "状态正常, All Green"
-                : $"发现 {dataGridView1.Rows.Count} 个世界的扭曲点" + (cbShowAll.Checked ? "(并不是)" : "");
+                : $"发现 {dataGridView1.Rows.Count} 个世界的扭曲点{(cbShowAll.Checked ? "(并不是)" : "")}";
         }
 
         private void cbCategory_MouseEnter(object sender, EventArgs e) => toolTip1.Show(cbCategory.Text, cbCategory);
