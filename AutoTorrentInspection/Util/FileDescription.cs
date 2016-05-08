@@ -129,7 +129,7 @@ namespace AutoTorrentInspection.Util
 
         private void CheckValidFile()
         {
-            Debug.WriteLine(FullPath.Length);
+            //Debug.WriteLine(FullPath.Length);
             if (ReletivePath.Length > 245)
             {
                 State = FileState.InValidPathLength;

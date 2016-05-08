@@ -159,6 +159,7 @@ namespace AutoTorrentInspection
         private void LoadFile(string filepath)
         {
             btnWebP.Visible = btnWebP.Enabled = false;
+            btnCompare.Visible = btnCompare.Enabled = false;
             _torrent = null;
             btnRefresh.Enabled = true;
             try
@@ -170,6 +171,7 @@ namespace AutoTorrentInspection
                     _data = ConvertMethod.GetFileList(filepath);
                     btnAnnounceList.Enabled = false;
                     cbFixCue.Enabled = true;
+                    btnCompare.Visible = btnCompare.Enabled = true;
                     goto Inspection;
                 }
                 _torrent = new TorrentData(filepath);
@@ -372,6 +374,16 @@ namespace AutoTorrentInspection
                 CueFix(fileInfo, rowIndex);
                 _fixing = false;
             }
+        }
+
+        private void btnCompare_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
+            var torrent = new TorrentData(openFileDialog1.FileName);
+            var data = torrent.GetFileList();
+            int tsum = data.Values.Sum(item => item.Count);
+            int fsum = _data.Values.Sum(item => item.Count);
+            MessageBox.Show($"文件数{(tsum == fsum ? "":"不")}一致",@"完整对比有点难写，以后再说");
         }
     }
 }
