@@ -43,7 +43,7 @@ namespace AutoTorrentInspection.Util
         private static readonly Regex MenuPngPattern = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ \[Menu[^\[\]]*\]\.png$");
         private static readonly Regex MusicPattern   = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2|webp)$", RegexOptions.IgnoreCase);
         private static readonly Regex ExceptPattern  = new Regex(@"\.(rar|7z|zip)$", RegexOptions.IgnoreCase);
-        private static readonly Regex FchPattern     = new Regex(@"(\[(?:[^\[\]])*(?:VCB\-S&)*philosophy\-raws\])\[[^\[\]]+\](?:(\[[^\[\]]+\]\[(?:BDRIP|DVDRIP)\])|(\[(?:BDRIP|DVDRIP)\]\[[^\[\]]+\])|(?:\[(?:BDRIP|DVDRIP)\]))\[(?:(?:(?:HEVC )*Main10P)|(?:(?:AVC )*Hi10P)|(Hi444PP)) \d*(FLAC|AC3)\]\[(?:(1920X1080)|(1280X720)|(720X480))\]");
+        private static readonly Regex FchPattern     = new Regex(@"(?:\[(?:[^\[\]])*(?:VCB\-S&)?philosophy\-raws\])\[[^\[\]]+\]\[(?:(?:[^\[\]]+\]\[(?:BDRIP|DVDRIP|BDRemux))|(?:(?:BDRIP|DVDRIP|BDRemux)(?:\]\[[^\[\]]+)?))\]\[(?:(?:(?:HEVC )?Main10P)|(?:(?:AVC )?Hi10P)|Hi444PP|H264) \d*(?:FLAC|AC3)\]\[(?:(?:1920X1080)|(?:1280X720)|(?:720X480))\]");
 
         private static readonly Color INVALID_FILE        = Color.FromArgb(251, 153, 102);
         private static readonly Color VALID_FILE          = Color.FromArgb(146, 170, 243);
