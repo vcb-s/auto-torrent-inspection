@@ -39,10 +39,11 @@ namespace AutoTorrentInspection.Util
 
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
 
-        private static readonly Regex AnimePattern  = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ (\[.*\d*\])*\[((((?<Ma>Ma10p)|(?<Hi>(Hi(10|444p)p)))_(2160|1080|720|576|480)p)|(?<EIGHT>(1080|576|720)p))\]\[((?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(flac|aac|ac3)\](\.(sc|tc|chs|cht))*\.((?(AVC)(mkv|mka|flac))|(?(HEVC)(mkv|mka|flac)|(?(EIGHT)mp4))|ass)$");
+        private static readonly Regex AnimePattern   = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ (?:\[.*\d*\])*\[(?:(?:(?:(?<Ma>Ma10p)|(?<Hi>(?:Hi(?:10|444p)p)))_(?:2160|1080|720|576|480)p)|(?<EIGHT>(?:1080|576|720)p))\]\[(?:(?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(?:flac|aac|ac3)\](?:\.(?:sc|tc|chs|cht))*\.((?(AVC)(?:mkv|mka|flac))|(?(HEVC)(?:mkv|mka|flac)|(?(EIGHT)mp4))|ass)$");
         private static readonly Regex MenuPngPattern = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ \[Menu[^\[\]]*\]\.png$");
-        private static readonly Regex MusicPattern  = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2|webp)$", RegexOptions.IgnoreCase);
-        private static readonly Regex ExceptPattern = new Regex(@"\.(rar|7z|zip)$", RegexOptions.IgnoreCase);
+        private static readonly Regex MusicPattern   = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2|webp)$", RegexOptions.IgnoreCase);
+        private static readonly Regex ExceptPattern  = new Regex(@"\.(rar|7z|zip)$", RegexOptions.IgnoreCase);
+        private static readonly Regex FchPattern     = new Regex(@"(\[(?:[^\[\]])*(?:VCB\-S&)*philosophy\-raws\])\[[^\[\]]+\](?:(\[[^\[\]]+\]\[(?:BDRIP|DVDRIP)\])|(\[(?:BDRIP|DVDRIP)\]\[[^\[\]]+\])|(?:\[(?:BDRIP|DVDRIP)\]))\[(?:(?:(?:HEVC )*Main10P)|(?:(?:AVC )*Hi10P)|(Hi444PP)) \d*(FLAC|AC3)\]\[(?:(1920X1080)|(1280X720)|(720X480))\]");
 
         private static readonly Color INVALID_FILE        = Color.FromArgb(251, 153, 102);
         private static readonly Color VALID_FILE          = Color.FromArgb(146, 170, 243);
@@ -80,7 +81,7 @@ namespace AutoTorrentInspection.Util
                 return;
             }
             if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) ||
-                MenuPngPattern.IsMatch(FileName))
+                MenuPngPattern.IsMatch(FileName) || FchPattern.IsMatch(FileName))
             {
                 State = FileState.ValidFile;
                 return;
@@ -135,7 +136,8 @@ namespace AutoTorrentInspection.Util
                 State = FileState.InValidPathLength;
                 return;
             }
-            if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) || MenuPngPattern.IsMatch(FileName))
+            if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) ||
+                MenuPngPattern.IsMatch(FileName) || FchPattern.IsMatch(FileName))
             {
                 State = FileState.ValidFile;
             }
