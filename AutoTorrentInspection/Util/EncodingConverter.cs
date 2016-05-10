@@ -26,13 +26,13 @@ namespace AutoTorrentInspection.Util
         /// <summary>
         /// 用指定的编码保存文本文件
         /// </summary>
-        public static void SaveAsEncoding(string content, string filename, string encoding)
+        public static void SaveAsEncoding(string content, string filename, Encoding encoding)
         {
             StreamWriter sw = null;
             try
             {
                 Stream s = File.Create(filename);
-                sw = new StreamWriter(s, Encoding.GetEncoding(encoding));
+                sw = new StreamWriter(s, encoding);
                 sw.Write(content);
             }
             finally

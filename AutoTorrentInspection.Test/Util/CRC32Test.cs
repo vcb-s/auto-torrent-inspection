@@ -14,11 +14,12 @@ namespace AutoTorrentInspection.Util.Tests
         [TestMethod()]
         public void FileCRCTest()
         {
-            string path = @"E:\AVS\embrace\VTS_01_1 [B2708D30].VOB";
-            Console.WriteLine(CRC32.FileCRC(path));
-            uint crc;
-            CRC32.FindCRC(path,out crc);
-            Console.WriteLine(crc);
+            const string path = @"..\..\[CRC Sample]\VIDEO_TS [57FD7F1E].IFO";
+            uint calCRC = CRC32.FileCRC(path);
+            uint fileCRC;
+            CRC32.FindCRC(path, out fileCRC);
+            Console.WriteLine($"{fileCRC} {calCRC}");
+            Assert.IsTrue(calCRC == fileCRC);
         }
     }
 }

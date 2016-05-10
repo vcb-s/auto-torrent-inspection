@@ -6,7 +6,7 @@ namespace AutoTorrentInspection.Util
 {
     public static class EncodingDetector
     {
-        public static string GetEncodingU(string filename, out float confindece)
+        public static string GetEncoding(string filename, out float confindece)
         {
             confindece = 0.0f;
             using (FileStream fs = File.OpenRead(filename))

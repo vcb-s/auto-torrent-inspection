@@ -15,20 +15,11 @@ namespace Ude.Tests
             float confindence;
             foreach (var item in Directory.GetFiles(@"..\..\[Encode Sample]"))
             {
-                Debug.WriteLine($"{Path.GetFileName(item)}: ");
-                Debug.Write(EncodingDetector.GetEncodingU(item, out confindence));
-                Debug.WriteLine(@"-----------------------------");
+                Console.WriteLine($"{Path.GetFileName(item)}: {EncodingDetector.GetEncoding(item, out confindence)} ({confindence:F3})");
             }
-        }
-
-        [TestMethod()]
-        public void EncodeTestU()
-        {
-            float confindence;
             foreach (var item in Directory.GetFiles(@"..\..\[Encoding All Star]"))
             {
-                Debug.WriteLine($"{Path.GetFileName(item)}: ");
-                EncodingDetector.GetEncodingU(item, out confindence);
+                Console.WriteLine($"{Path.GetFileName(item)}: {EncodingDetector.GetEncoding(item, out confindence)} ({confindence:F3})");
             }
         }
     }
