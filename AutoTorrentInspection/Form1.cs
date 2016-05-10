@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.Text;
 using AutoTorrentInspection.Properties;
 using AutoTorrentInspection.Util;
 
@@ -295,7 +296,7 @@ namespace AutoTorrentInspection
                     {
                         CueCurer.MakeBackup(fileInfo.FullPath);
                         var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
-                        EncodingConverter.SaveAsEncoding(originContext, fileInfo.FullPath, "UTF-8");
+                        EncodingConverter.SaveAsEncoding(originContext, fileInfo.FullPath, Encoding.UTF8);
                         fileInfo.RecheckCueFile(dataGridView1.Rows[rowIndex]);
                     }
                 }
@@ -310,7 +311,7 @@ namespace AutoTorrentInspection
                         var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
                         var directory = Path.GetDirectoryName(fileInfo.FullPath);
                         var editedContext = CueCurer.FixFilename(originContext, directory);
-                        EncodingConverter.SaveAsEncoding(editedContext, fileInfo.FullPath, "UTF-8");
+                        EncodingConverter.SaveAsEncoding(editedContext, fileInfo.FullPath, Encoding.UTF8);
                         fileInfo.RecheckCueFile(dataGridView1.Rows[rowIndex]);
                     }
                 }
