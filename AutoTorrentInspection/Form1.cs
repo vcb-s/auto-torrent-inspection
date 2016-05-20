@@ -29,15 +29,13 @@ namespace AutoTorrentInspection
                 Debug.Assert(FilePath != null);
                 if (Path.GetExtension(FilePath).ToLower() != ".torrent" && !Directory.Exists(FilePath))
                 {
-                    MessageBox.Show(caption: @"ATI Warning", text: @"无效的路径",
-                    buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Hand);
+                    Notification.ShowInfo(@"无效的路径");
                     Environment.Exit(0);
                 }
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                MessageBox.Show(caption: @"ATI Warning", text: $"Exception Message: \n\n    {ex.Message}",
-                    buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Hand);
+                Notification.ShowError(@"Exception catched in Form constructor", exception);
                 Environment.Exit(0);
             }
             LoadFile(FilePath);
@@ -117,7 +115,7 @@ namespace AutoTorrentInspection
                     }
                     catch
                     {
-                        MessageBox.Show(@"种子文件下载失败", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Notification.ShowInfo(@"种子文件下载失败");
                         FilePath = string.Empty;
                     }
                 }
@@ -181,8 +179,7 @@ namespace AutoTorrentInspection
                 cbFixCue.Enabled = false;
                 if (_torrent.IsPrivate)
                 {
-                    MessageBox.Show(caption: @"ATI Warning",       text: @"This torrent has been set as a private torrent",
-                                    buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Warning);
+                    Notification.ShowInfo(@"This torrent has been set as a private torrent");
                 }
                 if (!string.IsNullOrEmpty(_torrent.Comment) || !string.IsNullOrEmpty(_torrent.Source))
                 {
@@ -194,9 +191,9 @@ namespace AutoTorrentInspection
                 {
                     if (_data.ContainsKey("root"))
                     {
-                        if (!_data["root"].Any(item => item.FullPath.Contains("readme about WebP.txt")))
+                        if (_data["root"].All(item => item.FileName != "readme about WebP.txt"))
                         {
-                            MessageBox.Show($"发现WebP格式图片\n但未在根目录发现readme about WebP.txt", @"ATI Tips");
+                            Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现readme about WebP.txt");
                             if (_torrent == null)
                             {
                                 btnWebP.Visible = btnWebP.Enabled = true;
@@ -207,10 +204,9 @@ namespace AutoTorrentInspection
                 ThroughInspection();
                 cbCategory.Enabled = cbCategory.Items.Count > 1;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                MessageBox.Show(caption: @"ATI Warning",       text: $"Exception Message: \n\n    {ex.Message}",
-                                buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Hand);
+                Notification.ShowError("Exception catched in LoadFile", exception);
             }
         }
         private void btnWebP_Click(object sender, EventArgs e)
@@ -225,7 +221,7 @@ namespace AutoTorrentInspection
             }
             catch (Exception exception)
             {
-                MessageBox.Show($"生成失败\n{exception.Message}");
+                Notification.ShowError(@"生成失败", exception);
             }
         }
 
