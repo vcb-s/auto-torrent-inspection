@@ -380,15 +380,14 @@ namespace AutoTorrentInspection
             if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
             var torrent = new TorrentData(openFileDialog1.FileName);
 
-            int tsum = torrent.GetFileList().Values.Sum(item => item.Count);
-            int fsum = _data.Values.Sum(item => item.Count);
-
             var fileList = torrent.GetRawFileList();
             var node = new Node(fileList);
             var cmpResult = CheckConsistency(node);
 
             if (cmpResult)
             {
+                int tsum = torrent.GetFileList().Values.Sum(item => item.Count);
+                int fsum = _data.Values.Sum(item => item.Count);
                 Notification.ShowInfo(tsum == fsum ? @"种子与文件夹内容完全一致" : $"文件夹中比种子内多 {fsum - tsum} 个文件");
             }
             else
@@ -406,7 +405,7 @@ namespace AutoTorrentInspection
                     return false;
                 }
             }
-
+            //return node.GetFiles().Select(file => Path.Combine(FilePath, file.FullPath)).All(File.Exists);
             foreach (var file in node.GetFiles())
             {
                 var path = FilePath + file.FullPath.Replace('/', '\\');
