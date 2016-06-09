@@ -382,5 +382,12 @@ namespace AutoTorrentInspection
             int fsum = _data.Values.Sum(item => item.Count);
             MessageBox.Show($"文件数{(tsum == fsum ? "":"不")}一致",@"完整对比有点难写，以后再说");
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (_torrent == null) return;
+            var frm = new TreeViewForm(_torrent);
+            frm.Show();
+        }
     }
 }

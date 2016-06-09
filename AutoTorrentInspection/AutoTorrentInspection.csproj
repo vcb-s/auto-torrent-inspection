@@ -70,6 +70,12 @@
     <Compile Include="FormUpdater.designer.cs">
       <DependentUpon>FormUpdater.cs</DependentUpon>
     </Compile>
+    <Compile Include="TreeViewForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TreeViewForm.Designer.cs">
+      <DependentUpon>TreeViewForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Ude\CharsetDetector.cs" />
     <Compile Include="Ude\Core\Big5Prober.cs" />
     <Compile Include="Ude\Core\BitPackage.cs" />
@@ -121,6 +127,7 @@
     <Compile Include="Util\RegistryStorage.cs" />
     <Compile Include="Util\SystemMenu.cs" />
     <Compile Include="Util\TorrentData.cs" />
+    <Compile Include="Util\TreeViewNode.cs" />
     <Compile Include="Util\Updater.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
@@ -138,6 +145,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="TreeViewForm.resx">
+      <DependentUpon>TreeViewForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Compress.bat" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
