@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Drawing;
+using System.Reflection;
 using System.Windows.Forms;
 using AutoTorrentInspection.Util;
 
@@ -39,6 +41,7 @@ namespace AutoTorrentInspection
         {
             _data = data;
             InitializeComponent();
+            Icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
         }
 
         private void TreeViewForm_Load(object sender, EventArgs e)
