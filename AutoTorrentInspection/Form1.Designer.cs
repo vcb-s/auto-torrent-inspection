@@ -283,7 +283,7 @@
             this.btnTreeView.Text = "查看结构";
             this.btnTreeView.UseVisualStyleBackColor = true;
             this.btnTreeView.Visible = false;
-            this.btnTreeView.Click += new System.EventHandler(this.button1_Click);
+            this.btnTreeView.Click += new System.EventHandler(this.btnTreeView_Click);
             // 
             // Form1
             // 

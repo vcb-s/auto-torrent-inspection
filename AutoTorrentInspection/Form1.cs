@@ -1,13 +1,15 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Linq;
 using System.Reflection;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Text;
-using AutoTorrentInspection.Properties;
 using AutoTorrentInspection.Util;
+using AutoTorrentInspection.Properties;
+
 
 namespace AutoTorrentInspection
 {
@@ -382,9 +384,9 @@ namespace AutoTorrentInspection
 
             var fileList = torrent.GetRawFileList();
             var node = new Node(fileList);
-            var cmpResult = CheckConsistency(node);
+            var cmpResult = CheckConsistency(node, FilePath);
 
-            if (cmpResult)
+            if (cmpResult.Result)
             {
                 int tsum = torrent.GetFileList().Values.Sum(item => item.Count);
                 int fsum = _data.Values.Sum(item => item.Count);
@@ -396,28 +398,20 @@ namespace AutoTorrentInspection
             }
         }
 
-        private bool CheckConsistency(Node node)
+        private static async Task<bool> CheckConsistency(Node node, string baseDirectory)
         {
             foreach (var directory in node.GetDirectories())
             {
-                if (CheckConsistency(directory) == false)
+                var result = await CheckConsistency(directory, baseDirectory);
+                if (result == false)
                 {
                     return false;
                 }
             }
-            //return node.GetFiles().Select(file => Path.Combine(FilePath, file.FullPath)).All(File.Exists);
-            foreach (var file in node.GetFiles())
-            {
-                var path = FilePath + file.FullPath.Replace('/', '\\');
-                if (!File.Exists(path))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return node.GetFiles().Select(file => baseDirectory + file.FullPath).All(File.Exists);
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnTreeView_Click(object sender, EventArgs e)
         {
             if (_torrent == null) return;
             var frm = new TreeViewForm(_torrent);

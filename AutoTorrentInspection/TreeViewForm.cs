@@ -17,25 +17,6 @@ namespace AutoTorrentInspection
 
         private Node _node = new Node();
 
-        private void InsertToView(Node currentNode, TreeNodeCollection tn = null)
-        {
-            if (tn == null)
-            {
-                tn = treeView1.Nodes;
-            }
-            var dir = currentNode.GetDirectories();
-            var file = currentNode.GetFiles();
-            foreach (var node in dir)
-            {
-                var treeNode = tn.Insert(tn.Count, node.NodeName);
-                InsertToView(node, treeNode.Nodes);
-            }
-            foreach (var node in file)
-            {
-                tn.Insert(tn.Count, node.NodeName);
-            }
-        }
-
 
         public TreeViewForm(TorrentData data)
         {
@@ -47,9 +28,8 @@ namespace AutoTorrentInspection
         private void TreeViewForm_Load(object sender, EventArgs e)
         {
             Text = _data.TorrentName;
-            var fileList = _data.GetRawFileList();
-            _node = new Node(fileList);
-            InsertToView(_node);
+            _node = new Node(_data.GetRawFileList());
+            _node.InsertTo(treeView1.Nodes);
         }
     }
 }

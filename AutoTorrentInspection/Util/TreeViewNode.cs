@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
+using System.IO;
 
 namespace AutoTorrentInspection.Util
 {
@@ -54,11 +55,15 @@ namespace AutoTorrentInspection.Util
         {
             get
             {
-                var path = NodeName + (IsFile?"":"/");
+                var path = NodeName;
+                if (!IsFile)
+                {
+                    path += Path.DirectorySeparatorChar;
+                }
                 var currentNode = _parentNode;
                 while (currentNode != null)
                 {
-                    path = currentNode.NodeName + "/" + path;
+                    path = currentNode.NodeName + Path.DirectorySeparatorChar + path;
                     currentNode = currentNode._parentNode;
                 }
                 return path;
@@ -83,6 +88,24 @@ namespace AutoTorrentInspection.Util
                 currentNode = currentNode[node];
             }
             return currentNode;
+        }
+
+        public void InsertTo(System.Windows.Forms.TreeNodeCollection tn)
+        {
+            InsertToViewInner(this, tn);
+        }
+
+        private static void InsertToViewInner(Node currentNode, System.Windows.Forms.TreeNodeCollection tn)
+        {
+            foreach (var node in currentNode.GetDirectories())
+            {
+                var treeNode = tn.Insert(tn.Count, node.NodeName);
+                InsertToViewInner(node, treeNode.Nodes);
+            }
+            foreach (var node in currentNode.GetFiles())
+            {
+                tn.Insert(tn.Count, node.NodeName);
+            }
         }
     }
 }
