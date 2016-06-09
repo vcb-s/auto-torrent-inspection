@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using AutoTorrentInspection.Util;
 
@@ -18,11 +11,11 @@ namespace AutoTorrentInspection
             InitializeComponent();
         }
 
-        TorrentData _data;
+        private readonly TorrentData _data;
 
-        Node _node = new Node();
+        private readonly Node _node = new Node();
 
-        void InsertToView(Node currentNode, TreeNodeCollection tn = null)
+        private void InsertToView(Node currentNode, TreeNodeCollection tn = null)
         {
             if (tn == null)
             {
@@ -46,6 +39,11 @@ namespace AutoTorrentInspection
         {
             _data = data;
             InitializeComponent();
+        }
+
+        private void TreeViewForm_Load(object sender, EventArgs e)
+        {
+            Text = _data.TorrentName;
             var fileList = _data.GetRawFileList();
             foreach (var list in fileList)
             {

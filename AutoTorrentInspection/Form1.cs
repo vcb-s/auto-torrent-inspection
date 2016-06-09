@@ -169,6 +169,7 @@ namespace AutoTorrentInspection
                 {
                     _data = ConvertMethod.GetFileList(filepath);
                     btnAnnounceList.Enabled = false;
+                    btnTreeView.Visible = btnTreeView.Enabled = false;
                     cbFixCue.Enabled = true;
                     btnCompare.Visible = btnCompare.Enabled = true;
                     goto Inspection;
@@ -176,6 +177,7 @@ namespace AutoTorrentInspection
                 _torrent = new TorrentData(filepath);
                 _data    = _torrent.GetFileList();
                 btnAnnounceList.Enabled = true;
+                btnTreeView.Visible = btnTreeView.Enabled = true;
                 cbFixCue.Enabled = false;
                 if (_torrent.IsPrivate)
                 {

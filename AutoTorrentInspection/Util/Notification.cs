@@ -19,7 +19,7 @@ namespace AutoTorrentInspection.Util
         {
             return MessageBox.Show(caption: @"ATI Warning",
                 text: argMessage,
-                buttons: MessageBoxButtons.YesNo,icon: MessageBoxIcon.Information);
+                buttons: MessageBoxButtons.OK,icon: MessageBoxIcon.Information);
         }
     }
 }

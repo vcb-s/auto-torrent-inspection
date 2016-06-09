@@ -96,6 +96,7 @@ namespace AutoTorrentInspection.Util
                     {
                         singleFile = (BList)((BDictionary)file)["path.utf-8"];
                     }
+                    var length = ((BNumber)((BDictionary)file)["length"]).Value;
                     fileList.Add(singleFile.Select(item=>item.ToString()));
                 }
             }

@@ -1,58 +1,52 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
+using System.Collections.Generic;
 
 namespace AutoTorrentInspection.Util
 {
     public class Node
     {
-        private Dictionary<string, Node> _childs = new Dictionary<string, Node>();
+        private readonly Dictionary<string, Node> _childNodes = new Dictionary<string, Node>();
+
+        public Dictionary<string, object> Attribute { get; set; } = new Dictionary<string, object>();
 
         private Node _parentNode = null;
 
-        public string NodeName { get; set; } = string.Empty;
+        public string NodeName { get; private set; } = string.Empty;
 
         public override string ToString() => NodeName;
 
         public Node() { }
 
-        public Node(string node)
+        private Node(string node)
         {
             NodeName = node;
         }
 
         public Node this[string node]
         {
-            get { return _childs[node]; }
-            set { _childs[node] = value; }
+            get { return _childNodes[node]; }
+            set { _childNodes[node] = value; }
         }
 
-        public bool IsFile => this._childs.Count == 0;
+        public bool IsFile => this._childNodes.Count == 0;
 
-        public bool IsDirectory => this._childs.Count > 0;
+        public bool IsDirectory => this._childNodes.Count > 0;
 
         public IEnumerable<Node> GetFiles()
         {
-            return _childs.Where(item => item.Value._childs.Count == 0).Select(item => item.Value);
+            return _childNodes.Where(item => item.Value._childNodes.Count == 0).Select(item => item.Value);
         }
 
         public IEnumerable<Node> GetDirectories()
         {
-            return _childs.Where(item => item.Value._childs.Count > 0).Select(item => item.Value);
+            return _childNodes.Where(item => item.Value._childNodes.Count > 0).Select(item => item.Value);
         }
 
         public string FullPath
         {
             get
             {
-                string path;
-                if (IsFile)
-                {
-                    path = NodeName;
-                }
-                else
-                {
-                    path = NodeName + "/";
-                }
+                var path = NodeName + (IsFile?"":"/");
                 var currentNode = _parentNode;
                 while (currentNode != null)
                 {
@@ -65,30 +59,22 @@ namespace AutoTorrentInspection.Util
 
         public Dictionary<string, Node>.Enumerator GetEnumerator()
         {
-            return _childs.GetEnumerator();
+            return _childNodes.GetEnumerator();
         }
 
-        public void Insert(IEnumerable<string> nodes)
+        public Node Insert(IEnumerable<string> nodes)
         {
             var currentNode = this;
             foreach (string node in nodes)
             {
-                if (!currentNode._childs.ContainsKey(node))
+                if (!currentNode._childNodes.ContainsKey(node))
                 {
-                    currentNode._childs.Add(node, new Node(node));
+                    currentNode._childNodes.Add(node, new Node(node));
                 }
-                currentNode._childs[node]._parentNode = currentNode;
-                currentNode = currentNode._childs[node];
+                currentNode[node]._parentNode = currentNode;
+                currentNode = currentNode[node];
             }
-        }
-
-        public void Insert(string node)
-        {
-            if (!_childs.ContainsKey(node))
-            {
-                _childs.Add(node, new Node(node));
-            }
+            return currentNode;
         }
     }
-
 }
