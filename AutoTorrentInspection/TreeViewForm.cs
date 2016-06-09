@@ -13,7 +13,7 @@ namespace AutoTorrentInspection
 
         private readonly TorrentData _data;
 
-        private readonly Node _node = new Node();
+        private Node _node = new Node();
 
         private void InsertToView(Node currentNode, TreeNodeCollection tn = null)
         {
@@ -45,10 +45,7 @@ namespace AutoTorrentInspection
         {
             Text = _data.TorrentName;
             var fileList = _data.GetRawFileList();
-            foreach (var list in fileList)
-            {
-                _node.Insert(list);
-            }
+            _node = new Node(fileList);
             InsertToView(_node);
         }
     }

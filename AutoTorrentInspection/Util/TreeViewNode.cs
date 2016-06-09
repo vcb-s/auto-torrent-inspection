@@ -17,6 +17,14 @@ namespace AutoTorrentInspection.Util
 
         public Node() { }
 
+        public Node(IEnumerable<IEnumerable<string>> fileList)
+        {
+            foreach (var list in fileList)
+            {
+                this.Insert(list);
+            }
+        }
+
         private Node(string node)
         {
             NodeName = node;

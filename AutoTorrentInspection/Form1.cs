@@ -379,10 +379,43 @@ namespace AutoTorrentInspection
         {
             if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
             var torrent = new TorrentData(openFileDialog1.FileName);
-            var data = torrent.GetFileList();
-            int tsum = data.Values.Sum(item => item.Count);
+
+            int tsum = torrent.GetFileList().Values.Sum(item => item.Count);
             int fsum = _data.Values.Sum(item => item.Count);
-            MessageBox.Show($"文件数{(tsum == fsum ? "":"不")}一致",@"完整对比有点难写，以后再说");
+
+            var fileList = torrent.GetRawFileList();
+            var node = new Node(fileList);
+            var cmpResult = CheckConsistency(node);
+
+            if (cmpResult)
+            {
+                Notification.ShowInfo(tsum == fsum ? @"种子与文件夹内容完全一致" : $"文件夹中比种子内多 {fsum - tsum} 个文件");
+            }
+            else
+            {
+                Notification.ShowInfo(@"文件名对不上呢");
+            }
+        }
+
+        private bool CheckConsistency(Node node)
+        {
+            foreach (var directory in node.GetDirectories())
+            {
+                if (CheckConsistency(directory) == false)
+                {
+                    return false;
+                }
+            }
+
+            foreach (var file in node.GetFiles())
+            {
+                var path = FilePath + file.FullPath.Replace('/', '\\');
+                if (!File.Exists(path))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private void button1_Click(object sender, EventArgs e)
