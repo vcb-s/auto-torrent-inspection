@@ -53,7 +53,7 @@ namespace AutoTorrentInspection.Util
             return crc;
         }
 
-        private static readonly Regex CRC32Regex = new Regex(@" \[(?<CRC>\w{8})\]\.");
+        private static readonly Regex CRC32Regex = new Regex(@"\[(?<CRC>[a-fA-F0-9]{8})\]\.");
 
         /// <summary>
         /// Get crc32 value in filename

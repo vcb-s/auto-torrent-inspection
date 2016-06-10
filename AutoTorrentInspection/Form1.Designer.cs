@@ -51,6 +51,7 @@
             this.toolStripStatusLabel_Encode = new System.Windows.Forms.ToolStripStatusLabel();
             this.btnWebP = new System.Windows.Forms.Button();
             this.btnCompare = new System.Windows.Forms.Button();
+            this.btnTreeView = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.contextMenuOpenFolder.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -271,12 +272,26 @@
             this.btnCompare.Visible = false;
             this.btnCompare.Click += new System.EventHandler(this.btnCompare_Click);
             // 
+            // btnTreeView
+            // 
+            this.btnTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnTreeView.Enabled = false;
+            this.btnTreeView.Location = new System.Drawing.Point(13, 343);
+            this.btnTreeView.Name = "btnTreeView";
+            this.btnTreeView.Size = new System.Drawing.Size(87, 33);
+            this.btnTreeView.TabIndex = 14;
+            this.btnTreeView.Text = "查看结构";
+            this.btnTreeView.UseVisualStyleBackColor = true;
+            this.btnTreeView.Visible = false;
+            this.btnTreeView.Click += new System.EventHandler(this.btnTreeView_Click);
+            // 
             // Form1
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(584, 461);
+            this.Controls.Add(this.btnTreeView);
             this.Controls.Add(this.btnCompare);
             this.Controls.Add(this.btnWebP);
             this.Controls.Add(this.statusStrip1);
@@ -328,6 +343,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ColPath;
         private System.Windows.Forms.Button btnWebP;
         private System.Windows.Forms.Button btnCompare;
+        private System.Windows.Forms.Button btnTreeView;
     }
 }
 

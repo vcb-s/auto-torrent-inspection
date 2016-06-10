@@ -1,12 +1,16 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Linq;
 using System.Reflection;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.Threading.Tasks;
 using System.Collections.Generic;
-using AutoTorrentInspection.Properties;
+using System.ComponentModel;
 using AutoTorrentInspection.Util;
+using AutoTorrentInspection.Properties;
+
 
 namespace AutoTorrentInspection
 {
@@ -28,15 +32,13 @@ namespace AutoTorrentInspection
                 Debug.Assert(FilePath != null);
                 if (Path.GetExtension(FilePath).ToLower() != ".torrent" && !Directory.Exists(FilePath))
                 {
-                    MessageBox.Show(caption: @"ATI Warning", text: @"无效的路径",
-                    buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Hand);
+                    Notification.ShowInfo(@"无效的路径");
                     Environment.Exit(0);
                 }
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                MessageBox.Show(caption: @"ATI Warning", text: $"Exception Message: \n\n    {ex.Message}",
-                    buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Hand);
+                Notification.ShowError(@"Exception catched in Form constructor", exception);
                 Environment.Exit(0);
             }
             LoadFile(FilePath);
@@ -116,7 +118,7 @@ namespace AutoTorrentInspection
                     }
                     catch
                     {
-                        MessageBox.Show(@"种子文件下载失败", @"ATI Warning", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Notification.ShowInfo(@"种子文件下载失败");
                         FilePath = string.Empty;
                     }
                 }
@@ -170,62 +172,52 @@ namespace AutoTorrentInspection
                 {
                     _data = ConvertMethod.GetFileList(filepath);
                     btnAnnounceList.Enabled = false;
+                    btnTreeView.Visible = btnTreeView.Enabled = false;
                     cbFixCue.Enabled = true;
                     btnCompare.Visible = btnCompare.Enabled = true;
-                    goto Inspection;
+                    InspecteOperation();
+                    return;
                 }
                 _torrent = new TorrentData(filepath);
                 _data    = _torrent.GetFileList();
                 btnAnnounceList.Enabled = true;
+                btnTreeView.Visible = btnTreeView.Enabled = true;
                 cbFixCue.Enabled = false;
                 if (_torrent.IsPrivate)
                 {
-                    MessageBox.Show(caption: @"ATI Warning",       text: @"This torrent has been set as a private torrent",
-                                    buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Warning);
+                    Notification.ShowInfo(@"This torrent has been set as a private torrent");
                 }
                 if (!string.IsNullOrEmpty(_torrent.Comment) || !string.IsNullOrEmpty(_torrent.Source))
                 {
                     MessageBox.Show(caption: @"Comment/Source",
                                     text:    $"Comment: {_torrent.Comment ?? "无可奉告"}{Environment.NewLine}Source: {_torrent.Source}");
                 }
-                Inspection:
-                if (_data.Any(catalog => catalog.Value.Any(item => item.Extension == ".webp")))
-                {
-                    if (_data.ContainsKey("root"))
-                    {
-                        if (!_data["root"].Any(item => item.FullPath.Contains("readme about WebP.txt")))
-                        {
-                            MessageBox.Show($"发现WebP格式图片\n但未在根目录发现readme about WebP.txt", @"ATI Tips");
-                            if (_torrent == null)
-                            {
-                                btnWebP.Visible = btnWebP.Enabled = true;
-                            }
-                        }
-                    }
-                }
-                ThroughInspection();
-                cbCategory.Enabled = cbCategory.Items.Count > 1;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(caption: @"ATI Warning",       text: $"Exception Message: \n\n    {ex.Message}",
-                                buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Hand);
-            }
-        }
-        private void btnWebP_Click(object sender, EventArgs e)
-        {
-            string txtpath = Path.Combine(FilePath, "readme about WebP.txt");
-            if (MessageBox.Show(@"是否在根目录生成 readme about WebP.txt", @"ATI Tips", MessageBoxButtons.YesNo)
-                != DialogResult.Yes) return;
-            try
-            {
-                File.WriteAllText(txtpath, Resources.ReadmeAboutWebP);
-                btnWebP.Visible = btnWebP.Enabled = false;
+                InspecteOperation();
             }
             catch (Exception exception)
             {
-                MessageBox.Show($"生成失败\n{exception.Message}");
+                Notification.ShowError("Exception catched in LoadFile", exception);
             }
+        }
+
+        private void InspecteOperation()
+        {
+            if (_data.Any(catalog => catalog.Value.Any(item => item.Extension == ".webp")))
+            {
+                if (_data.ContainsKey("root"))
+                {
+                    if (_data["root"].All(item => item.FileName != "readme about WebP.txt"))
+                    {
+                        Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现readme about WebP.txt");
+                        if (_torrent == null)
+                        {
+                            btnWebP.Visible = btnWebP.Enabled = true;
+                        }
+                    }
+                }
+            }
+            ThroughInspection();
+            cbCategory.Enabled = cbCategory.Items.Count > 1;
         }
 
         private void ThroughInspection()
@@ -235,7 +227,7 @@ namespace AutoTorrentInspection
             foreach (var item in _data.Keys)
             {
                 cbCategory.Items.Add(item);
-                Inspection(item);
+                Inspection(item);//Time draing
             }
             if (cbCategory.Items.Count > 0)
             {
@@ -260,6 +252,22 @@ namespace AutoTorrentInspection
             }
             toolStripStatusLabel_Status.Text = dataGridView1.Rows.Count == 0 ? "状态正常, All Green"
                 : $"发现 {dataGridView1.Rows.Count} 个世界的扭曲点{(cbShowAll.Checked ? "(并不是)" : "")}";
+        }
+
+        private void btnWebP_Click(object sender, EventArgs e)
+        {
+            string txtpath = Path.Combine(FilePath, "readme about WebP.txt");
+            if (MessageBox.Show(@"是否在根目录生成 readme about WebP.txt", @"ATI Tips", MessageBoxButtons.YesNo)
+                != DialogResult.Yes) return;
+            try
+            {
+                File.WriteAllText(txtpath, Resources.ReadmeAboutWebP);
+                btnWebP.Visible = btnWebP.Enabled = false;
+            }
+            catch (Exception exception)
+            {
+                Notification.ShowError(@"生成失败", exception);
+            }
         }
 
         private void cbCategory_MouseEnter(object sender, EventArgs e) => toolTip1.Show(cbCategory.Text, cbCategory);
@@ -295,7 +303,7 @@ namespace AutoTorrentInspection
                     {
                         CueCurer.MakeBackup(fileInfo.FullPath);
                         var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
-                        EncodingConverter.SaveAsEncoding(originContext, fileInfo.FullPath, "UTF-8");
+                        EncodingConverter.SaveAsEncoding(originContext, fileInfo.FullPath, Encoding.UTF8);
                         fileInfo.RecheckCueFile(dataGridView1.Rows[rowIndex]);
                     }
                 }
@@ -310,7 +318,7 @@ namespace AutoTorrentInspection
                         var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
                         var directory = Path.GetDirectoryName(fileInfo.FullPath);
                         var editedContext = CueCurer.FixFilename(originContext, directory);
-                        EncodingConverter.SaveAsEncoding(editedContext, fileInfo.FullPath, "UTF-8");
+                        EncodingConverter.SaveAsEncoding(editedContext, fileInfo.FullPath, Encoding.UTF8);
                         fileInfo.RecheckCueFile(dataGridView1.Rows[rowIndex]);
                     }
                 }
@@ -380,10 +388,41 @@ namespace AutoTorrentInspection
         {
             if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
             var torrent = new TorrentData(openFileDialog1.FileName);
-            var data = torrent.GetFileList();
-            int tsum = data.Values.Sum(item => item.Count);
-            int fsum = _data.Values.Sum(item => item.Count);
-            MessageBox.Show($"文件数{(tsum == fsum ? "":"不")}一致",@"完整对比有点难写，以后再说");
+
+            var fileList = torrent.GetRawFileList();
+            var node = new Node(fileList);
+            var cmpResult = CheckConsistency(node, FilePath);
+
+            if (cmpResult.Result)
+            {
+                int tsum = torrent.GetFileList().Values.Sum(item => item.Count);
+                int fsum = _data.Values.Sum(item => item.Count);
+                Notification.ShowInfo(tsum == fsum ? @"种子与文件夹内容完全一致" : $"文件夹中比种子内多 {fsum - tsum} 个文件");
+            }
+            else
+            {
+                Notification.ShowInfo(@"文件名对不上呢");
+            }
+        }
+
+        private static async Task<bool> CheckConsistency(Node node, string baseDirectory)
+        {
+            foreach (var directory in node.GetDirectories())
+            {
+                var result = await CheckConsistency(directory, baseDirectory);
+                if (result == false)
+                {
+                    return false;
+                }
+            }
+            return node.GetFiles().Select(file => baseDirectory + file.FullPath).All(File.Exists);
+        }
+
+        private void btnTreeView_Click(object sender, EventArgs e)
+        {
+            if (_torrent == null) return;
+            var frm = new TreeViewForm(_torrent);
+            frm.Show();
         }
     }
 }

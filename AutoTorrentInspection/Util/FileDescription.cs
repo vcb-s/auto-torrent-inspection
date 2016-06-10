@@ -24,7 +24,7 @@ namespace AutoTorrentInspection.Util
 
     public class FileDescription
     {
-        private string FileName          { get; }
+        public string FileName          { get; }
         private string ReletivePath      { get; }
         public string FullPath           { get; }
         public string Extension          { get; }
@@ -39,10 +39,13 @@ namespace AutoTorrentInspection.Util
 
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
 
-        private static readonly Regex AnimePattern  = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ (\[.*\d*\])*\[((((?<Ma>Ma10p)|(?<Hi>(Hi(10|444p)p)))_(2160|1080|720|576|480)p)|(?<EIGHT>(1080|576|720)p))\]\[((?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(flac|aac|ac3)\](\.(sc|tc|chs|cht))*\.((?(AVC)(mkv|mka|flac))|(?(HEVC)(mkv|mka|flac)|(?(EIGHT)mp4))|ass)$");
-        private static readonly Regex MenuPngPattern = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)*[^\[\]]*\] [^\[\]]+ \[Menu[^\[\]]*\]\.png$");
-        private static readonly Regex MusicPattern  = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2|webp)$", RegexOptions.IgnoreCase);
-        private static readonly Regex ExceptPattern = new Regex(@"\.(rar|7z|zip)$", RegexOptions.IgnoreCase);
+        //private static readonly Regex AnimePattern   = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)?[^\[\]]*\] [^\[\]]+ (?:\[[^\[\]]*\d*\])?\[(?:(?:(?:(?<Ma>Ma10p)|(?<Hi>(?:Hi(?:10|444p)p)))_(?:2160|1080|720|576|480)p)|(?<EIGHT>(?:1080|576|720)p))\]\[(?:(?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(?:flac|aac|ac3)\](?:\.(?:sc|tc|chs|cht))?\.(?:(?(AVC)(?:mkv|mka|flac))|(?(HEVC)(?:mkv|mka|flac))|(?(EIGHT)mp4)|ass)$");
+        private static readonly Regex AnimePattern   = new Regex(@"^\[[^\[\]]*VCB\-S(?:tudio)?[^\[\]]*\] [^\[\]]+ (?:\[[^\[\]]*\d*\])?\[(?:(?:(?:(?:Hi10p|Hi444pp)_(?:2160|1080|720|576|480)p\]\[x264_\d*(?:flac|aac|ac3))|(?:(?:Ma10p_(?:2160|1080|720|576|480)p\]\[x265_\d*(?:flac|aac|ac3))))\](?:\.(?:mkv|mka|flac))?|(?:(?:1080|720|576)p\]\[x264_\d*(?:aac|ac3)\](?:\.mp4)?))(?:(?<!(?:mkv|mka|mp4))(?:\.(?:sc|tc|chs|Chs|cht|Cht|Jap|Chs&Jap|Cht&Jap))?\.ass)?$"); //implement without Balancing group
+        private static readonly Regex MenuPngPattern = new Regex(@"^\[[^\[\]]*VCB\-S(?:tudio)*[^\[\]]*\] [^\[\]]+ \[[^\[\]]*\]\.png$");
+        private static readonly Regex MusicPattern   = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2|webp)$", RegexOptions.IgnoreCase);
+        private static readonly Regex ExceptPattern  = new Regex(@"\.(rar|7z|zip)$", RegexOptions.IgnoreCase);
+        private static readonly Regex FchPattern     = new Regex(@"^(?:\[(?:[^\[\]])*philosophy\-raws(?:[^\[\]])*\])\[[^\[\]]+\]\[(?:(?:[^\[\]]+\]\[(?:BDRIP|DVDRIP|BDRemux))|(?:(?:BDRIP|DVDRIP|BDRemux)(?:\]\[[^\[\]]+)?))\]\[(?:(?:(?:HEVC )?Main10P)|(?:(?:AVC )?Hi10P)|Hi444PP|H264) \d*(?:FLAC|AC3)\]\[(?:(?:1920[Xx]1080)|(?:1280[Xx]720)|(?:720[Xx]480))\](?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$");
+        private static readonly Regex MaWenPattern   = new Regex(@"^[^\[\]]+ \[(?:BD|BluRay|SPDVD|DVD) (?:1920x1080p?|1280x720p?|720x480p?|1080p|720p|480p)(?: (?:23\.976|24|25|29\.970|59\.940)fps)? (?:(?:(?:AVC|HEVC)\-(?:yuv420p10|yuv420p8|yuv444p10))|(?:x264(?:-Hi(?:10|444P)P)?|x265-Ma10P))(?: (?:FLAC|AAC|AC3)(?:x\d)?)+(?: (?:Chap|Ordered\-Chap))?\] - (?:[^\.&]+ ?& ?)*mawen1250(?: ?& ?[^\.&]+)*(?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$");
 
         private static readonly Color INVALID_FILE        = Color.FromArgb(251, 153, 102);
         private static readonly Color VALID_FILE          = Color.FromArgb(146, 170, 243);
@@ -80,7 +83,7 @@ namespace AutoTorrentInspection.Util
                 return;
             }
             if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) ||
-                MenuPngPattern.IsMatch(FileName))
+                MenuPngPattern.IsMatch(FileName) || FchPattern.IsMatch(FileName) || MaWenPattern.IsMatch(FileName))
             {
                 State = FileState.ValidFile;
                 return;
@@ -96,7 +99,7 @@ namespace AutoTorrentInspection.Util
         {
             State = FileState.ValidFile;
             Debug.WriteLine(@"----ReCheck--Begin----");
-            Encode = EncodingDetector.GetEncodingU(FullPath, out _confindece);
+            Encode = EncodingDetector.GetEncoding(FullPath, out _confindece);
             if (Encode != "UTF-8")
             {
                 State = FileState.InValidEncode;
@@ -135,7 +138,8 @@ namespace AutoTorrentInspection.Util
                 State = FileState.InValidPathLength;
                 return;
             }
-            if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) || MenuPngPattern.IsMatch(FileName))
+            if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) ||
+                MenuPngPattern.IsMatch(FileName) || FchPattern.IsMatch(FileName) || MaWenPattern.IsMatch(FileName))
             {
                 State = FileState.ValidFile;
             }
@@ -150,7 +154,7 @@ namespace AutoTorrentInspection.Util
             }
             if (Extension != ".cue"/* || FullPath.Length > 256*/) return;
 
-            Encode = EncodingDetector.GetEncodingU(FullPath, out _confindece);
+            Encode = EncodingDetector.GetEncoding(FullPath, out _confindece);
             if (Encode != "UTF-8")
             {
                 State = FileState.InValidEncode;

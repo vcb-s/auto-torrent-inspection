@@ -16,7 +16,7 @@ namespace AutoTorrentInspection.Test.Util
             foreach (var item in Directory.GetFiles(@"..\..\[Encode Sample]"))
             {
                 float confindence;
-                string encode = EncodingDetector.GetEncodingU(item, out confindence);
+                string encode = EncodingDetector.GetEncoding(item, out confindence);
                 Console.WriteLine($"{Path.GetFileName(item)}: {encode == "UTF-8"} confidence: {confindence:F3}");
             }
         }

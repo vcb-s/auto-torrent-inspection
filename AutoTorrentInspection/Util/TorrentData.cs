@@ -79,6 +79,29 @@ namespace AutoTorrentInspection.Util
 
         public string Encoding => _torrent.Encoding;
 
+        public IEnumerable<IEnumerable<string>> GetRawFileList()
+        {
+            if (!_torrent.Info.ContainsKey("files"))
+            {
+                yield return new []{ TorrentName };
+            }
+            else
+            {
+                var files = (BList)_torrent.Info["files"];
+                foreach (var file in files)
+                {
+                    BList singleFile = (BList)((BDictionary)file)["path"];
+                    if (((BDictionary)file).ContainsKey("path.utf-8"))
+                    {
+                        singleFile = (BList)((BDictionary)file)["path.utf-8"];
+                    }
+                    if (singleFile.Last().ToString().Contains("_____padding_file_")) continue;
+                    var length = ((BNumber)((BDictionary)file)["length"]).Value;
+                    yield return singleFile.Select(item=>item.ToString());
+                }
+            }
+        }
+
         public Dictionary<string, List<FileDescription>> GetFileList()
         {
             var fileDic = new Dictionary<string, List<FileDescription>>();
