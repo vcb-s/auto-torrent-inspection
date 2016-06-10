@@ -83,7 +83,7 @@ namespace AutoTorrentInspection.Util
         {
             if (!_torrent.Info.ContainsKey("files"))
             {
-                yield return new List<string> { TorrentName };
+                yield return new []{ TorrentName };
             }
             else
             {
@@ -95,6 +95,7 @@ namespace AutoTorrentInspection.Util
                     {
                         singleFile = (BList)((BDictionary)file)["path.utf-8"];
                     }
+                    if (singleFile.Last().ToString().Contains("_____padding_file_")) continue;
                     var length = ((BNumber)((BDictionary)file)["length"]).Value;
                     yield return singleFile.Select(item=>item.ToString());
                 }

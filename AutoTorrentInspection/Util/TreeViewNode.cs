@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
-using System.IO;
 
 namespace AutoTorrentInspection.Util
 {
@@ -58,12 +57,12 @@ namespace AutoTorrentInspection.Util
                 var path = NodeName;
                 if (!IsFile)
                 {
-                    path += Path.DirectorySeparatorChar;
+                    path += System.IO.Path.DirectorySeparatorChar;
                 }
                 var currentNode = _parentNode;
                 while (currentNode != null)
                 {
-                    path = currentNode.NodeName + Path.DirectorySeparatorChar + path;
+                    path = currentNode.NodeName + System.IO.Path.DirectorySeparatorChar + path;
                     currentNode = currentNode._parentNode;
                 }
                 return path;

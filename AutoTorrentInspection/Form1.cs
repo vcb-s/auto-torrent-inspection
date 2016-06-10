@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.ComponentModel;
 using AutoTorrentInspection.Util;
 using AutoTorrentInspection.Properties;
 
@@ -174,7 +175,8 @@ namespace AutoTorrentInspection
                     btnTreeView.Visible = btnTreeView.Enabled = false;
                     cbFixCue.Enabled = true;
                     btnCompare.Visible = btnCompare.Enabled = true;
-                    goto Inspection;
+                    InspecteOperation();
+                    return;
                 }
                 _torrent = new TorrentData(filepath);
                 _data    = _torrent.GetFileList();
@@ -190,43 +192,32 @@ namespace AutoTorrentInspection
                     MessageBox.Show(caption: @"Comment/Source",
                                     text:    $"Comment: {_torrent.Comment ?? "无可奉告"}{Environment.NewLine}Source: {_torrent.Source}");
                 }
-                Inspection:
-                if (_data.Any(catalog => catalog.Value.Any(item => item.Extension == ".webp")))
-                {
-                    if (_data.ContainsKey("root"))
-                    {
-                        if (_data["root"].All(item => item.FileName != "readme about WebP.txt"))
-                        {
-                            Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现readme about WebP.txt");
-                            if (_torrent == null)
-                            {
-                                btnWebP.Visible = btnWebP.Enabled = true;
-                            }
-                        }
-                    }
-                }
-                ThroughInspection();
-                cbCategory.Enabled = cbCategory.Items.Count > 1;
+                InspecteOperation();
             }
             catch (Exception exception)
             {
                 Notification.ShowError("Exception catched in LoadFile", exception);
             }
         }
-        private void btnWebP_Click(object sender, EventArgs e)
+
+        private void InspecteOperation()
         {
-            string txtpath = Path.Combine(FilePath, "readme about WebP.txt");
-            if (MessageBox.Show(@"是否在根目录生成 readme about WebP.txt", @"ATI Tips", MessageBoxButtons.YesNo)
-                != DialogResult.Yes) return;
-            try
+            if (_data.Any(catalog => catalog.Value.Any(item => item.Extension == ".webp")))
             {
-                File.WriteAllText(txtpath, Resources.ReadmeAboutWebP);
-                btnWebP.Visible = btnWebP.Enabled = false;
+                if (_data.ContainsKey("root"))
+                {
+                    if (_data["root"].All(item => item.FileName != "readme about WebP.txt"))
+                    {
+                        Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现readme about WebP.txt");
+                        if (_torrent == null)
+                        {
+                            btnWebP.Visible = btnWebP.Enabled = true;
+                        }
+                    }
+                }
             }
-            catch (Exception exception)
-            {
-                Notification.ShowError(@"生成失败", exception);
-            }
+            ThroughInspection();
+            cbCategory.Enabled = cbCategory.Items.Count > 1;
         }
 
         private void ThroughInspection()
@@ -236,7 +227,7 @@ namespace AutoTorrentInspection
             foreach (var item in _data.Keys)
             {
                 cbCategory.Items.Add(item);
-                Inspection(item);
+                Inspection(item);//Time draing
             }
             if (cbCategory.Items.Count > 0)
             {
@@ -261,6 +252,22 @@ namespace AutoTorrentInspection
             }
             toolStripStatusLabel_Status.Text = dataGridView1.Rows.Count == 0 ? "状态正常, All Green"
                 : $"发现 {dataGridView1.Rows.Count} 个世界的扭曲点{(cbShowAll.Checked ? "(并不是)" : "")}";
+        }
+
+        private void btnWebP_Click(object sender, EventArgs e)
+        {
+            string txtpath = Path.Combine(FilePath, "readme about WebP.txt");
+            if (MessageBox.Show(@"是否在根目录生成 readme about WebP.txt", @"ATI Tips", MessageBoxButtons.YesNo)
+                != DialogResult.Yes) return;
+            try
+            {
+                File.WriteAllText(txtpath, Resources.ReadmeAboutWebP);
+                btnWebP.Visible = btnWebP.Enabled = false;
+            }
+            catch (Exception exception)
+            {
+                Notification.ShowError(@"生成失败", exception);
+            }
         }
 
         private void cbCategory_MouseEnter(object sender, EventArgs e) => toolTip1.Show(cbCategory.Text, cbCategory);
