@@ -16,7 +16,12 @@ namespace AutoTorrentInspection.Util
             _torrent = Bencode.DecodeTorrentFile(path);
         }
 
-        public IEnumerable<string> GetAnnounceList() => _torrent.AnnounceList?.ToList().Select(item => ((BList)item).First().ToString()).ToList() ?? new List<string> { _torrent.Announce };
+        public IEnumerable<string> GetAnnounceList()
+        {
+            var list = _torrent.AnnounceList;
+            if(list == null || list.Count < 1) return new []{ _torrent.Announce };
+            return list.Select(item => ((BList) item).First().ToString());
+        }
 
         public string CreatedBy => _torrent.CreatedBy;
 

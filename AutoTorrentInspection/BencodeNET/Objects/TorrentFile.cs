@@ -5,58 +5,88 @@ using System.Security.Cryptography;
 
 namespace BencodeNET.Objects
 {
-    public class TorrentFile
+    public class TorrentFile : BObject<BDictionary>
     {
-        private readonly BDictionary _data = new BDictionary();
+        private readonly DateTime _epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        public BDictionary Info => (BDictionary) _data["info"];
+        public BDictionary Info
+        {
+            get { return (BDictionary) Value[Fields.Info]; }
+            set { Value[Fields.Info] = value; }
+        }
 
-        /// <summary>
-        /// The first announce URL contained within the .torrent file
-        /// </summary>
-        public string Announce => _data.ContainsKey("announce") ? _data["announce"].ToString() : null;
+        public string Announce
+        {
+            get
+            {
+                if (!Value.ContainsKey(Fields.Announce))
+                    return null;
+                return Value[Fields.Announce].ToString();
+            }
+            set { Value[Fields.Announce] = new BString(value); }
+        }
 
-        /// <summary>
-        /// The announce URLs contained within the .torrent file
-        /// </summary>
-        public BList AnnounceList => _data.ContainsKey("announce-list") ? (BList) _data["announce-list"] : null;
+        public BList AnnounceList
+        {
+            get { return (BList) Value[Fields.AnnounceList] ?? new BList(); }
+            set { Value[Fields.AnnounceList] = value; }
+        }
 
-        /// <summary>
-        /// The creation date of the .torrent file
-        /// </summary>
         public DateTime CreationDate
         {
             get
             {
-                var unixTime = (BNumber) _data["creation date"] ?? 0;
-                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                return epoch.AddSeconds(unixTime);
+                var unixTime = (BNumber) Value[Fields.CreationDate] ?? 0;
+                return _epoch.AddSeconds(unixTime);
+            }
+            set
+            {
+                var unixTime = value.Subtract(_epoch).TotalSeconds.ToString();
+                Value[Fields.CreationDate] = new BString(unixTime);
             }
         }
 
-        /// <summary>
-        /// The comment contained within the .torrent file
-        /// </summary>
-        public string Comment => _data.ContainsKey("comment") ? _data["comment"].ToString() : null;
+        public string Comment
+        {
+            get
+            {
+                if (!Value.ContainsKey(Fields.Comment))
+                    return null;
+                return Value[Fields.Comment].ToString();
+            }
+            set { Value[Fields.Comment] = new BString(value); }
+        }
 
-        /// <summary>
-        /// The optional string showing who/what created the .torrent
-        /// </summary>
-        public string CreatedBy => _data.ContainsKey("created by") ? _data["created by"].ToString() : "null";
+        public string CreatedBy
+        {
+            get
+            {
+                if (!Value.ContainsKey(Fields.CreatedBy))
+                    return null;
+                return Value[Fields.CreatedBy].ToString();
+            }
+            set { Value[Fields.CreatedBy] = new BString(value); }
+        }
 
-        /// <summary>
-        /// The encoding used by the client that created the .torrent file
-        /// </summary>
-        public string Encoding => _data.ContainsKey("encoding") ? _data["encoding"].ToString() : null;
+        public string Encoding
+        {
+            get
+            {
+                if (!Value.ContainsKey(Fields.Encoding))
+                    return null;
+                return Value[Fields.Encoding].ToString();
+            }
+            set { Value[Fields.Encoding] = new BString(value); }
+        }
 
         public string CalculateInfoHash()
         {
-            return CalculateInfoHash((BDictionary)_data["info"]);
+            return CalculateInfoHash(Info);
         }
 
         public byte[] CalculateInfoHashBytes()
         {
-            return CalculateInfoHashBytes((BDictionary)_data["info"]);
+            return CalculateInfoHashBytes(Info);
         }
 
         public static string CalculateInfoHash(BDictionary info)
@@ -78,7 +108,11 @@ namespace BencodeNET.Objects
             }
         }
 
-        public IBObject this[BString key] => _data[key];
+        public IBObject this[BString key]
+        {
+            get { return Value[key]; }
+            set { Value[key] = value; }
+        }
 
         public static bool operator ==(TorrentFile first, TorrentFile second)
         {
@@ -91,6 +125,11 @@ namespace BencodeNET.Objects
         public static bool operator !=(TorrentFile first, TorrentFile second)
         {
             return !(first == second);
+        }
+
+        public override TStream EncodeToStream<TStream>(TStream stream)
+        {
+            return Value.EncodeToStream(stream);
         }
 
         public override bool Equals(object other)
@@ -119,12 +158,23 @@ namespace BencodeNET.Objects
             throw new NotImplementedException();
         }
 
-        public TorrentFile()
+        public TorrentFile() : this(new BDictionary())
         { }
 
         public TorrentFile(BDictionary torrent)
         {
-            _data = torrent;
+            Value = torrent;
+        }
+
+        private static class Fields
+        {
+            public const string Announce = "announce";
+            public const string AnnounceList = "announce-list";
+            public const string CreatedBy = "created by";
+            public const string CreationDate = "creation date";
+            public const string Comment = "comment";
+            public const string Encoding = "encoding";
+            public const string Info = "info";
         }
     }
 }
