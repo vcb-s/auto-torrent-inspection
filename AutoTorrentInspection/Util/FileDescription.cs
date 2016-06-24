@@ -168,12 +168,6 @@ namespace AutoTorrentInspection.Util
 
         private static readonly string[] SizeTail = {"B", "KB", "MB", "GB", "TB", "PB"};
 
-        public static string FileSizeToString(long length)
-        {
-            var scale = length == 0 ? 0 : (int)Math.Floor(Math.Log(length, 1024));
-            return $"{length / Math.Pow(1024, scale):F3}{SizeTail[scale]}";
-        }
-
         public DataGridViewRow ToRow()
         {
             var row = new DataGridViewRow {Tag = this};
@@ -216,6 +210,11 @@ namespace AutoTorrentInspection.Util
         {
             var scale = Length == 0 ? 0 : (int)Math.Floor(Math.Log(Length, 1024));
             return $"{Length / Math.Pow(1024, scale):F3}{SizeTail[scale]}";
+        }
+        public static string FileSizeToString(long length)
+        {
+            var scale = length == 0 ? 0 : (int)Math.Floor(Math.Log(length, 1024));
+            return $"{length / Math.Pow(1024, scale):F3}{SizeTail[scale]}";
         }
 
         public FileSize(long length)
