@@ -68,7 +68,7 @@ namespace AutoTorrentInspection.Test.Util
             PrintTorrentInfo();
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.hdtime.org/announce.php?passkey=passkey");
             Assert.IsTrue(string.IsNullOrEmpty(_torrent.Comment));
-            Assert.IsTrue(_torrent.CreatedBy == "null");
+            Assert.IsTrue(_torrent.CreatedBy == null);
             Assert.IsTrue(_torrent.CreationDate == new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Add(TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now)));
             Assert.IsFalse(_torrent.IsPrivate);
             Assert.IsTrue(_torrent.Source == "[hdtime.org] HDTIME");

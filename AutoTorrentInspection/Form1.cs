@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.ComponentModel;
 using AutoTorrentInspection.Util;
 using AutoTorrentInspection.Properties;
 

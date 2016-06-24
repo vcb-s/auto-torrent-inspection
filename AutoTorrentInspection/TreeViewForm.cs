@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using AutoTorrentInspection.Util;
 
@@ -28,8 +29,22 @@ namespace AutoTorrentInspection
         private void TreeViewForm_Load(object sender, EventArgs e)
         {
             Text = _data.TorrentName;
-            _node = new Node(_data.GetRawFileList());
-            _node.InsertTo(treeView1.Nodes);
+            TreeNode treenode = new TreeNode(_data.TorrentName);
+            long length = 0;
+            var task = new Task(() =>
+            {
+                _node = new Node(_data.GetRawFileListWithAttribute());
+                length = _node.InsertTo(treenode.Nodes);
+            });
+            task.ContinueWith(t =>
+            {
+                Invoke(new Func<TreeNode, int>(treeView1.Nodes.Add), treenode);
+                Invoke(new Action(treenode.Expand), null);
+                if (length == 0) return;
+                Invoke(new Action(() => Text += $" [{FileSize.FileSizeToString(length)}]"), null);
+                Invoke(new Action(() => treenode.Text += $" [{FileSize.FileSizeToString(length)}]"), null);
+            });
+            task.Start();
         }
     }
 }

@@ -166,14 +166,15 @@ namespace AutoTorrentInspection.Util
             }
         }
 
-        private readonly string[] _sizeTail = {"B", "KB", "MB", "GB", "TB", "PB"};
+        private static readonly string[] SizeTail = {"B", "KB", "MB", "GB", "TB", "PB"};
+
         public DataGridViewRow ToRow()
         {
             var row = new DataGridViewRow {Tag = this};
             var scale = Length == 0 ? 0 : (int) Math.Floor(Math.Log(Length, 1024));
             row.Cells.Add(new DataGridViewTextBoxCell {Value = ReletivePath});
             row.Cells.Add(new DataGridViewTextBoxCell {Value = FileName});
-            row.Cells.Add(new DataGridViewTextBoxCell {Value = $"{Length/Math.Pow(1024, scale):F3}{_sizeTail[scale]}"});
+            row.Cells.Add(new DataGridViewTextBoxCell {Value = $"{Length/Math.Pow(1024, scale):F3}{SizeTail[scale]}"});
             switch (State)
             {
                 case FileState.ValidFile:
@@ -197,4 +198,29 @@ namespace AutoTorrentInspection.Util
             return row;
         }
     }
+
+
+    public class FileSize
+    {
+        public long Length { get; private set; }
+
+        private static readonly string[] SizeTail = { "B", "KB", "MB", "GB", "TB", "PB" };
+
+        public override string ToString()
+        {
+            var scale = Length == 0 ? 0 : (int)Math.Floor(Math.Log(Length, 1024));
+            return $"{Length / Math.Pow(1024, scale):F3}{SizeTail[scale]}";
+        }
+        public static string FileSizeToString(long length)
+        {
+            var scale = length == 0 ? 0 : (int)Math.Floor(Math.Log(length, 1024));
+            return $"{length / Math.Pow(1024, scale):F3}{SizeTail[scale]}";
+        }
+
+        public FileSize(long length)
+        {
+            Length = length;
+        }
+    }
+
 }
