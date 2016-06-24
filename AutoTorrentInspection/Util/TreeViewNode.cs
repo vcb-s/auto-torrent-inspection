@@ -7,7 +7,7 @@ namespace AutoTorrentInspection.Util
     {
         private readonly Dictionary<string, Node> _childNodes = new Dictionary<string, Node>();
 
-        public Dictionary<string, object> Attribute { get; set; } = new Dictionary<string, object>();
+        public FileSize Attribute { get; private set; }
 
         private Node _parentNode = null;
 
@@ -22,6 +22,14 @@ namespace AutoTorrentInspection.Util
             foreach (var list in fileList)
             {
                 this.Insert(list);
+            }
+        }
+
+        public Node(IEnumerable<KeyValuePair<IEnumerable<string>, FileSize>> fileList)
+        {
+            foreach (var list in fileList)
+            {
+                this.Insert(list.Key, list.Value);
             }
         }
 
@@ -55,14 +63,15 @@ namespace AutoTorrentInspection.Util
             get
             {
                 var path = NodeName;
+                const string separator = "/";
                 if (!IsFile)
                 {
-                    path += System.IO.Path.DirectorySeparatorChar;
+                    path += separator;//文件夹后增加'/'以作区分
                 }
-                var currentNode = _parentNode;
+                var currentNode = _parentNode;//不断回溯以获取完整路径
                 while (currentNode != null)
                 {
-                    path = currentNode.NodeName + System.IO.Path.DirectorySeparatorChar + path;
+                    path = currentNode.NodeName + separator + path;
                     currentNode = currentNode._parentNode;
                 }
                 return path;
@@ -82,10 +91,26 @@ namespace AutoTorrentInspection.Util
                 if (!currentNode._childNodes.ContainsKey(node))
                 {
                     currentNode._childNodes.Add(node, new Node(node));
+                    currentNode[node]._parentNode = currentNode;
                 }
-                currentNode[node]._parentNode = currentNode;
                 currentNode = currentNode[node];
             }
+            return currentNode;
+        }
+
+        public Node Insert(IEnumerable<string> nodes, FileSize attribute)
+        {
+            var currentNode = this;
+            foreach (string node in nodes)
+            {
+                if (!currentNode._childNodes.ContainsKey(node))
+                {
+                    currentNode._childNodes.Add(node, new Node(node));
+                    currentNode[node]._parentNode = currentNode;
+                }
+                currentNode = currentNode[node];
+            }
+            currentNode.Attribute = attribute;
             return currentNode;
         }
 
@@ -98,12 +123,13 @@ namespace AutoTorrentInspection.Util
         {
             foreach (var node in currentNode.GetDirectories())
             {
-                var treeNode = tn.Insert(tn.Count, node.NodeName);
-                InsertToViewInner(node, treeNode.Nodes);
+                var treeNode = tn.Insert(tn.Count, node.NodeName);//将文件夹插入当前TreeNode节点的末尾
+                InsertToViewInner(node, treeNode.Nodes);//由于是文件夹，故获取其子项并继续插入
             }
             foreach (var node in currentNode.GetFiles())
             {
-                tn.Insert(tn.Count, node.NodeName);
+                //将文件插入当前TreeNode结点的末尾
+                tn.Insert(tn.Count, node.NodeName + (node.Attribute != null ? $" [{node.Attribute}]" : ""));
             }
         }
     }

@@ -28,7 +28,7 @@ namespace AutoTorrentInspection
         private void TreeViewForm_Load(object sender, EventArgs e)
         {
             Text = _data.TorrentName;
-            _node = new Node(_data.GetRawFileList());
+            _node = new Node(_data.GetRawFileListWithAttribute());
             _node.InsertTo(treeView1.Nodes);
         }
     }
