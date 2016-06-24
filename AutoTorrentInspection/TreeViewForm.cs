@@ -26,8 +26,6 @@ namespace AutoTorrentInspection
             Icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
         }
 
-        private delegate int InsertNodeHandle(TreeNode node);
-
         private void TreeViewForm_Load(object sender, EventArgs e)
         {
             Text = _data.TorrentName;
@@ -40,8 +38,7 @@ namespace AutoTorrentInspection
             });
             task.ContinueWith(t =>
             {
-                Invoke(new InsertNodeHandle(treeView1.Nodes.Add), treenode);
-
+                Invoke(new Func<TreeNode, int>(treeView1.Nodes.Add), treenode);
                 Invoke(new Action(treenode.Expand), null);
                 if (length == 0) return;
                 Invoke(new Action(() => Text += $" [{FileSize.FileSizeToString(length)}]"), null);
