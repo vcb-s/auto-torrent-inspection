@@ -388,11 +388,12 @@ namespace AutoTorrentInspection
             if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
             var torrent = new TorrentData(openFileDialog1.FileName);
 
-            var fileList = torrent.GetRawFileList();
+            //var fileList = torrent.GetRawFileList();
+            var fileList = torrent.GetRawFileListWithAttribute();
             var node = new Node(fileList);
             var cmpResult = CheckConsistency(node, FilePath);
 
-            if (cmpResult.Result)
+            if (cmpResult.Result.ErrorType == CheckResult.ResultType.Normal)
             {
                 int tsum = torrent.GetFileList().Values.Sum(item => item.Count);
                 int fsum = _data.Values.Sum(item => item.Count);
@@ -400,21 +401,56 @@ namespace AutoTorrentInspection
             }
             else
             {
-                Notification.ShowInfo(@"文件名对不上呢");
+                Notification.ShowInfo($"First unmatched File: {cmpResult.Result.FileName}\nError Type: {cmpResult.Result.ErrorType}");
             }
         }
 
-        private static async Task<bool> CheckConsistency(Node node, string baseDirectory)
+        private class CheckResult
+        {
+            public enum ResultType
+            {
+                Normal,
+                Exists,
+                Size
+            }
+
+            public string FileName { get; set; }
+            public ResultType ErrorType { get; set; }
+
+        }
+
+        private static async Task<CheckResult> CheckConsistency(Node node, string baseDirectory)
         {
             foreach (var directory in node.GetDirectories())
             {
                 var result = await CheckConsistency(directory, baseDirectory);
-                if (result == false)
+                if (result.ErrorType != CheckResult.ResultType.Normal)
                 {
-                    return false;
+                    return result;
                 }
             }
-            return node.GetFiles().Select(file => baseDirectory + file.FullPath).All(File.Exists);
+            var masterRet = new CheckResult { FileName = node.NodeName, ErrorType = CheckResult.ResultType.Normal };
+            foreach (var f in node.GetFiles().Select(file => new KeyValuePair<string, FileSize>(baseDirectory + file.FullPath, file.Attribute)))
+            {
+                var ret = new CheckResult {FileName = Path.GetFileName(f.Key), ErrorType = CheckResult.ResultType.Normal};
+                if (!File.Exists(f.Key))
+                {
+                    ret.ErrorType = CheckResult.ResultType.Exists;
+                }
+                else
+                {
+                    var length = new FileInfo(f.Key).Length;
+                    if (length != f.Value.Length)
+                    {
+                        ret.ErrorType = CheckResult.ResultType.Size;
+                    }
+                }
+                if (ret.ErrorType != CheckResult.ResultType.Normal)
+                {
+                    return ret;
+                }
+            }
+            return masterRet;
         }
 
         private void btnTreeView_Click(object sender, EventArgs e)
