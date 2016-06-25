@@ -4,10 +4,8 @@ using System.Collections.Generic;
 
 namespace AutoTorrentInspection.Util
 {
-    public class Node
+    public class Node : Dictionary<string, Node>
     {
-        private readonly Dictionary<string, Node> _childNodes = new Dictionary<string, Node>();
-
         public FileSize Attribute { get; private set; }
 
         private Node _parentNode = null;
@@ -39,11 +37,6 @@ namespace AutoTorrentInspection.Util
             NodeName = node;
         }
 
-        public Node this[string node]
-        {
-            get { return _childNodes[node]; }
-            set { _childNodes[node] = value; }
-        }
 
         public enum NodeTypeEnum
         {
@@ -51,16 +44,16 @@ namespace AutoTorrentInspection.Util
             Directory
         }
 
-        public NodeTypeEnum NodeType => _childNodes.Count == 0 ? NodeTypeEnum.File : NodeTypeEnum.Directory;
+        public NodeTypeEnum NodeType => Values.Count == 0 ? NodeTypeEnum.File : NodeTypeEnum.Directory;
 
         public IEnumerable<Node> GetFiles()
         {
-            return _childNodes.Where(item => item.Value._childNodes.Count == 0).Select(item => item.Value);
+            return Values.Where(item => item.Count == 0);
         }
 
         public IEnumerable<Node> GetDirectories()
         {
-            return _childNodes.Where(item => item.Value._childNodes.Count > 0).Select(item => item.Value);
+            return Values.Where(item => item.Count > 0);
         }
 
         public string FullPath
@@ -83,19 +76,14 @@ namespace AutoTorrentInspection.Util
             }
         }
 
-        public Dictionary<string, Node>.Enumerator GetEnumerator()
-        {
-            return _childNodes.GetEnumerator();
-        }
-
         public Node Insert(IEnumerable<string> nodes, FileSize attribute = null)
         {
             var currentNode = this;
             foreach (string node in nodes)
             {
-                if (!currentNode._childNodes.ContainsKey(node))
+                if (!currentNode.ContainsKey(node))
                 {
-                    currentNode._childNodes.Add(node, new Node(node));
+                    currentNode.Add(node, new Node(node));
                     currentNode[node]._parentNode = currentNode;
                 }
                 currentNode = currentNode[node];
