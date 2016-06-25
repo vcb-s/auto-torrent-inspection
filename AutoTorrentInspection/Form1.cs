@@ -393,7 +393,7 @@ namespace AutoTorrentInspection
             var node = new Node(fileList);
             var cmpResult = CheckConsistency(node, FilePath);
 
-            if (cmpResult.Result.ErrorType == CheckResult.ResultType.Normal)
+            if (cmpResult.Result.ResultType == CheckResult.ResultTypeEnum.Normal)
             {
                 int tsum = torrent.GetFileList().Values.Sum(item => item.Count);
                 int fsum = _data.Values.Sum(item => item.Count);
@@ -401,13 +401,13 @@ namespace AutoTorrentInspection
             }
             else
             {
-                Notification.ShowInfo($"First unmatched File: {cmpResult.Result.FileName}\nError Type: {cmpResult.Result.ErrorType}");
+                Notification.ShowInfo($"First unmatched File: {cmpResult.Result.FileName}\nError Type: {cmpResult.Result.ResultType}");
             }
         }
 
         private class CheckResult
         {
-            public enum ResultType
+            public enum ResultTypeEnum
             {
                 Normal,
                 Exists,
@@ -415,7 +415,7 @@ namespace AutoTorrentInspection
             }
 
             public string FileName { get; set; }
-            public ResultType ErrorType { get; set; }
+            public ResultTypeEnum ResultType { get; set; }
 
         }
 
@@ -424,28 +424,28 @@ namespace AutoTorrentInspection
             foreach (var directory in node.GetDirectories())
             {
                 var result = await CheckConsistency(directory, baseDirectory);
-                if (result.ErrorType != CheckResult.ResultType.Normal)
+                if (result.ResultType != CheckResult.ResultTypeEnum.Normal)
                 {
                     return result;
                 }
             }
-            var masterRet = new CheckResult { FileName = node.NodeName, ErrorType = CheckResult.ResultType.Normal };
+            var masterRet = new CheckResult { FileName = node.NodeName, ResultType = CheckResult.ResultTypeEnum.Normal };
             foreach (var f in node.GetFiles().Select(file => new KeyValuePair<string, FileSize>(baseDirectory + file.FullPath, file.Attribute)))
             {
-                var ret = new CheckResult {FileName = Path.GetFileName(f.Key), ErrorType = CheckResult.ResultType.Normal};
+                var ret = new CheckResult { FileName = Path.GetFileName(f.Key), ResultType = CheckResult.ResultTypeEnum.Normal};
                 if (!File.Exists(f.Key))
                 {
-                    ret.ErrorType = CheckResult.ResultType.Exists;
+                    ret.ResultType = CheckResult.ResultTypeEnum.Exists;
                 }
                 else
                 {
                     var length = new FileInfo(f.Key).Length;
                     if (length != f.Value.Length)
                     {
-                        ret.ErrorType = CheckResult.ResultType.Size;
+                        ret.ResultType = CheckResult.ResultTypeEnum.Size;
                     }
                 }
-                if (ret.ErrorType != CheckResult.ResultType.Normal)
+                if (ret.ResultType != CheckResult.ResultTypeEnum.Normal)
                 {
                     return ret;
                 }

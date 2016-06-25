@@ -41,8 +41,11 @@ namespace AutoTorrentInspection
                 Invoke(new Func<TreeNode, int>(treeView1.Nodes.Add), treenode);
                 Invoke(new Action(treenode.Expand), null);
                 if (length == 0) return;
-                Invoke(new Action(() => Text += $" [{FileSize.FileSizeToString(length)}]"), null);
-                Invoke(new Action(() => treenode.Text += $" [{FileSize.FileSizeToString(length)}]"), null);
+                Invoke(new Action(() =>
+                {
+                    Text += $" [{FileSize.FileSizeToString(length)}]";
+                    treenode.Text += $" [{FileSize.FileSizeToString(length)}]";
+                }), null);
             });
             task.Start();
         }

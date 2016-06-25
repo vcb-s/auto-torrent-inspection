@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace AutoTorrentInspection.Util
@@ -44,9 +45,13 @@ namespace AutoTorrentInspection.Util
             set { _childNodes[node] = value; }
         }
 
-        public bool IsFile => this._childNodes.Count == 0;
+        public enum NodeTypeEnum
+        {
+            File,
+            Directory
+        }
 
-        public bool IsDirectory => this._childNodes.Count > 0;
+        public NodeTypeEnum NodeType => _childNodes.Count == 0 ? NodeTypeEnum.File : NodeTypeEnum.Directory;
 
         public IEnumerable<Node> GetFiles()
         {
@@ -64,17 +69,17 @@ namespace AutoTorrentInspection.Util
             {
                 var path = NodeName;
                 const string separator = "/";
-                if (!IsFile)
-                {
-                    path += separator;//文件夹后增加'/'以作区分
-                }
-                var currentNode = _parentNode;//不断回溯以获取完整路径
-                while (currentNode != null)
-                {
-                    path = currentNode.NodeName + separator + path;
-                    currentNode = currentNode._parentNode;
-                }
+                path = GetParentsNode().Aggregate(path, (current, node) => node + separator + current);
+                if (NodeType == NodeTypeEnum.Directory) path += separator;
                 return path;
+            }
+        }
+
+        private IEnumerable<Node> GetParentsNode()
+        {
+            for (var currentNode = _parentNode; currentNode != null; currentNode = currentNode._parentNode)
+            {
+                yield return currentNode;
             }
         }
 
@@ -83,22 +88,7 @@ namespace AutoTorrentInspection.Util
             return _childNodes.GetEnumerator();
         }
 
-        public Node Insert(IEnumerable<string> nodes)
-        {
-            var currentNode = this;
-            foreach (string node in nodes)
-            {
-                if (!currentNode._childNodes.ContainsKey(node))
-                {
-                    currentNode._childNodes.Add(node, new Node(node));
-                    currentNode[node]._parentNode = currentNode;
-                }
-                currentNode = currentNode[node];
-            }
-            return currentNode;
-        }
-
-        public Node Insert(IEnumerable<string> nodes, FileSize attribute)
+        public Node Insert(IEnumerable<string> nodes, FileSize attribute = null)
         {
             var currentNode = this;
             foreach (string node in nodes)

@@ -89,21 +89,19 @@ namespace AutoTorrentInspection.Util
             if (!_torrent.Info.ContainsKey("files"))
             {
                 yield return new []{ TorrentName };
+                yield break;
             }
-            else
+            var files = (BList)_torrent.Info["files"];
+            foreach (var file in files)
             {
-                var files = (BList)_torrent.Info["files"];
-                foreach (var file in files)
+                BList singleFile = (BList)((BDictionary)file)["path"];
+                if (((BDictionary)file).ContainsKey("path.utf-8"))
                 {
-                    BList singleFile = (BList)((BDictionary)file)["path"];
-                    if (((BDictionary)file).ContainsKey("path.utf-8"))
-                    {
-                        singleFile = (BList)((BDictionary)file)["path.utf-8"];
-                    }
-                    if (singleFile.Last().ToString().Contains("_____padding_file_")) continue;
-                    var length = ((BNumber)((BDictionary)file)["length"]).Value;
-                    yield return singleFile.Select(item=>item.ToString());
+                    singleFile = (BList)((BDictionary)file)["path.utf-8"];
                 }
+                if (singleFile.Last().ToString().Contains("_____padding_file_")) continue;
+                var length = ((BNumber)((BDictionary)file)["length"]).Value;
+                yield return singleFile.Select(item=>item.ToString());
             }
         }
 
@@ -113,22 +111,20 @@ namespace AutoTorrentInspection.Util
             {
                 FileSize fs = new FileSize(((BNumber)_torrent.Info["length"]).Value);
                 yield return new KeyValuePair<IEnumerable<string>, FileSize>(new[] {TorrentName}, fs);
+                yield break;
             }
-            else
+            var files = (BList)_torrent.Info["files"];
+            foreach (var file in files)
             {
-                var files = (BList)_torrent.Info["files"];
-                foreach (var file in files)
+                BList singleFile = (BList)((BDictionary)file)["path"];
+                if (((BDictionary)file).ContainsKey("path.utf-8"))
                 {
-                    BList singleFile = (BList)((BDictionary)file)["path"];
-                    if (((BDictionary)file).ContainsKey("path.utf-8"))
-                    {
-                        singleFile = (BList)((BDictionary)file)["path.utf-8"];
-                    }
-                    if (singleFile.Last().ToString().Contains("_____padding_file_")) continue;
-                    var length = ((BNumber)((BDictionary)file)["length"]).Value;
-                    FileSize fs = new FileSize(length);
-                    yield return new KeyValuePair<IEnumerable<string>, FileSize>(singleFile.Select(item => item.ToString()), fs);
+                    singleFile = (BList)((BDictionary)file)["path.utf-8"];
                 }
+                if (singleFile.Last().ToString().Contains("_____padding_file_")) continue;
+                var length = ((BNumber)((BDictionary)file)["length"]).Value;
+                FileSize fs = new FileSize(length);
+                yield return new KeyValuePair<IEnumerable<string>, FileSize>(singleFile.Select(item => item.ToString()), fs);
             }
         }
 
