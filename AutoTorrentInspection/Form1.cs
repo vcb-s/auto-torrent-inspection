@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using AutoTorrentInspection.Util;
 using AutoTorrentInspection.Properties;
 
@@ -141,7 +142,8 @@ namespace AutoTorrentInspection
         {
             if (_data == null) return;
             dataGridView1.Rows.Clear();
-            Inspection(cbCategory.Text);
+            Application.DoEvents();
+            dataGridView1.SuspendDrawing(() => Inspection(cbCategory.Text));
         }
 
         private const string CurrentTrackList = "http://208.67.16.113:8000/annonuce\n" +
@@ -219,15 +221,21 @@ namespace AutoTorrentInspection
             cbCategory.Enabled = cbCategory.Items.Count > 1;
         }
 
+
+
         private void ThroughInspection()
         {
             dataGridView1.Rows.Clear();
             cbCategory.Items.Clear();
-            foreach (var item in _data.Keys)
+            Application.DoEvents();
+            dataGridView1.SuspendDrawing(() =>
             {
-                cbCategory.Items.Add(item);
-                Inspection(item);//Time draing
-            }
+                foreach (var item in _data.Keys)
+                {
+                    cbCategory.Items.Add(item);
+                    Inspection(item);
+                }
+            });
             if (cbCategory.Items.Count > 0)
             {
                 cbCategory.SelectedIndex = cbCategory.SelectedIndex == -1 ? 0 : cbCategory.SelectedIndex;
@@ -244,6 +252,8 @@ namespace AutoTorrentInspection
         private void Inspection(string category)
         {
             Func<FileDescription, bool> check = item => item.State != FileState.ValidFile || cbShowAll.Checked;
+            //dataGridView1.Rows.AddRange(_data[category].Where(item => check(item)).Select(r => r.ToRow()).ToArray());
+            //Application.DoEvents();
             foreach (var item in _data[category].Where(item => check(item)))
             {
                 dataGridView1.Rows.Add(item.ToRow());

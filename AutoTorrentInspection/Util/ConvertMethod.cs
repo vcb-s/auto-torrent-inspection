@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace AutoTorrentInspection.Util
 {
@@ -137,6 +139,18 @@ namespace AutoTorrentInspection.Util
         {
             if (dictionary.ContainsKey(key)) return;
             dictionary.Add(key, value);
+        }
+
+        [DllImport("user32.dll")]
+        private static extern int SendMessage(IntPtr hWnd, Int32 wMsg, bool wParam, Int32 lParam);
+        private const int WM_SETREDRAW = 11;
+
+        public static void SuspendDrawing(this Control control, Action action)
+        {
+            SendMessage(control.Handle, WM_SETREDRAW, false, 0);
+            action();
+            SendMessage(control.Handle, WM_SETREDRAW, true, 0);
+            control.Refresh();
         }
     }
 }

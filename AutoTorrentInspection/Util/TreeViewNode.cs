@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
 
 namespace AutoTorrentInspection.Util
@@ -8,7 +7,7 @@ namespace AutoTorrentInspection.Util
     {
         public FileSize Attribute { get; private set; }
 
-        private Node _parentNode = null;
+        private Node ParentNode { get; set; }
 
         public string NodeName { get; private set; } = string.Empty;
 
@@ -20,7 +19,7 @@ namespace AutoTorrentInspection.Util
         {
             foreach (var list in fileList)
             {
-                this.Insert(list);
+                Insert(list);
             }
         }
 
@@ -28,7 +27,7 @@ namespace AutoTorrentInspection.Util
         {
             foreach (var list in fileList)
             {
-                this.Insert(list.Key, list.Value);
+                Insert(list.Key, list.Value);
             }
         }
 
@@ -70,7 +69,7 @@ namespace AutoTorrentInspection.Util
 
         private IEnumerable<Node> GetParentsNode()
         {
-            for (var currentNode = _parentNode; currentNode != null; currentNode = currentNode._parentNode)
+            for (var currentNode = ParentNode; currentNode != null; currentNode = currentNode.ParentNode)
             {
                 yield return currentNode;
             }
@@ -84,7 +83,7 @@ namespace AutoTorrentInspection.Util
                 if (!currentNode.ContainsKey(node))
                 {
                     currentNode.Add(node, new Node(node));
-                    currentNode[node]._parentNode = currentNode;
+                    currentNode[node].ParentNode = currentNode;
                 }
                 currentNode = currentNode[node];
             }
