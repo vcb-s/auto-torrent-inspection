@@ -58,6 +58,7 @@ namespace AutoTorrentInspection
         {
             _systemMenu = new SystemMenu(this);
             _systemMenu.AddCommand("检查更新(&U)", Updater.CheckUpdate, true);
+            _systemMenu.AddCommand("关于(&A)", () => { new FormAbout().Show(); }, false);
         }
 
         protected override void WndProc(ref Message msg)
@@ -399,8 +400,7 @@ namespace AutoTorrentInspection
             var torrent = new TorrentData(openFileDialog1.FileName);
 
             //var fileList = torrent.GetRawFileList();
-            var fileList = torrent.GetRawFileListWithAttribute();
-            var node = new Node(fileList);
+            var node = new Node(torrent.GetRawFileListWithAttribute());
             var cmpResult = CheckConsistency(node, FilePath);
 
             if (cmpResult.Result.ResultType == CheckResult.ResultTypeEnum.Normal)
