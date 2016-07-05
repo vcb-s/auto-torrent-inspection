@@ -132,11 +132,12 @@ namespace AutoTorrentInspection.Util
         public Dictionary<string, List<FileDescription>> GetFileList()
         {
             var fileDic = new Dictionary<string, List<FileDescription>>();
+            var torrentName = TorrentName;
             if (!_torrent.Info.ContainsKey("files"))
             {
-                var name = TorrentName;
+
                 var length = ((BNumber)_torrent.Info["length"]).Value;
-                fileDic.Add("single", new List<FileDescription> { new FileDescription(name, "", length) });
+                fileDic.Add("single", new List<FileDescription> { new FileDescription(torrentName, "", torrentName, length) });
                 return fileDic;
             }
             var files = (BList)_torrent.Info["files"];
@@ -160,7 +161,7 @@ namespace AutoTorrentInspection.Util
                 //reason: https://zh.wikipedia.org/zh-hant/BitComet#.E6.96.87.E4.BB.B6.E5.88.86.E5.A1.8A.E5.B0.8D.E9.BD.8A
 
                 fileDic.TryAdd(category, new List<FileDescription>());
-                fileDic[category].Add(new FileDescription(name, path.ToString(), length));
+                fileDic[category].Add(new FileDescription(name, path.ToString(), torrentName, length));
             }
             return fileDic;
         }

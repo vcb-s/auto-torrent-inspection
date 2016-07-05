@@ -26,6 +26,7 @@ namespace AutoTorrentInspection.Util
     {
         public string FileName          { get; }
         private string ReletivePath      { get; }
+        private string BasePath { get; }
         public string FullPath           { get; }
         public string Extension          { get; }
         private long Length              { get; }
@@ -53,20 +54,24 @@ namespace AutoTorrentInspection.Util
         private static readonly Color INVALID_ENCODE      = Color.FromArgb(078, 079, 151);
         private static readonly Color INVALID_PATH_LENGTH = Color.FromArgb(255, 010, 050);
 
-        public FileDescription(string fileName, string reletivePath, long length)//Torrent
+        private const long MaxFilePathLength = 210;
+
+        public FileDescription(string fileName, string reletivePath, string basePath, long length)//Torrent
         {
             FileName     = fileName;
             ReletivePath = reletivePath;
+            BasePath     = basePath;
             Extension    = Path.GetExtension(fileName)?.ToLower();
             Length       = length;
             SourceType   = SourceTypeEnum.Torrent;
             CheckValidTorrent();
         }
 
-        public FileDescription(string fileName, string reletivePath, string fullPath)//file
+        public FileDescription(string fileName, string reletivePath, string basePath, string fullPath)//file
         {
             FileName     = fileName;
             ReletivePath = reletivePath;
+            BasePath     = basePath;
             FullPath     = fullPath;
             Extension    = Path.GetExtension(fileName)?.ToLower();
             //Length       = fullPath.Length > 256 ? -1024*1024L : new FileInfo(fullPath).Length
@@ -77,7 +82,7 @@ namespace AutoTorrentInspection.Util
 
         private void CheckValidTorrent()
         {
-            if (ReletivePath.Length > 245)
+            if (BasePath.Length + ReletivePath.Length + FileName.Length > MaxFilePathLength)
             {
                 State = FileState.InValidPathLength;
                 return;
@@ -133,7 +138,7 @@ namespace AutoTorrentInspection.Util
         private void CheckValidFile()
         {
             //Debug.WriteLine(FullPath.Length);
-            if (ReletivePath.Length > 245)
+            if (BasePath.Length + ReletivePath.Length + FileName.Length > MaxFilePathLength)
             {
                 State = FileState.InValidPathLength;
                 return;

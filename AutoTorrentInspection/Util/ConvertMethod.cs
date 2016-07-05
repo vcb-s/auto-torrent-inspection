@@ -33,6 +33,7 @@ namespace AutoTorrentInspection.Util
 
         public static Dictionary<string, List<FileDescription>> GetFileList(string folderPath)
         {
+            string basePath = Path.GetDirectoryName(folderPath);
             var fileDic = new Dictionary<string, List<FileDescription>>();
             foreach (var file in EnumerateFolder(folderPath))
             {
@@ -41,7 +42,7 @@ namespace AutoTorrentInspection.Util
                 var pathSlashPosition     = file.LastIndexOf("\\", StringComparison.Ordinal);
                 var relativePath          = category == "root" ? "" : file.Substring(0, pathSlashPosition);
                 fileDic.TryAdd(category, new List<FileDescription>());
-                fileDic[category].Add(new FileDescription(Path.GetFileName(file), relativePath, $"{folderPath}\\{file}"));
+                fileDic[category].Add(new FileDescription(Path.GetFileName(file), relativePath, basePath, $"{folderPath}\\{file}"));
             }
             return fileDic;
         }
