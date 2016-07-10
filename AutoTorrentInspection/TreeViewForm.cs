@@ -13,17 +13,37 @@ namespace AutoTorrentInspection
         {
             InitializeComponent();
         }
+        public TreeViewForm(TorrentData data)
+        {
+            _data = data;
+            InitializeComponent();
+            AddCommand();
+            Icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
+        }
 
         private readonly TorrentData _data;
 
         private Node _node = new Node();
 
+        private SystemMenu _systemMenu;
 
-        public TreeViewForm(TorrentData data)
+        private void AddCommand()
         {
-            _data = data;
-            InitializeComponent();
-            Icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
+            _systemMenu = new SystemMenu(this);
+            _systemMenu.AddCommand("生成Json(&J)", () =>
+                 {
+                    Clipboard.SetText(_node.GetJson());
+                    Notification.ShowInfo("已复制至剪贴板");
+                }, true);
+        }
+
+        protected override void WndProc(ref Message msg)
+        {
+            base.WndProc(ref msg);
+
+            // Let it know all messages so it can handle WM_SYSCOMMAND
+            // (This method is inlined)
+            _systemMenu?.HandleMessage(ref msg);
         }
 
         private void TreeViewForm_Load(object sender, EventArgs e)
