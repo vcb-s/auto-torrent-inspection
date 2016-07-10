@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace AutoTorrentInspection.Util
@@ -9,11 +10,35 @@ namespace AutoTorrentInspection.Util
 
         private Node ParentNode { get; set; }
 
-        public string NodeName { get; private set; } = string.Empty;
+        public string NodeName { get; private set; } = "."; //string.Empty;
 
         public override string ToString() => NodeName;
 
         public Node() { }
+
+        public string GetJson()
+        {
+            return "[" + _GetJson().TrimEnd(',') + "]";
+        }
+
+        private string _GetJson(int depth = 0)
+        {
+            string json = string.Empty;
+            string subJson = Values.Aggregate(string.Empty, (current, value) => current + value._GetJson(depth + 1));
+            string tab = new string(' ', depth*2);
+            switch (NodeType)
+            {
+                case NodeTypeEnum.File:
+                    json += $"{tab}{{\"type\":\"{NodeType.ToString().ToLower()}\",\"name\":\"{NodeName}\",\"size\":{Attribute.Length}}},\n";
+                    break;
+                case NodeTypeEnum.Directory:
+                    json += $"{tab}{{\"type\":\"{NodeType.ToString().ToLower()}\",\"name\":\"{NodeName}\",\"contents\":[\n{subJson}{tab}]}},\n";
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            return json;
+        }
 
         public Node(IEnumerable<IEnumerable<string>> fileList)
         {
@@ -101,8 +126,8 @@ namespace AutoTorrentInspection.Util
             long length = 0;
             foreach (var node in currentNode.GetDirectories())
             {
-                var treeNode = tn.Insert(tn.Count, node.NodeName);//将文件夹插入当前TreeNode节点的末尾
-                var folderLength = InsertToViewInner(node, treeNode.Nodes);//由于是文件夹，故获取其子项并继续插入
+                var treeNode = tn.Insert(tn.Count, node.NodeName); //将文件夹插入当前TreeNode节点的末尾
+                var folderLength = InsertToViewInner(node, treeNode.Nodes); //由于是文件夹，故获取其子项并继续插入
                 if (folderLength != 0) treeNode.Text += $" [{FileSize.FileSizeToString(folderLength)}]";
                 length += folderLength;
             }
