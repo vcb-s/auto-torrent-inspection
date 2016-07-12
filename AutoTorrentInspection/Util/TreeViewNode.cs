@@ -16,15 +16,12 @@ namespace AutoTorrentInspection.Util
 
         public Node() { }
 
-        public string GetJson()
-        {
-            return "[" + _GetJson().TrimEnd(',') + "]";
-        }
+        public string Json => "[" + _GetJson().TrimEnd(',', '\n') + "\n]";
 
         private string _GetJson(int depth = 0)
         {
             string json = string.Empty;
-            string subJson = Values.Aggregate(string.Empty, (current, value) => current + value._GetJson(depth + 1));
+            string subJson = Values.Aggregate(string.Empty, (current, value) => current + value._GetJson(depth + 1)).TrimEnd(',', '\n') + "\n";
             string tab = new string(' ', depth*2);
             switch (NodeType)
             {

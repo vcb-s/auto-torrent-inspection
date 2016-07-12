@@ -13,6 +13,7 @@ namespace AutoTorrentInspection
         {
             InitializeComponent();
         }
+
         public TreeViewForm(TorrentData data)
         {
             _data = data;
@@ -32,9 +33,9 @@ namespace AutoTorrentInspection
             _systemMenu = new SystemMenu(this);
             _systemMenu.AddCommand("生成Json(&J)", () =>
                  {
-                    Clipboard.SetText(_node.GetJson());
-                    Notification.ShowInfo("已复制至剪贴板");
-                }, true);
+                     Clipboard.SetText(_node.Json);
+                     Notification.ShowInfo("已复制至剪贴板");
+                 }, true);
         }
 
         protected override void WndProc(ref Message msg)
