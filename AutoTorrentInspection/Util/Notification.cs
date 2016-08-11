@@ -17,7 +17,7 @@ namespace AutoTorrentInspection.Util
 
         public static DialogResult ShowInfo(string argMessage)
         {
-            return MessageBox.Show(caption: @"ATI Warning",
+            return MessageBox.Show(caption: @"ATI Info",
                 text: argMessage,
                 buttons: MessageBoxButtons.OK,icon: MessageBoxIcon.Information);
         }

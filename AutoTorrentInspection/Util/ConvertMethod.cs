@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace AutoTorrentInspection.Util
 {
@@ -31,6 +33,7 @@ namespace AutoTorrentInspection.Util
 
         public static Dictionary<string, List<FileDescription>> GetFileList(string folderPath)
         {
+            string basePath = Path.GetDirectoryName(folderPath);
             var fileDic = new Dictionary<string, List<FileDescription>>();
             foreach (var file in EnumerateFolder(folderPath))
             {
@@ -39,7 +42,7 @@ namespace AutoTorrentInspection.Util
                 var pathSlashPosition     = file.LastIndexOf("\\", StringComparison.Ordinal);
                 var relativePath          = category == "root" ? "" : file.Substring(0, pathSlashPosition);
                 fileDic.TryAdd(category, new List<FileDescription>());
-                fileDic[category].Add(new FileDescription(Path.GetFileName(file), relativePath, $"{folderPath}\\{file}"));
+                fileDic[category].Add(new FileDescription(Path.GetFileName(file), relativePath, basePath, $"{folderPath}\\{file}"));
             }
             return fileDic;
         }
@@ -137,6 +140,18 @@ namespace AutoTorrentInspection.Util
         {
             if (dictionary.ContainsKey(key)) return;
             dictionary.Add(key, value);
+        }
+
+        [DllImport("user32.dll")]
+        private static extern int SendMessage(IntPtr hWnd, Int32 wMsg, bool wParam, Int32 lParam);
+        private const int WM_SETREDRAW = 11;
+
+        public static void SuspendDrawing(this Control control, Action action)
+        {
+            SendMessage(control.Handle, WM_SETREDRAW, false, 0);
+            action();
+            SendMessage(control.Handle, WM_SETREDRAW, true, 0);
+            control.Refresh();
         }
     }
 }

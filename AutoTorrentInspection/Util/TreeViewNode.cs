@@ -1,27 +1,47 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace AutoTorrentInspection.Util
 {
-    public class Node
+    public class Node : Dictionary<string, Node>
     {
-        private readonly Dictionary<string, Node> _childNodes = new Dictionary<string, Node>();
-
         public FileSize Attribute { get; private set; }
 
-        private Node _parentNode = null;
+        private Node ParentNode { get; set; }
 
-        public string NodeName { get; private set; } = string.Empty;
+        public string NodeName { get; private set; } = "."; //string.Empty;
 
         public override string ToString() => NodeName;
 
         public Node() { }
 
+        public string Json => "[" + _GetJson().TrimEnd(',', '\n') + "\n]";
+
+        private string _GetJson(int depth = 0)
+        {
+            string json = string.Empty;
+            string subJson = Values.Aggregate(string.Empty, (current, value) => current + value._GetJson(depth + 1)).TrimEnd(',', '\n') + "\n";
+            string tab = new string(' ', depth*2);
+            switch (NodeType)
+            {
+                case NodeTypeEnum.File:
+                    json += $"{tab}{{\"type\":\"{NodeType.ToString().ToLower()}\",\"name\":\"{NodeName}\",\"size\":{Attribute.Length}}},\n";
+                    break;
+                case NodeTypeEnum.Directory:
+                    json += $"{tab}{{\"type\":\"{NodeType.ToString().ToLower()}\",\"name\":\"{NodeName}\",\"contents\":[\n{subJson}{tab}]}},\n";
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            return json;
+        }
+
         public Node(IEnumerable<IEnumerable<string>> fileList)
         {
             foreach (var list in fileList)
             {
-                this.Insert(list);
+                Insert(list);
             }
         }
 
@@ -29,7 +49,7 @@ namespace AutoTorrentInspection.Util
         {
             foreach (var list in fileList)
             {
-                this.Insert(list.Key, list.Value);
+                Insert(list.Key, list.Value);
             }
         }
 
@@ -38,24 +58,23 @@ namespace AutoTorrentInspection.Util
             NodeName = node;
         }
 
-        public Node this[string node]
+
+        public enum NodeTypeEnum
         {
-            get { return _childNodes[node]; }
-            set { _childNodes[node] = value; }
+            File,
+            Directory
         }
 
-        public bool IsFile => this._childNodes.Count == 0;
-
-        public bool IsDirectory => this._childNodes.Count > 0;
+        public NodeTypeEnum NodeType => Values.Count == 0 ? NodeTypeEnum.File : NodeTypeEnum.Directory;
 
         public IEnumerable<Node> GetFiles()
         {
-            return _childNodes.Where(item => item.Value._childNodes.Count == 0).Select(item => item.Value);
+            return Values.Where(item => item.Count == 0);
         }
 
         public IEnumerable<Node> GetDirectories()
         {
-            return _childNodes.Where(item => item.Value._childNodes.Count > 0).Select(item => item.Value);
+            return Values.Where(item => item.Count > 0);
         }
 
         public string FullPath
@@ -64,49 +83,29 @@ namespace AutoTorrentInspection.Util
             {
                 var path = NodeName;
                 const string separator = "/";
-                if (!IsFile)
-                {
-                    path += separator;//文件夹后增加'/'以作区分
-                }
-                var currentNode = _parentNode;//不断回溯以获取完整路径
-                while (currentNode != null)
-                {
-                    path = currentNode.NodeName + separator + path;
-                    currentNode = currentNode._parentNode;
-                }
+                path = GetParentsNode().Aggregate(path, (current, node) => node + separator + current);
+                if (NodeType == NodeTypeEnum.Directory) path += separator;
                 return path;
             }
         }
 
-        public Dictionary<string, Node>.Enumerator GetEnumerator()
+        private IEnumerable<Node> GetParentsNode()
         {
-            return _childNodes.GetEnumerator();
-        }
-
-        public Node Insert(IEnumerable<string> nodes)
-        {
-            var currentNode = this;
-            foreach (string node in nodes)
+            for (var currentNode = ParentNode; currentNode != null; currentNode = currentNode.ParentNode)
             {
-                if (!currentNode._childNodes.ContainsKey(node))
-                {
-                    currentNode._childNodes.Add(node, new Node(node));
-                    currentNode[node]._parentNode = currentNode;
-                }
-                currentNode = currentNode[node];
+                yield return currentNode;
             }
-            return currentNode;
         }
 
-        public Node Insert(IEnumerable<string> nodes, FileSize attribute)
+        public Node Insert(IEnumerable<string> nodes, FileSize attribute = null)
         {
             var currentNode = this;
             foreach (string node in nodes)
             {
-                if (!currentNode._childNodes.ContainsKey(node))
+                if (!currentNode.ContainsKey(node))
                 {
-                    currentNode._childNodes.Add(node, new Node(node));
-                    currentNode[node]._parentNode = currentNode;
+                    currentNode.Add(node, new Node(node));
+                    currentNode[node].ParentNode = currentNode;
                 }
                 currentNode = currentNode[node];
             }
@@ -124,8 +123,8 @@ namespace AutoTorrentInspection.Util
             long length = 0;
             foreach (var node in currentNode.GetDirectories())
             {
-                var treeNode = tn.Insert(tn.Count, node.NodeName);//将文件夹插入当前TreeNode节点的末尾
-                var folderLength = InsertToViewInner(node, treeNode.Nodes);//由于是文件夹，故获取其子项并继续插入
+                var treeNode = tn.Insert(tn.Count, node.NodeName); //将文件夹插入当前TreeNode节点的末尾
+                var folderLength = InsertToViewInner(node, treeNode.Nodes); //由于是文件夹，故获取其子项并继续插入
                 if (folderLength != 0) treeNode.Text += $" [{FileSize.FileSizeToString(folderLength)}]";
                 length += folderLength;
             }

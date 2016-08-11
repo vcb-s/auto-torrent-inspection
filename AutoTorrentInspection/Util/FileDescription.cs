@@ -26,6 +26,7 @@ namespace AutoTorrentInspection.Util
     {
         public string FileName          { get; }
         private string ReletivePath      { get; }
+        private string BasePath { get; }
         public string FullPath           { get; }
         public string Extension          { get; }
         private long Length              { get; }
@@ -40,12 +41,12 @@ namespace AutoTorrentInspection.Util
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
 
         //private static readonly Regex AnimePattern   = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)?[^\[\]]*\] [^\[\]]+ (?:\[[^\[\]]*\d*\])?\[(?:(?:(?:(?<Ma>Ma10p)|(?<Hi>(?:Hi(?:10|444p)p)))_(?:2160|1080|720|576|480)p)|(?<EIGHT>(?:1080|576|720)p))\]\[(?:(?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(?:flac|aac|ac3)\](?:\.(?:sc|tc|chs|cht))?\.(?:(?(AVC)(?:mkv|mka|flac))|(?(HEVC)(?:mkv|mka|flac))|(?(EIGHT)mp4)|ass)$");
-        private static readonly Regex AnimePattern   = new Regex(@"^\[[^\[\]]*VCB\-S(?:tudio)?[^\[\]]*\] [^\[\]]+ (?:\[[^\[\]]*\d*\])?\[(?:(?:(?:(?:Hi10p|Hi444pp)_(?:2160|1080|720|576|480)p\]\[x264_\d*(?:flac|aac|ac3))|(?:(?:Ma10p_(?:2160|1080|720|576|480)p\]\[x265_\d*(?:flac|aac|ac3))))\](?:\.(?:mkv|mka|flac))?|(?:(?:1080|720|576)p\]\[x264_\d*(?:aac|ac3)\](?:\.mp4)?))(?:(?<!(?:mkv|mka|mp4))(?:\.(?:sc|tc|chs|Chs|cht|Cht|Jap|Chs&Jap|Cht&Jap))?\.ass)?$"); //implement without Balancing group
+        private static readonly Regex AnimePattern   = new Regex(@"^\[[^\[\]]*VCB\-S(?:tudio)?[^\[\]]*\] [^\[\]]+ (?:\[[^\[\]]*\d*\])?\[(?:(?:(?:(?:Hi10p|Hi444pp)_(?:2160|1080|720|576|480)p\]\[x264)|(?:(?:Ma10p_(?:2160|1080|720|576|480)p\]\[x265)))(?:_\d*(?:flac|aac|ac3))+\](?:\.(?:mkv|mka|flac))?|(?:(?:1080|720|576)p\]\[(?:x264|x265)_(?:aac|ac3)\](?:\.mp4)?))(?:(?<!(?:mkv|mka|mp4))(?:\.(?:sc|tc|chs|Chs|cht|Cht|Jap|Chs&Jap|Cht&Jap))?\.ass)?$"); //implement without Balancing group
         private static readonly Regex MenuPngPattern = new Regex(@"^\[[^\[\]]*VCB\-S(?:tudio)*[^\[\]]*\] [^\[\]]+ \[[^\[\]]*\]\.png$");
         private static readonly Regex MusicPattern   = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2|webp)$", RegexOptions.IgnoreCase);
         private static readonly Regex ExceptPattern  = new Regex(@"\.(rar|7z|zip)$", RegexOptions.IgnoreCase);
         private static readonly Regex FchPattern     = new Regex(@"^(?:\[(?:[^\[\]])*philosophy\-raws(?:[^\[\]])*\])\[[^\[\]]+\]\[(?:(?:[^\[\]]+\]\[(?:BDRIP|DVDRIP|BDRemux))|(?:(?:BDRIP|DVDRIP|BDRemux)(?:\]\[[^\[\]]+)?))\]\[(?:(?:(?:HEVC )?Main10P)|(?:(?:AVC )?Hi10P)|Hi444PP|H264) \d*(?:FLAC|AC3)\]\[(?:(?:1920[Xx]1080)|(?:1280[Xx]720)|(?:720[Xx]480))\](?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$");
-        private static readonly Regex MaWenPattern   = new Regex(@"^[^\[\]]+ \[(?:BD|BluRay|SPDVD|DVD) (?:1920x1080p?|1280x720p?|720x480p?|1080p|720p|480p)(?: (?:23\.976|24|25|29\.970|59\.940)fps)? (?:(?:(?:AVC|HEVC)\-(?:yuv420p10|yuv420p8|yuv444p10))|(?:x264(?:-Hi(?:10|444P)P)?|x265-Ma10P))(?: (?:FLAC|AAC|AC3)(?:x\d)?)+(?: (?:Chap|Ordered\-Chap))?\] - (?:[^\.&]+ ?& ?)*mawen1250(?: ?& ?[^\.&]+)*(?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$");
+        private static readonly Regex MaWenPattern   = new Regex(@"^[^\[\]]+ \[(?:BD|BluRay|BD\-Remux|SPDVD|DVD) (?:1920x1080p?|1280x720p?|720x480p?|1080p|720p|480p)(?: (?:23\.976|24|25|29\.970|59\.940)fps)?(?: vfr)? (?:(?:(?:AVC|HEVC)\-(?:Lossless-)?(?:yuv420p10|yuv420p8|yuv444p10))|(?:x264(?:-Hi(?:10|444P)P)?|x265-Ma10P))(?: (?:FLAC|AAC|AC3)(?:x\d)?)+(?: (?:Chap|Ordered\-Chap))?\](?: v\d)? - (?:[^\.&]+ ?& ?)*mawen1250(?: ?& ?[^\.&]+)*(?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$");
 
         private static readonly Color INVALID_FILE        = Color.FromArgb(251, 153, 102);
         private static readonly Color VALID_FILE          = Color.FromArgb(146, 170, 243);
@@ -53,20 +54,24 @@ namespace AutoTorrentInspection.Util
         private static readonly Color INVALID_ENCODE      = Color.FromArgb(078, 079, 151);
         private static readonly Color INVALID_PATH_LENGTH = Color.FromArgb(255, 010, 050);
 
-        public FileDescription(string fileName, string reletivePath, long length)//Torrent
+        private const long MaxFilePathLength = 210;
+
+        public FileDescription(string fileName, string reletivePath, string basePath, long length)//Torrent
         {
             FileName     = fileName;
             ReletivePath = reletivePath;
+            BasePath     = basePath;
             Extension    = Path.GetExtension(fileName)?.ToLower();
             Length       = length;
             SourceType   = SourceTypeEnum.Torrent;
             CheckValidTorrent();
         }
 
-        public FileDescription(string fileName, string reletivePath, string fullPath)//file
+        public FileDescription(string fileName, string reletivePath, string basePath, string fullPath)//file
         {
             FileName     = fileName;
             ReletivePath = reletivePath;
+            BasePath     = basePath;
             FullPath     = fullPath;
             Extension    = Path.GetExtension(fileName)?.ToLower();
             //Length       = fullPath.Length > 256 ? -1024*1024L : new FileInfo(fullPath).Length
@@ -77,7 +82,7 @@ namespace AutoTorrentInspection.Util
 
         private void CheckValidTorrent()
         {
-            if (ReletivePath.Length > 245)
+            if (BasePath.Length + ReletivePath.Length + FileName.Length > MaxFilePathLength)
             {
                 State = FileState.InValidPathLength;
                 return;
@@ -133,7 +138,7 @@ namespace AutoTorrentInspection.Util
         private void CheckValidFile()
         {
             //Debug.WriteLine(FullPath.Length);
-            if (ReletivePath.Length > 245)
+            if (BasePath.Length + ReletivePath.Length + FileName.Length > MaxFilePathLength)
             {
                 State = FileState.InValidPathLength;
                 return;
@@ -166,15 +171,12 @@ namespace AutoTorrentInspection.Util
             }
         }
 
-        private static readonly string[] SizeTail = {"B", "KB", "MB", "GB", "TB", "PB"};
-
         public DataGridViewRow ToRow()
         {
             var row = new DataGridViewRow {Tag = this};
-            var scale = Length == 0 ? 0 : (int) Math.Floor(Math.Log(Length, 1024));
             row.Cells.Add(new DataGridViewTextBoxCell {Value = ReletivePath});
             row.Cells.Add(new DataGridViewTextBoxCell {Value = FileName});
-            row.Cells.Add(new DataGridViewTextBoxCell {Value = $"{Length/Math.Pow(1024, scale):F3}{SizeTail[scale]}"});
+            row.Cells.Add(new DataGridViewTextBoxCell {Value = FileSize.FileSizeToString(Length)});
             switch (State)
             {
                 case FileState.ValidFile:
@@ -206,21 +208,19 @@ namespace AutoTorrentInspection.Util
 
         private static readonly string[] SizeTail = { "B", "KB", "MB", "GB", "TB", "PB" };
 
-        public override string ToString()
-        {
-            var scale = Length == 0 ? 0 : (int)Math.Floor(Math.Log(Length, 1024));
-            return $"{Length / Math.Pow(1024, scale):F3}{SizeTail[scale]}";
-        }
-        public static string FileSizeToString(long length)
+        private static string _toString(long length)
         {
             var scale = length == 0 ? 0 : (int)Math.Floor(Math.Log(length, 1024));
             return $"{length / Math.Pow(1024, scale):F3}{SizeTail[scale]}";
         }
+
+        public override string ToString() => _toString(Length);
+
+        public static string FileSizeToString(long length) => _toString(length);
 
         public FileSize(long length)
         {
             Length = length;
         }
     }
-
 }

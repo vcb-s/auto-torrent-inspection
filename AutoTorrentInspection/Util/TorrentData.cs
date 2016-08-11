@@ -89,21 +89,19 @@ namespace AutoTorrentInspection.Util
             if (!_torrent.Info.ContainsKey("files"))
             {
                 yield return new []{ TorrentName };
+                yield break;
             }
-            else
+            var files = (BList)_torrent.Info["files"];
+            foreach (var file in files)
             {
-                var files = (BList)_torrent.Info["files"];
-                foreach (var file in files)
+                BList singleFile = (BList)((BDictionary)file)["path"];
+                if (((BDictionary)file).ContainsKey("path.utf-8"))
                 {
-                    BList singleFile = (BList)((BDictionary)file)["path"];
-                    if (((BDictionary)file).ContainsKey("path.utf-8"))
-                    {
-                        singleFile = (BList)((BDictionary)file)["path.utf-8"];
-                    }
-                    if (singleFile.Last().ToString().Contains("_____padding_file_")) continue;
-                    var length = ((BNumber)((BDictionary)file)["length"]).Value;
-                    yield return singleFile.Select(item=>item.ToString());
+                    singleFile = (BList)((BDictionary)file)["path.utf-8"];
                 }
+                if (singleFile.Last().ToString().Contains("_____padding_file_")) continue;
+                var length = ((BNumber)((BDictionary)file)["length"]).Value;
+                yield return singleFile.Select(item=>item.ToString());
             }
         }
 
@@ -113,22 +111,20 @@ namespace AutoTorrentInspection.Util
             {
                 FileSize fs = new FileSize(((BNumber)_torrent.Info["length"]).Value);
                 yield return new KeyValuePair<IEnumerable<string>, FileSize>(new[] {TorrentName}, fs);
+                yield break;
             }
-            else
+            var files = (BList)_torrent.Info["files"];
+            foreach (var file in files)
             {
-                var files = (BList)_torrent.Info["files"];
-                foreach (var file in files)
+                BList singleFile = (BList)((BDictionary)file)["path"];
+                if (((BDictionary)file).ContainsKey("path.utf-8"))
                 {
-                    BList singleFile = (BList)((BDictionary)file)["path"];
-                    if (((BDictionary)file).ContainsKey("path.utf-8"))
-                    {
-                        singleFile = (BList)((BDictionary)file)["path.utf-8"];
-                    }
-                    if (singleFile.Last().ToString().Contains("_____padding_file_")) continue;
-                    var length = ((BNumber)((BDictionary)file)["length"]).Value;
-                    FileSize fs = new FileSize(length);
-                    yield return new KeyValuePair<IEnumerable<string>, FileSize>(singleFile.Select(item => item.ToString()), fs);
+                    singleFile = (BList)((BDictionary)file)["path.utf-8"];
                 }
+                if (singleFile.Last().ToString().Contains("_____padding_file_")) continue;
+                var length = ((BNumber)((BDictionary)file)["length"]).Value;
+                FileSize fs = new FileSize(length);
+                yield return new KeyValuePair<IEnumerable<string>, FileSize>(singleFile.Select(item => item.ToString()), fs);
             }
         }
 
@@ -136,11 +132,12 @@ namespace AutoTorrentInspection.Util
         public Dictionary<string, List<FileDescription>> GetFileList()
         {
             var fileDic = new Dictionary<string, List<FileDescription>>();
+            var torrentName = TorrentName;
             if (!_torrent.Info.ContainsKey("files"))
             {
-                var name = TorrentName;
+
                 var length = ((BNumber)_torrent.Info["length"]).Value;
-                fileDic.Add("single", new List<FileDescription> { new FileDescription(name, "", length) });
+                fileDic.Add("single", new List<FileDescription> { new FileDescription(torrentName, "", torrentName, length) });
                 return fileDic;
             }
             var files = (BList)_torrent.Info["files"];
@@ -164,7 +161,7 @@ namespace AutoTorrentInspection.Util
                 //reason: https://zh.wikipedia.org/zh-hant/BitComet#.E6.96.87.E4.BB.B6.E5.88.86.E5.A1.8A.E5.B0.8D.E9.BD.8A
 
                 fileDic.TryAdd(category, new List<FileDescription>());
-                fileDic[category].Add(new FileDescription(name, path.ToString(), length));
+                fileDic[category].Add(new FileDescription(name, path.ToString(), torrentName, length));
             }
             return fileDic;
         }

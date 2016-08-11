@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using AutoTorrentInspection.Util;
 using AutoTorrentInspection.Properties;
 
@@ -57,6 +58,7 @@ namespace AutoTorrentInspection
         {
             _systemMenu = new SystemMenu(this);
             _systemMenu.AddCommand("检查更新(&U)", Updater.CheckUpdate, true);
+            _systemMenu.AddCommand("关于(&A)", () => { new FormAbout().Show(); }, false);
         }
 
         protected override void WndProc(ref Message msg)
@@ -141,7 +143,8 @@ namespace AutoTorrentInspection
         {
             if (_data == null) return;
             dataGridView1.Rows.Clear();
-            Inspection(cbCategory.Text);
+            Application.DoEvents();
+            dataGridView1.SuspendDrawing(() => Inspection(cbCategory.Text));
         }
 
         private const string CurrentTrackList = "http://208.67.16.113:8000/annonuce\n" +
@@ -219,15 +222,21 @@ namespace AutoTorrentInspection
             cbCategory.Enabled = cbCategory.Items.Count > 1;
         }
 
+
+
         private void ThroughInspection()
         {
             dataGridView1.Rows.Clear();
             cbCategory.Items.Clear();
-            foreach (var item in _data.Keys)
+            Application.DoEvents();
+            dataGridView1.SuspendDrawing(() =>
             {
-                cbCategory.Items.Add(item);
-                Inspection(item);//Time draing
-            }
+                foreach (var item in _data.Keys)
+                {
+                    cbCategory.Items.Add(item);
+                    Inspection(item);
+                }
+            });
             if (cbCategory.Items.Count > 0)
             {
                 cbCategory.SelectedIndex = cbCategory.SelectedIndex == -1 ? 0 : cbCategory.SelectedIndex;
@@ -244,6 +253,8 @@ namespace AutoTorrentInspection
         private void Inspection(string category)
         {
             Func<FileDescription, bool> check = item => item.State != FileState.ValidFile || cbShowAll.Checked;
+            //dataGridView1.Rows.AddRange(_data[category].Where(item => check(item)).Select(r => r.ToRow()).ToArray());
+            //Application.DoEvents();
             foreach (var item in _data[category].Where(item => check(item)))
             {
                 dataGridView1.Rows.Add(item.ToRow());
@@ -388,11 +399,11 @@ namespace AutoTorrentInspection
             if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
             var torrent = new TorrentData(openFileDialog1.FileName);
 
-            var fileList = torrent.GetRawFileList();
-            var node = new Node(fileList);
+            //var fileList = torrent.GetRawFileList();
+            var node = new Node(torrent.GetRawFileListWithAttribute());
             var cmpResult = CheckConsistency(node, FilePath);
 
-            if (cmpResult.Result)
+            if (cmpResult.Result.ResultType == CheckResult.ResultTypeEnum.Normal)
             {
                 int tsum = torrent.GetFileList().Values.Sum(item => item.Count);
                 int fsum = _data.Values.Sum(item => item.Count);
@@ -400,21 +411,56 @@ namespace AutoTorrentInspection
             }
             else
             {
-                Notification.ShowInfo(@"文件名对不上呢");
+                Notification.ShowInfo($"First unmatched File: {cmpResult.Result.FileName}\nError Type: {cmpResult.Result.ResultType}");
             }
         }
 
-        private static async Task<bool> CheckConsistency(Node node, string baseDirectory)
+        private class CheckResult
+        {
+            public enum ResultTypeEnum
+            {
+                Normal,
+                Exists,
+                Size
+            }
+
+            public string FileName { get; set; }
+            public ResultTypeEnum ResultType { get; set; }
+
+        }
+
+        private static async Task<CheckResult> CheckConsistency(Node node, string baseDirectory)
         {
             foreach (var directory in node.GetDirectories())
             {
                 var result = await CheckConsistency(directory, baseDirectory);
-                if (result == false)
+                if (result.ResultType != CheckResult.ResultTypeEnum.Normal)
                 {
-                    return false;
+                    return result;
                 }
             }
-            return node.GetFiles().Select(file => baseDirectory + file.FullPath).All(File.Exists);
+            var masterRet = new CheckResult { FileName = node.NodeName, ResultType = CheckResult.ResultTypeEnum.Normal };
+            foreach (var f in node.GetFiles().Select(file => new KeyValuePair<string, FileSize>(baseDirectory + file.FullPath, file.Attribute)))
+            {
+                var ret = new CheckResult { FileName = Path.GetFileName(f.Key), ResultType = CheckResult.ResultTypeEnum.Normal};
+                if (!File.Exists(f.Key))
+                {
+                    ret.ResultType = CheckResult.ResultTypeEnum.Exists;
+                }
+                else
+                {
+                    var length = new FileInfo(f.Key).Length;
+                    if (length != f.Value.Length)
+                    {
+                        ret.ResultType = CheckResult.ResultTypeEnum.Size;
+                    }
+                }
+                if (ret.ResultType != CheckResult.ResultTypeEnum.Normal)
+                {
+                    return ret;
+                }
+            }
+            return masterRet;
         }
 
         private void btnTreeView_Click(object sender, EventArgs e)
