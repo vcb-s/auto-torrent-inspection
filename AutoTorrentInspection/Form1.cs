@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using AutoTorrentInspection.Util;
 using AutoTorrentInspection.Properties;
 
@@ -208,14 +207,33 @@ namespace AutoTorrentInspection
             {
                 if (_data.ContainsKey("root"))
                 {
-                    if (_data["root"].All(item => item.FileName != "readme about WebP.txt"))
+                    var readme = _data["root"].Where(item => item.FileName == "readme about WebP.txt").ToList();
+                    var show = false;
+                    if (!readme.Any())
                     {
                         Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现readme about WebP.txt");
                         if (_torrent == null)
                         {
-                            btnWebP.Visible = btnWebP.Enabled = true;
+                            show = true;
                         }
                     }
+                    else if(_torrent == null)
+                    {
+                        try
+                        {
+                            var path = readme.First().FullPath;
+                            if (File.ReadAllText(path) != Resources.ReadmeAboutWebP)
+                            {
+                                Notification.ShowInfo($"readme about WebP.txt的内容在报道上出现了偏差");
+                                show = true;
+                            }
+                        }
+                        catch (Exception exception)
+                        {
+                            Notification.ShowError("读取readme about WebP.txt失败", exception);
+                        }
+                    }
+                    btnWebP.Visible = btnWebP.Enabled = show;
                 }
             }
             ThroughInspection();
