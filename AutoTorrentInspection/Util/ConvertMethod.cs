@@ -58,6 +58,26 @@ namespace AutoTorrentInspection.Util
             return Encoding.UTF8.GetString(buffer);
         }
 
+        public static KeyValuePair <HashSet<KeyValuePair<IEnumerable<string>, FileSize>>, HashSet<KeyValuePair<IEnumerable<string>, FileSize>>> GetTorrentSet(TorrentData torrent1, TorrentData torrent2)
+        {
+            var ret1 = new HashSet<KeyValuePair<IEnumerable<string>, FileSize>>(torrent1.GetRawFileListWithAttribute());
+            var ret2 = new HashSet<KeyValuePair<IEnumerable<string>, FileSize>>(torrent2.GetRawFileListWithAttribute());
+            return new KeyValuePair<HashSet<KeyValuePair<IEnumerable<string>, FileSize>>, HashSet<KeyValuePair<IEnumerable<string>, FileSize>>> (ret1, ret2);
+        }
+
+        public static Dictionary<bool, List<KeyValuePair<IEnumerable<string>, FileSize>>> GetDiff(TorrentData torrent1, TorrentData torrent2)
+        {
+            var set = GetTorrentSet(torrent1, torrent2);
+            var ret = new Dictionary<bool, List<KeyValuePair<IEnumerable<string>, FileSize>>>
+            {
+                [false] = new List<KeyValuePair<IEnumerable<string>, FileSize>>(),
+                [true] = new List<KeyValuePair<IEnumerable<string>, FileSize>>()
+            };
+            foreach (var item in set.Key.Where(item => !set.Value.Contains(item))) ret[false].Add(item);//in torrent1, not in torrent2
+            foreach (var item in set.Value.Where(item => !set.Key.Contains(item))) ret[true].Add(item);
+            return ret;
+        }
+
         // Only call GetFileWithLongPath() if the path is too long
         // ... otherwise, new FileInfo() is sufficient
         //source from http://stackoverflow.com/questions/12204186/error-file-path-is-too-long

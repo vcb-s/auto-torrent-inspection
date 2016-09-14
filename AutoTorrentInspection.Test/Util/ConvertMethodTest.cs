@@ -47,5 +47,22 @@ namespace AutoTorrentInspection.Test.Util
                 Assert.IsTrue(CueCurer.CueMatchCheck(cue));
             }
         }
+
+        [TestMethod()]
+        public void GetDiffTest()
+        {
+            const string ghost1 = @"..\..\[Torrent Sample]\Ghost in the Shell：STAND ALONE COMPLEX.v1.torrent";
+            const string ghost2 = @"..\..\[Torrent Sample]\Ghost in the Shell：STAND ALONE COMPLEX.v2.torrent";
+            var ret = ConvertMethod.GetDiff(new TorrentData(ghost1), new TorrentData(ghost2));
+
+            Node node1 = new Node(ret[false].Select(item => new KeyValuePair<IEnumerable<string>, FileSize>(item.Key, item.Value)));
+            Node node2 = new Node(ret[true].Select(item => new KeyValuePair<IEnumerable<string>, FileSize>(item.Key, item.Value)));
+            Console.WriteLine(@"in a not in b:");
+            //foreach (var item in ret[false]) Console.WriteLine(item);
+            Console.WriteLine(node1.Json);
+            Console.WriteLine(@"in b not in a:");
+            //foreach (var item in ret[true]) Console.WriteLine(item);
+            Console.WriteLine(node2.Json);
+        }
     }
 }
