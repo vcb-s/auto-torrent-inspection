@@ -3,6 +3,9 @@ using System.Drawing;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using AutoTorrentInspection.Util;
 
 namespace AutoTorrentInspection
@@ -25,6 +28,8 @@ namespace AutoTorrentInspection
         private readonly TorrentData _data;
 
         private Node _node = new Node();
+
+        private Queue<TorrentData> _torrentQueue = new Queue<TorrentData>();
 
         private SystemMenu _systemMenu;
 
@@ -49,6 +54,7 @@ namespace AutoTorrentInspection
 
         private void TreeViewForm_Load(object sender, EventArgs e)
         {
+            if (_data == null) return;
             Text = _data.TorrentName;
             TreeNode treenode = new TreeNode(_data.TorrentName);
             long length = 0;
@@ -69,6 +75,36 @@ namespace AutoTorrentInspection
                 }), null);
             });
             task.Start();
+        }
+
+        private void TreeViewForm_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void TreeViewForm_DragDrop(object sender, DragEventArgs e)
+        {
+            var paths = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (paths == null || paths.Length == 0) return;
+            if (string.IsNullOrEmpty(paths[0])) return;
+            if (Path.GetExtension(paths[0]).ToLower() != ".torrent") return;
+            if (_torrentQueue.Count >= 2) _torrentQueue.Dequeue();
+            _torrentQueue.Enqueue(new TorrentData(paths[0]));
+            if (_torrentQueue.Count == 2)
+            {
+                treeView1.Nodes.Clear();
+                var tmp = _torrentQueue.ToArray();
+                var ret = ConvertMethod.GetDiffNode(tmp[0], tmp[1]);
+                ret.Key.InsertTo(treeView1.Nodes);
+                ret.Value.InsertTo(treeView1.Nodes, KnownColor.PaleVioletRed);
+            }
         }
     }
 }

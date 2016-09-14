@@ -33,6 +33,7 @@
             // 
             // treeView1
             // 
+            this.treeView1.AllowDrop = true;
             this.treeView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -44,6 +45,7 @@
             // 
             // TreeViewForm
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(560, 414);
@@ -53,6 +55,8 @@
             this.Name = "TreeViewForm";
             this.Text = "TreeViewForm";
             this.Load += new System.EventHandler(this.TreeViewForm_Load);
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.TreeViewForm_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.TreeViewForm_DragEnter);
             this.ResumeLayout(false);
 
         }

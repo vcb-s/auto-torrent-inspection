@@ -132,10 +132,17 @@ namespace AutoTorrentInspection
             LoadFile(FilePath);
         }
 
-        private void btnLoadFile_Click(object sender, EventArgs e)
+        private void btnLoadFile_MouseUp(object sender, MouseEventArgs e)
         {
-            if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
-            LoadFile(openFileDialog1.FileName);
+            if (e.Button == MouseButtons.Left)
+            {
+                if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
+                LoadFile(openFileDialog1.FileName);
+            }
+            else if (e.Button == MouseButtons.Right)
+            {
+                new TreeViewForm().Show();
+            }
         }
 
         private void btnTest_Click(object sender, EventArgs e)
