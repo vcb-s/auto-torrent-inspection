@@ -106,5 +106,9 @@ namespace AutoTorrentInspection
                 ret.Value.InsertTo(treeView1.Nodes, KnownColor.PaleVioletRed);
             }
         }
+
+        private void treeView1_DragEnter(object sender, DragEventArgs e) => TreeViewForm_DragEnter(sender, e);
+
+        private void treeView1_DragDrop(object sender, DragEventArgs e) => TreeViewForm_DragDrop(sender, e);
     }
 }
