@@ -15,6 +15,7 @@ namespace AutoTorrentInspection
         public TreeViewForm()
         {
             InitializeComponent();
+            Icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
         }
 
         public TreeViewForm(TorrentData data)
@@ -54,7 +55,11 @@ namespace AutoTorrentInspection
 
         private void TreeViewForm_Load(object sender, EventArgs e)
         {
-            if (_data == null) return;
+            if (_data == null)
+            {
+                Text = $"颜色含义：{KnownColor.PowderBlue}为甲有乙无，{KnownColor.PaleVioletRed}为甲无乙有";
+                return;
+            }
             Text = _data.TorrentName;
             TreeNode treenode = new TreeNode(_data.TorrentName);
             long length = 0;
@@ -102,7 +107,7 @@ namespace AutoTorrentInspection
                 treeView1.Nodes.Clear();
                 var tmp = _torrentQueue.ToArray();
                 var ret = ConvertMethod.GetDiffNode(tmp[0], tmp[1]);
-                ret.Key.InsertTo(treeView1.Nodes);
+                ret.Key.InsertTo(treeView1.Nodes, KnownColor.PowderBlue);
                 ret.Value.InsertTo(treeView1.Nodes, KnownColor.PaleVioletRed);
             }
         }
