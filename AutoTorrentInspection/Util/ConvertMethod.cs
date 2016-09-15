@@ -59,34 +59,29 @@ namespace AutoTorrentInspection.Util
             return Encoding.UTF8.GetString(buffer);
         }
 
-        public static KeyValuePair<Dictionary<IEnumerable<string>, FileSize>, Dictionary<IEnumerable<string>, FileSize>> GetTorrentSet(TorrentData torrent1, TorrentData torrent2)
+        public static Dictionary<IEnumerable<string>, FileSize>[] GetTorrentSet(TorrentData torrent1, TorrentData torrent2)
         {
-            var ret1 = new Dictionary<IEnumerable<string>, FileSize>(torrent1.GetRawFileListWithAttribute().ToDictionary(item => item.Key, item => item.Value));
-            var ret2 = new Dictionary<IEnumerable<string>, FileSize>(torrent2.GetRawFileListWithAttribute().ToDictionary(item => item.Key, item => item.Value));
-            return new KeyValuePair<Dictionary<IEnumerable<string>, FileSize>, Dictionary<IEnumerable<string>, FileSize>>(ret1, ret2);
+            var ret = new Dictionary<IEnumerable<string>, FileSize>[2];
+            ret[0] = torrent1.GetRawFileListWithAttribute().ToDictionary(item => item.Key, item => item.Value);
+            ret[1] = torrent2.GetRawFileListWithAttribute().ToDictionary(item => item.Key, item => item.Value);
+            return ret;
         }
 
-        public static Dictionary<bool, List<KeyValuePair<IEnumerable<string>, FileSize>>> GetDiff(TorrentData torrent1, TorrentData torrent2)
+        public static Dictionary<IEnumerable<string>, FileSize>[] GetDiff(TorrentData torrent1, TorrentData torrent2)
         {
             var set = GetTorrentSet(torrent1, torrent2);
-            var ret = new Dictionary<bool, List<KeyValuePair<IEnumerable<string>, FileSize>>>
-            {
-                [false] = new List<KeyValuePair<IEnumerable<string>, FileSize>>(),
-                [true]  = new List<KeyValuePair<IEnumerable<string>, FileSize>>()
-            };
-            foreach (var item in set.Key.Where(item => !set.Value.Any(tmp => tmp.Key.SequenceEqual(item.Key))))
-                ret[false].Add(item);//in torrent1, not in torrent2
-            foreach (var item in set.Value.Where(item => !set.Key.Any(tmp => tmp.Key.SequenceEqual(item.Key))))
-                ret[true].Add(item);
+            var ret = new Dictionary<IEnumerable<string>, FileSize>[2];
+            foreach (var item in set[0].Where(item => !set[1].Any(tmp => tmp.Key.SequenceEqual(item.Key))))
+                ret[0].Add(item.Key, item.Value);//in torrent1, not in torrent2
+            foreach (var item in set[1].Where(item => !set[0].Any(tmp => tmp.Key.SequenceEqual(item.Key))))
+                ret[1].Add(item.Key, item.Value);
             return ret;
         }
 
         public static KeyValuePair<Node, Node> GetDiffNode(TorrentData torrent1, TorrentData torrent2)
         {
             var ret = GetDiff(torrent1, torrent2);
-            Node node1 = new Node(ret[false].Select(item => new KeyValuePair<IEnumerable<string>, FileSize>(item.Key, item.Value)));
-            Node node2 = new Node(ret[true].Select(item => new KeyValuePair<IEnumerable<string>, FileSize>(item.Key, item.Value)));
-            return new KeyValuePair<Node, Node>(node1, node2);
+            return new KeyValuePair<Node, Node>(new Node(ret[0]), new Node(ret[1]));
         }
 
         // Only call GetFileWithLongPath() if the path is too long
