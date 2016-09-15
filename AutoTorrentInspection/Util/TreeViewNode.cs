@@ -125,17 +125,10 @@ namespace AutoTorrentInspection.Util
             long length = 0;
             foreach (var node in currentNode.GetDirectories())
             {
-                System.Windows.Forms.TreeNode treeNode;
-                bool same = false;
-                if (tn.ContainsKey(node.NodeName)) //若已经存在同名文件夹 则跳过
-                {
-                    treeNode = tn.Find(node.NodeName, false)[0];
-                    same = true;
-                }
-                else treeNode = tn.Insert(tn.Count, node.NodeName); //将文件夹插入当前TreeNode节点的末尾
+                var treeNode = tn.Insert(tn.Count, node.NodeName);
                 var folderLength = InsertToViewInner(node, treeNode.Nodes, color, ref index); //由于是文件夹，故获取其子项并继续插入
                 if (folderLength != 0) treeNode.Text += $" [{FileSize.FileSizeToString(folderLength)}]";
-                if (!same) treeNode.BackColor = color;
+                treeNode.ForeColor = color;
                 length += folderLength;
             }
             foreach (var node in currentNode.GetFiles())
