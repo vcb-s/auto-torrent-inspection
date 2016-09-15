@@ -34,6 +34,7 @@ namespace AutoTorrentInspection.Util
 
         public static Dictionary<string, List<FileDescription>> GetFileList(string folderPath)
         {
+            folderPath = folderPath.Trim('\\');
             string basePath = Path.GetDirectoryName(folderPath);
             var fileDic = new Dictionary<string, List<FileDescription>>();
             foreach (var file in EnumerateFolder(folderPath))
@@ -57,6 +58,18 @@ namespace AutoTorrentInspection.Util
                 return new UTF8Encoding(false).GetString(buffer, 3, buffer.Length - 3);
             }
             return Encoding.UTF8.GetString(buffer);
+        }
+
+        public static IEnumerable<KeyValuePair<IEnumerable<string>, FileSize>> GetRawFolderFileListWithAttribute(string folderPath)
+        {
+            folderPath = Path.GetFullPath(folderPath).Trim('\\');
+            foreach (var category in GetFileList(folderPath))
+            {
+                foreach (var item in category.Value)
+                {
+                    yield return new KeyValuePair<IEnumerable<string>, FileSize>(item.FullPath.Split('\\'), new FileSize(item.Length));
+                }
+            }
         }
 
         public static Dictionary<IEnumerable<string>, FileSize>[] GetTorrentSet(TorrentData torrent1, TorrentData torrent2)

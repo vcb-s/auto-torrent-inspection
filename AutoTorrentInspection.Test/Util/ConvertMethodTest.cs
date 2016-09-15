@@ -64,5 +64,13 @@ namespace AutoTorrentInspection.Test.Util
             //foreach (var item in ret[true]) Console.WriteLine(item);
             Console.WriteLine(node2.Json);
         }
+
+        [TestMethod()]
+        public void GetRawFolderFileListWithAttributeTest()
+        {
+            var ret = ConvertMethod.GetRawFolderFileListWithAttribute(@"..\..\");
+            Node node1 = new Node(ret);
+            Console.WriteLine(node1.Json);
+        }
     }
 }

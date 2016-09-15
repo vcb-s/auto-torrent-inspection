@@ -29,7 +29,7 @@ namespace AutoTorrentInspection.Util
         private string BasePath { get; }
         public string FullPath           { get; }
         public string Extension          { get; }
-        private long Length              { get; }
+        public long Length              { get; }
 
         public FileState State { get; private set; } = FileState.InValidFile;
 
