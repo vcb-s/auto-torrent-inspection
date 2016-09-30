@@ -230,7 +230,7 @@ namespace AutoTorrentInspection
                         try
                         {
                             var path = readme.First().FullPath;
-                            if (File.ReadAllText(path) != Resources.ReadmeAboutWebP)
+                            if (readme.First().Length != 1186 || File.ReadAllText(path) != Resources.ReadmeAboutWebP)
                             {
                                 Notification.ShowInfo($"readme about WebP.txt的内容在报道上出现了偏差");
                                 show = true;
@@ -239,6 +239,13 @@ namespace AutoTorrentInspection
                         catch (Exception exception)
                         {
                             Notification.ShowError("读取readme about WebP.txt失败", exception);
+                        }
+                    }
+                    else
+                    {
+                        if (readme.First().Length != 1186)
+                        {
+                            Notification.ShowInfo($"readme about WebP.txt的内容在报道上出现了偏差");
                         }
                     }
                     btnWebP.Visible = btnWebP.Enabled = show;
