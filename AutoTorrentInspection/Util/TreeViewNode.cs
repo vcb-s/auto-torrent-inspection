@@ -17,7 +17,7 @@ namespace AutoTorrentInspection.Util
 
         public Node() { }
 
-        public string Json => "[" + _GetJson().TrimEnd(',', '\n') + "\n]";
+        public string Json => $"[{_GetJson().TrimEnd(',', '\n')}\n]";
 
         private string _GetJson(int depth = 0)
         {
@@ -116,7 +116,7 @@ namespace AutoTorrentInspection.Util
 
         public long InsertTo(System.Windows.Forms.TreeNodeCollection tn, KnownColor color = KnownColor.Black)
         {
-            int index = 0;
+            int index = 1;
             return InsertToViewInner(this, tn, Color.FromKnownColor(color), ref index);
         }
 
