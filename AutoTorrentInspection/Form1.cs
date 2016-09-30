@@ -112,14 +112,15 @@ namespace AutoTorrentInspection
                 {
                     try
                     {
-                        string filePath = Path.Combine(Path.GetTempPath(), Path.GetFileName(url));
+                        string filePath = Path.Combine(Path.GetTempPath(), Path.GetTempFileName()+".torrent");
                         wc.DownloadFile(url, filePath);
                         FilePath = filePath;
                     }
-                    catch
+                    catch(Exception exception)
                     {
-                        Notification.ShowInfo(@"种子文件下载失败");
+                        Notification.ShowError(@"种子文件下载失败", exception);
                         FilePath = string.Empty;
+                        return;
                     }
                 }
             }
