@@ -83,6 +83,7 @@ namespace AutoTorrentInspection
 
         private void Form1_DragEnter(object sender, DragEventArgs e)
         {
+            _isUrl = false;
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 e.Effect = DragDropEffects.Copy;
