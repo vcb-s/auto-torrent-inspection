@@ -45,7 +45,7 @@ namespace AutoTorrentInspection
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Text = $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version}";
+            Text = $@"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version}";
             RegistryStorage.Save(Application.ExecutablePath);
             RegistryStorage.RegistryAddCount(@"Software\AutoTorrentInspection\Statistics", @"count");
             Updater.CheckUpdateWeekly("AutoTorrentInspection");
@@ -165,7 +165,7 @@ namespace AutoTorrentInspection
             if (_torrent == null) return;
             var combineList = string.Join("\n", _torrent.GetAnnounceList());
             var currentRuler = combineList == CurrentTrackList;
-            MessageBox.Show(text: combineList, caption: $"Tracker List == {currentRuler}");
+            MessageBox.Show(text: combineList, caption: $@"Tracker List == {currentRuler}");
         }
 
         private void LoadFile(string filepath)
@@ -200,7 +200,7 @@ namespace AutoTorrentInspection
                 if (!string.IsNullOrEmpty(_torrent.Comment) || !string.IsNullOrEmpty(_torrent.Source))
                 {
                     MessageBox.Show(caption: @"Comment/Source",
-                                    text:    $"Comment: {_torrent.Comment ?? "无可奉告"}{Environment.NewLine}Source: {_torrent.Source}");
+                                    text:    $@"Comment: {_torrent.Comment ?? "无可奉告"}{Environment.NewLine}Source: {_torrent.Source}");
                 }
                 InspecteOperation();
             }
@@ -279,9 +279,9 @@ namespace AutoTorrentInspection
             try {
                 time = _torrent?.CreationDate ?? new DirectoryInfo(FilePath).LastWriteTime;
             } catch { /* ignored */ }
-            Text = $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version} - " +
-                   $"{_torrent?.TorrentName ?? FilePath} - By [{_torrent?.CreatedBy ?? "Folder"}] - " +
-                   $"{_torrent?.Encoding ?? "UND"} - {time}";
+            Text = $@"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version} - " +
+                   $@"{_torrent?.TorrentName ?? FilePath} - By [{_torrent?.CreatedBy ?? "Folder"}] - " +
+                   $@"{_torrent?.Encoding ?? "UND"} - {time}";
         }
 
         private void Inspection(string category)
@@ -342,7 +342,7 @@ namespace AutoTorrentInspection
                 case FileState.InValidEncode:
                 {
                     var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.YesNo,
-                        text: $"该cue编码不是UTF-8, 是否尝试修复?\n注: 有{(confindence > 0.6 ? "小" : "大")}概率失败, 此时请检查备份。");
+                        text: $@"该cue编码不是UTF-8, 是否尝试修复?\n注: 有{(confindence > 0.6 ? "小" : "大")}概率失败, 此时请检查备份。");
                     if (dResult == DialogResult.Yes)
                     {
                         CueCurer.MakeBackup(fileInfo.FullPath);
@@ -355,7 +355,7 @@ namespace AutoTorrentInspection
                 case FileState.InValidCue:
                 {
                     var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.YesNo,
-                        text: $"该cue内文件名与实际文件不相符, 是否尝试修复?\n注: 非常规编码可能无法正确修复, 此时请检查备份。");
+                        text: $@"该cue内文件名与实际文件不相符, 是否尝试修复?\n注: 非常规编码可能无法正确修复, 此时请检查备份。");
                     if (dResult == DialogResult.Yes)
                     {
                         CueCurer.MakeBackup(fileInfo.FullPath);
@@ -378,7 +378,7 @@ namespace AutoTorrentInspection
             FileDescription fileInfo = dataGridView1.Rows[e.RowIndex].Tag as FileDescription;
             if (fileInfo == null)  return;
             var confindence = fileInfo.Confidence;
-            toolStripStatusLabel_Encode.Text = $"{fileInfo.Encode}({confindence:F2})";
+            toolStripStatusLabel_Encode.Text = $@"{fileInfo.Encode}({confindence:F2})";
             Application.DoEvents();
             switch (e.Button)
             {
@@ -419,7 +419,7 @@ namespace AutoTorrentInspection
             if (fileInfo == null) return;
 
             var confindence = fileInfo.Confidence;
-            toolStripStatusLabel_Encode.Text = $"{fileInfo.Encode}({confindence:F2})";
+            toolStripStatusLabel_Encode.Text = $@"{fileInfo.Encode}({confindence:F2})";
             Application.DoEvents();
             if (cbFixCue.Checked && e.KeyCode == Keys.Enter)
             {
