@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using AutoTorrentInspection.Util;
+using BencodeNET.Objects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AutoTorrentInspection.Test.Util
@@ -107,6 +109,24 @@ namespace AutoTorrentInspection.Test.Util
             PrintTorrentInfo();
             var fileList = _torrent.GetFileList();
             Assert.IsTrue(fileList["root"].Count == 12);
+        }
+
+        private static string ToUTF8(string str ,Encoding from, Encoding to)
+        {
+            var bytSrc = from.GetBytes(str);
+            var bytDestination = Encoding.Convert(from, to, bytSrc);
+            var strTo = to.GetString(bytDestination);
+            var tmp = new BString(str, from).ToString();
+            return strTo;
+        }
+
+        [TestMethod()]
+        public void TestNonUTF8Encode()
+        {
+            const string torrentPath = @"..\..\[Torrent Sample]\GBK.torrent";
+            _torrent = new TorrentData(torrentPath);
+            Assert.AreEqual("[2DJGAME] [2010.03.10] 映画「時をかける少女」主題歌「ノスタルシ゛ア」&挿入歌「時をかける少女」(320k+cover).rar",
+                _torrent.TorrentName);
         }
     }
 }
