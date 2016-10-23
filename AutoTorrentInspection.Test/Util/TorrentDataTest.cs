@@ -14,13 +14,13 @@ namespace AutoTorrentInspection.Test.Util
 
         private void PrintTorrentInfo()
         {
-            Console.WriteLine($"AnnounceURL: {_torrent.GetAnnounceList().First()}");
-            Console.WriteLine($"Comment: {_torrent.Comment}");
-            Console.WriteLine($"CreatedBy: {_torrent.CreatedBy}");
-            Console.WriteLine($"CreationDate: {_torrent.CreationDate}");
-            Console.WriteLine($"IsPrivate: {_torrent.IsPrivate}");
-            Console.WriteLine($"Source: {_torrent.Source}");
-            Console.WriteLine($"TorrentName: {_torrent.TorrentName}");
+            Console.WriteLine($@"AnnounceURL: {_torrent.GetAnnounceList().First()}");
+            Console.WriteLine($@"Comment: {_torrent.Comment}");
+            Console.WriteLine($@"CreatedBy: {_torrent.CreatedBy}");
+            Console.WriteLine($@"CreationDate: {_torrent.CreationDate}");
+            Console.WriteLine($@"IsPrivate: {_torrent.IsPrivate}");
+            Console.WriteLine($@"Source: {_torrent.Source}");
+            Console.WriteLine($@"TorrentName: {_torrent.TorrentName}");
         }
 
         [TestMethod()]

@@ -127,7 +127,7 @@ namespace AutoTorrentInspection.Util
             {
                 var treeNode = tn.Insert(tn.Count, node.NodeName);
                 var folderLength = InsertToViewInner(node, treeNode.Nodes, color, ref index); //由于是文件夹，故获取其子项并继续插入
-                if (folderLength != 0) treeNode.Text += $" [{FileSize.FileSizeToString(folderLength)}]";
+                if (folderLength != 0) treeNode.Text += $@" [{FileSize.FileSizeToString(folderLength)}]";
                 treeNode.ForeColor = color;
                 length += folderLength;
             }
