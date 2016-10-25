@@ -60,7 +60,9 @@ namespace AutoTorrentInspection.Util
 
         public bool IsPrivate => _torrent.IsPrivate;
 
-        public string Encoding => _torrent.Encoding.ToString();
+        public string Encoding => _torrent.Encoding?.WebName;
+
+        public string MagnetLink => _torrent.GetMagnetLink();
 
         public IEnumerable<IEnumerable<string>> GetRawFileList()
         {

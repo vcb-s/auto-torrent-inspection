@@ -30,7 +30,7 @@ namespace AutoTorrentInspection
 
         private Node _node = new Node();
 
-        private Queue<TorrentData> _torrentQueue = new Queue<TorrentData>();
+        private readonly Queue<TorrentData> _torrentQueue = new Queue<TorrentData>();
 
         private SystemMenu _systemMenu;
 
@@ -42,6 +42,14 @@ namespace AutoTorrentInspection
                      Clipboard.SetText(_node.Json);
                      Notification.ShowInfo("已复制至剪贴板");
                  }, true);
+            if (_data != null)
+            {
+                _systemMenu.AddCommand("生成磁力链接(&M)", () =>
+                {
+                    Clipboard.SetText(_data.MagnetLink);
+                    Notification.ShowInfo("已复制至剪贴板");
+                }, false);
+            }
         }
 
         protected override void WndProc(ref Message msg)
@@ -57,7 +65,7 @@ namespace AutoTorrentInspection
         {
             if (_data == null)
             {
-                Text = $"颜色含义：{KnownColor.PowderBlue}为甲有乙无，{KnownColor.PaleVioletRed}为甲无乙有";
+                Text = $@"颜色含义：{KnownColor.PowderBlue}为甲有乙无，{KnownColor.PaleVioletRed}为甲无乙有";
                 return;
             }
             Text = _data.TorrentName;
@@ -75,8 +83,8 @@ namespace AutoTorrentInspection
                 if (length == 0) return;
                 Invoke(new Action(() =>
                 {
-                    Text += $" [{FileSize.FileSizeToString(length)}]";
-                    treenode.Text += $" [{FileSize.FileSizeToString(length)}]";
+                    Text += $@" [{FileSize.FileSizeToString(length)}]";
+                    treenode.Text += $@" [{FileSize.FileSizeToString(length)}]";
                 }), null);
             });
             task.Start();
@@ -84,14 +92,7 @@ namespace AutoTorrentInspection
 
         private void TreeViewForm_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effect = DragDropEffects.Copy;
-            }
-            else
-            {
-                e.Effect = DragDropEffects.None;
-            }
+            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
         }
 
         private void TreeViewForm_DragDrop(object sender, DragEventArgs e)
