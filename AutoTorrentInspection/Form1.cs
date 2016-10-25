@@ -78,7 +78,7 @@ namespace AutoTorrentInspection
         private string[] _paths = new string[20];
         private TorrentData _torrent;
         private Dictionary<string, List<FileDescription>> _data;
-
+        private IEnumerable<KeyValuePair<long, List<FileDescription>>> _sizeData;
 
         private bool _isUrl;
 
@@ -264,7 +264,30 @@ namespace AutoTorrentInspection
             cbCategory.Enabled = cbCategory.Items.Count > 1;
         }
 
-
+        private IEnumerable<KeyValuePair<long, List<FileDescription>>> FileSizeDuplicateInspection()
+        {
+            var dict = new Dictionary<long, List<FileDescription>>();
+            foreach (var file in _data.Values.SelectMany(i => i))
+            {
+                if (!dict.ContainsKey(file.Length)) dict[file.Length] = new List<FileDescription>();
+                dict[file.Length].Add(file);
+            }
+            foreach (var pair in dict)
+            {
+                foreach (var files in pair.Value.GroupBy(item=>item.Extension))
+                {
+                    if (files.Count() <= 1) continue;
+                    Debug.WriteLine(pair.Key + ":");
+                    var ret = new List<FileDescription>();
+                    foreach (var file in files)
+                    {
+                        ret.Add(file);
+                        Debug.WriteLine(file.FileName);
+                    }
+                    yield return new KeyValuePair<long, List<FileDescription>>(pair.Key, ret);
+                }
+            }
+        }
 
         private void ThroughInspection()
         {
@@ -290,6 +313,7 @@ namespace AutoTorrentInspection
             Text = $@"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version} - " +
                    $@"{_torrent?.TorrentName ?? FilePath} - By [{_torrent?.CreatedBy ?? "Folder"}] - " +
                    $@"{_torrent?.Encoding ?? "UND"} - {time}";
+            _sizeData = FileSizeDuplicateInspection();
         }
 
         private void Inspection(string category)
