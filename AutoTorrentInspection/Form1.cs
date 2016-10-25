@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.ComponentModel;
 using AutoTorrentInspection.Util;
 using AutoTorrentInspection.Properties;
 
@@ -114,8 +115,10 @@ namespace AutoTorrentInspection
                     try
                     {
                         string filePath = Path.Combine(Path.GetTempPath(), Path.GetTempFileName()+".torrent");
-                        wc.DownloadFile(url, filePath);
+                        wc.DownloadFileCompleted += LoadFile;
+                        wc.DownloadFileAsync(new Uri(url), filePath);
                         FilePath = filePath;
+                        return;
                     }
                     catch(Exception exception)
                     {
@@ -166,6 +169,11 @@ namespace AutoTorrentInspection
             var combineList = string.Join("\n", _torrent.GetAnnounceList());
             var currentRuler = combineList == CurrentTrackList;
             MessageBox.Show(text: combineList, caption: $@"Tracker List == {currentRuler}");
+        }
+
+        private void LoadFile(object sender, AsyncCompletedEventArgs e)
+        {
+            LoadFile(FilePath);
         }
 
         private void LoadFile(string filepath)
