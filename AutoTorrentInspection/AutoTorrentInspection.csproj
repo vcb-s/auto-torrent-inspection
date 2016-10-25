@@ -89,6 +89,12 @@
     <Compile Include="FormAbout.Designer.cs">
       <DependentUpon>FormAbout.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormFileDup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormFileDup.Designer.cs">
+      <DependentUpon>FormFileDup.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormUpdater.cs">
       <SubType>Form</SubType>
     </Compile>

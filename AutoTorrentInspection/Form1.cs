@@ -180,7 +180,8 @@ namespace AutoTorrentInspection
         {
             btnWebP.Visible = btnWebP.Enabled = false;
             btnCompare.Visible = btnCompare.Enabled = false;
-            _torrent = null;
+            _sizeData = null;
+            _torrent  = null;
             btnRefresh.Enabled = true;
             try
             {
@@ -192,7 +193,9 @@ namespace AutoTorrentInspection
                     btnAnnounceList.Enabled = false;
                     btnTreeView.Visible = btnTreeView.Enabled = false;
                     cbFixCue.Enabled = true;
-                    btnCompare.Visible = btnCompare.Enabled = true;
+                    _sizeData = FileSizeDuplicateInspection();
+                    if (_sizeData.Any())
+                        btnCompare.Visible = btnCompare.Enabled = true;
                     InspecteOperation();
                     return;
                 }
@@ -201,6 +204,10 @@ namespace AutoTorrentInspection
                 btnAnnounceList.Enabled = true;
                 btnTreeView.Visible = btnTreeView.Enabled = true;
                 cbFixCue.Enabled = false;
+
+                if (_sizeData == null)
+                    _sizeData = FileSizeDuplicateInspection();
+
                 if (_torrent.IsPrivate)
                 {
                     Notification.ShowInfo(@"This torrent has been set as a private torrent");
@@ -313,7 +320,6 @@ namespace AutoTorrentInspection
             Text = $@"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version} - " +
                    $@"{_torrent?.TorrentName ?? FilePath} - By [{_torrent?.CreatedBy ?? "Folder"}] - " +
                    $@"{_torrent?.Encoding ?? "UND"} - {time}";
-            _sizeData = FileSizeDuplicateInspection();
         }
 
         private void Inspection(string category)
@@ -462,6 +468,8 @@ namespace AutoTorrentInspection
 
         private void btnCompare_Click(object sender, EventArgs e)
         {
+            new FormFileDup(_sizeData).Show();
+            /*
             if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
             var torrent = new TorrentData(openFileDialog1.FileName);
 
@@ -479,6 +487,7 @@ namespace AutoTorrentInspection
             {
                 Notification.ShowInfo($"First unmatched File: {cmpResult.Result.FileName}\nError Type: {cmpResult.Result.ResultType}");
             }
+            */
         }
 
         private class CheckResult
