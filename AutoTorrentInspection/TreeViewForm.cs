@@ -15,7 +15,7 @@ namespace AutoTorrentInspection
         public TreeViewForm()
         {
             InitializeComponent();
-            Icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         }
 
         public TreeViewForm(TorrentData data)
@@ -23,7 +23,7 @@ namespace AutoTorrentInspection
             _data = data;
             InitializeComponent();
             AddCommand();
-            Icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         }
 
         private readonly TorrentData _data;
