@@ -20,6 +20,7 @@
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace AutoTorrentInspection.Util
 {
@@ -33,18 +34,18 @@ namespace AutoTorrentInspection.Util
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
-        public static uint FileCRC(string filePath)
+        public static async Task<uint> FileCRC(string filePath)
         {
             uint crc = 0xFFFFFFFF;
-            if (File.Exists(filePath))
+            if (!File.Exists(filePath)) return 0;
+            using (FileStream file = File.OpenRead(filePath))
             {
-                FileStream file = File.OpenRead(filePath);
                 long length = file.Length;
-                int b = file.ReadByte();
-                while (b >= 0)
+                var arr = new byte[length];
+                await file.ReadAsync(arr, 0, (int) length);
+                foreach (var b in arr)
                 {
                     crc = CRC32Table[(crc ^ b) & 0xFF] ^ (crc >> 8);
-                    b = file.ReadByte();
                     ProgressUpdated?.Invoke(file.Position, length);
                 }
                 file.Close();

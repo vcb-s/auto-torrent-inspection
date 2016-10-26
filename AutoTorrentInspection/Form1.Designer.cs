@@ -66,7 +66,7 @@
             this.btnLoadFile.TabIndex = 0;
             this.btnLoadFile.Text = "载入";
             this.btnLoadFile.UseVisualStyleBackColor = true;
-            this.btnLoadFile.Click += new System.EventHandler(this.btnLoadFile_Click);
+            this.btnLoadFile.MouseUp += new System.Windows.Forms.MouseEventHandler(this.btnLoadFile_MouseUp);
             // 
             // btnRefresh
             // 

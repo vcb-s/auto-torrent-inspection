@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.ComponentModel;
 using AutoTorrentInspection.Util;
 using AutoTorrentInspection.Properties;
 
@@ -45,7 +46,7 @@ namespace AutoTorrentInspection
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Text = $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version}";
+            Text = $@"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version}";
             RegistryStorage.Save(Application.ExecutablePath);
             RegistryStorage.RegistryAddCount(@"Software\AutoTorrentInspection\Statistics", @"count");
             Updater.CheckUpdateWeekly("AutoTorrentInspection");
@@ -77,12 +78,13 @@ namespace AutoTorrentInspection
         private string[] _paths = new string[20];
         private TorrentData _torrent;
         private Dictionary<string, List<FileDescription>> _data;
-
+        private IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> _sizeData;
 
         private bool _isUrl;
 
         private void Form1_DragEnter(object sender, DragEventArgs e)
         {
+            _isUrl = false;
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 e.Effect = DragDropEffects.Copy;
@@ -112,14 +114,17 @@ namespace AutoTorrentInspection
                 {
                     try
                     {
-                        string filePath = Path.Combine(Path.GetTempPath(), Path.GetFileName(url));
-                        wc.DownloadFile(url, filePath);
+                        string filePath = Path.Combine(Path.GetTempPath(), Path.GetTempFileName()+".torrent");
+                        wc.DownloadFileCompleted += LoadFile;
+                        wc.DownloadFileAsync(new Uri(url), filePath);
                         FilePath = filePath;
+                        return;
                     }
-                    catch
+                    catch(Exception exception)
                     {
-                        Notification.ShowInfo(@"种子文件下载失败");
+                        Notification.ShowError(@"种子文件下载失败", exception);
                         FilePath = string.Empty;
+                        return;
                     }
                 }
             }
@@ -132,10 +137,17 @@ namespace AutoTorrentInspection
             LoadFile(FilePath);
         }
 
-        private void btnLoadFile_Click(object sender, EventArgs e)
+        private void btnLoadFile_MouseUp(object sender, MouseEventArgs e)
         {
-            if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
-            LoadFile(openFileDialog1.FileName);
+            if (e.Button == MouseButtons.Left)
+            {
+                if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
+                LoadFile(openFileDialog1.FileName);
+            }
+            else if (e.Button == MouseButtons.Right)
+            {
+                new TreeViewForm().Show();
+            }
         }
 
         private void btnTest_Click(object sender, EventArgs e)
@@ -156,14 +168,20 @@ namespace AutoTorrentInspection
             if (_torrent == null) return;
             var combineList = string.Join("\n", _torrent.GetAnnounceList());
             var currentRuler = combineList == CurrentTrackList;
-            MessageBox.Show(text: combineList, caption: $"Tracker List == {currentRuler}");
+            MessageBox.Show(text: combineList, caption: $@"Tracker List == {currentRuler}");
+        }
+
+        private void LoadFile(object sender, AsyncCompletedEventArgs e)
+        {
+            LoadFile(FilePath);
         }
 
         private void LoadFile(string filepath)
         {
             btnWebP.Visible = btnWebP.Enabled = false;
             btnCompare.Visible = btnCompare.Enabled = false;
-            _torrent = null;
+            _sizeData = null;
+            _torrent  = null;
             btnRefresh.Enabled = true;
             try
             {
@@ -175,7 +193,8 @@ namespace AutoTorrentInspection
                     btnAnnounceList.Enabled = false;
                     btnTreeView.Visible = btnTreeView.Enabled = false;
                     cbFixCue.Enabled = true;
-                    btnCompare.Visible = btnCompare.Enabled = true;
+                    _sizeData = FileSizeDuplicateInspection();
+                    if (_sizeData?.Any() ?? false) btnCompare.Visible = btnCompare.Enabled = true;
                     InspecteOperation();
                     return;
                 }
@@ -184,6 +203,10 @@ namespace AutoTorrentInspection
                 btnAnnounceList.Enabled = true;
                 btnTreeView.Visible = btnTreeView.Enabled = true;
                 cbFixCue.Enabled = false;
+
+                if (_sizeData == null) _sizeData = FileSizeDuplicateInspection();
+                if (_sizeData?.Any() ?? false) btnCompare.Visible = btnCompare.Enabled = true;
+
                 if (_torrent.IsPrivate)
                 {
                     Notification.ShowInfo(@"This torrent has been set as a private torrent");
@@ -191,7 +214,7 @@ namespace AutoTorrentInspection
                 if (!string.IsNullOrEmpty(_torrent.Comment) || !string.IsNullOrEmpty(_torrent.Source))
                 {
                     MessageBox.Show(caption: @"Comment/Source",
-                                    text:    $"Comment: {_torrent.Comment ?? "无可奉告"}{Environment.NewLine}Source: {_torrent.Source}");
+                                    text:    $@"Comment: {_torrent.Comment ?? "无可奉告"}{Environment.NewLine}Source: {_torrent.Source}");
                 }
                 InspecteOperation();
             }
@@ -222,7 +245,7 @@ namespace AutoTorrentInspection
                         try
                         {
                             var path = readme.First().FullPath;
-                            if (File.ReadAllText(path) != Resources.ReadmeAboutWebP)
+                            if (readme.First().Length != 1186 || File.ReadAllText(path) != Resources.ReadmeAboutWebP)
                             {
                                 Notification.ShowInfo($"readme about WebP.txt的内容在报道上出现了偏差");
                                 show = true;
@@ -233,6 +256,13 @@ namespace AutoTorrentInspection
                             Notification.ShowError("读取readme about WebP.txt失败", exception);
                         }
                     }
+                    else
+                    {
+                        if (readme.First().Length != 1186)
+                        {
+                            Notification.ShowInfo($"readme about WebP.txt的内容在报道上出现了偏差");
+                        }
+                    }
                     btnWebP.Visible = btnWebP.Enabled = show;
                 }
             }
@@ -240,7 +270,23 @@ namespace AutoTorrentInspection
             cbCategory.Enabled = cbCategory.Items.Count > 1;
         }
 
-
+        private IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> FileSizeDuplicateInspection()
+        {
+            var dict = new Dictionary<long, List<FileDescription>>();
+            foreach (var file in _data.Values.SelectMany(i => i))
+            {
+                if (!dict.ContainsKey(file.Length)) dict[file.Length] = new List<FileDescription>();
+                dict[file.Length].Add(file);
+            }
+            foreach (var pair in dict)
+            {
+                foreach (var files in pair.Value.GroupBy(item=>item.Extension))
+                {
+                    if (files.Count() <= 1) continue;
+                    yield return new KeyValuePair<long, IEnumerable<FileDescription>>(pair.Key, files);
+                }
+            }
+        }
 
         private void ThroughInspection()
         {
@@ -263,9 +309,9 @@ namespace AutoTorrentInspection
             try {
                 time = _torrent?.CreationDate ?? new DirectoryInfo(FilePath).LastWriteTime;
             } catch { /* ignored */ }
-            Text = $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version} - " +
-                   $"{_torrent?.TorrentName ?? FilePath} - By [{_torrent?.CreatedBy ?? "Folder"}] - " +
-                   $"{_torrent?.Encoding ?? "UND"} - {time}";
+            Text = $@"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version} - " +
+                   $@"{_torrent?.TorrentName ?? FilePath} - By [{_torrent?.CreatedBy ?? "Folder"}] - " +
+                   $@"{_torrent?.Encoding ?? "UND"} - {time}";
         }
 
         private void Inspection(string category)
@@ -326,7 +372,7 @@ namespace AutoTorrentInspection
                 case FileState.InValidEncode:
                 {
                     var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.YesNo,
-                        text: $"该cue编码不是UTF-8, 是否尝试修复?\n注: 有{(confindence > 0.6 ? "小" : "大")}概率失败, 此时请检查备份。");
+                        text: $@"该cue编码不是UTF-8, 是否尝试修复?\n注: 有{(confindence > 0.6 ? "小" : "大")}概率失败, 此时请检查备份。");
                     if (dResult == DialogResult.Yes)
                     {
                         CueCurer.MakeBackup(fileInfo.FullPath);
@@ -339,7 +385,7 @@ namespace AutoTorrentInspection
                 case FileState.InValidCue:
                 {
                     var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.YesNo,
-                        text: $"该cue内文件名与实际文件不相符, 是否尝试修复?\n注: 非常规编码可能无法正确修复, 此时请检查备份。");
+                        text: $@"该cue内文件名与实际文件不相符, 是否尝试修复?\n注: 非常规编码可能无法正确修复, 此时请检查备份。");
                     if (dResult == DialogResult.Yes)
                     {
                         CueCurer.MakeBackup(fileInfo.FullPath);
@@ -362,7 +408,7 @@ namespace AutoTorrentInspection
             FileDescription fileInfo = dataGridView1.Rows[e.RowIndex].Tag as FileDescription;
             if (fileInfo == null)  return;
             var confindence = fileInfo.Confidence;
-            toolStripStatusLabel_Encode.Text = $"{fileInfo.Encode}({confindence:F2})";
+            toolStripStatusLabel_Encode.Text = $@"{fileInfo.Encode}({confindence:F2})";
             Application.DoEvents();
             switch (e.Button)
             {
@@ -403,7 +449,7 @@ namespace AutoTorrentInspection
             if (fileInfo == null) return;
 
             var confindence = fileInfo.Confidence;
-            toolStripStatusLabel_Encode.Text = $"{fileInfo.Encode}({confindence:F2})";
+            toolStripStatusLabel_Encode.Text = $@"{fileInfo.Encode}({confindence:F2})";
             Application.DoEvents();
             if (cbFixCue.Checked && e.KeyCode == Keys.Enter)
             {
@@ -414,6 +460,8 @@ namespace AutoTorrentInspection
 
         private void btnCompare_Click(object sender, EventArgs e)
         {
+            new FormFileDup(_sizeData).Show();
+            /*
             if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
             var torrent = new TorrentData(openFileDialog1.FileName);
 
@@ -431,6 +479,7 @@ namespace AutoTorrentInspection
             {
                 Notification.ShowInfo($"First unmatched File: {cmpResult.Result.FileName}\nError Type: {cmpResult.Result.ResultType}");
             }
+            */
         }
 
         private class CheckResult

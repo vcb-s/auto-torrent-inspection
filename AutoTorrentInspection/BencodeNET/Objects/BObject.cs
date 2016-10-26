@@ -1,32 +1,26 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
+using BencodeNET.IO;
 
 namespace BencodeNET.Objects
 {
-    public abstract class BObject<TY> : IBObject
+    /// <summary>
+    /// Abstract base class with default implementation of most methods of <see cref="IBObject"/>.
+    /// </summary>
+    public abstract class BObject : IBObject
     {
         internal BObject()
         { }
 
         /// <summary>
-        /// The underlying value of the BObject.
-        /// </summary>
-        public TY Value { get; protected set; }
-
-
-        /// <summary>
-        /// Encodes the object and returns the result as a string using
-        /// the default encoding from <c>Bencode.DefaultEncoding</c>.
+        /// Encodes the object and returns the result as a string using <see cref="Encoding.UTF8"/>.
         /// </summary>
         /// <returns>
-        /// The object bencoded and converted to a string using
-        /// the encoding of <c>Bencode.DefaultEncoding</c>.
+        /// The object bencoded and converted to a string using <see cref="Encoding.UTF8"/>.
         /// </returns>
-        public virtual string Encode()
+        public virtual string EncodeAsString()
         {
-            return Encode(Bencode.DefaultEncoding);
+            return EncodeAsString(Encoding.UTF8);
         }
 
         /// <summary>
@@ -36,54 +30,82 @@ namespace BencodeNET.Objects
         /// <returns>
         /// The object bencoded and converted to a string using the specified encoding.
         /// </returns>
-        public virtual string Encode(Encoding encoding)
+        public virtual string EncodeAsString(Encoding encoding)
         {
-            using (var ms = EncodeToStream(new MemoryStream()))
+            using (var stream = EncodeTo(new MemoryStream()))
             {
-                return encoding.GetString(ms.ToArray());
+                return encoding.GetString(stream.ToArray());
             }
         }
 
         /// <summary>
-        /// Encodes the object to the specified stream and returns a reference to the stream.
+        /// Encodes the object and returns the raw bytes.
         /// </summary>
-        /// <typeparam name="TStream">The type of stream.</typeparam>
-        /// <param name="stream">The stream to encode the object to.</param>
-        /// <returns>The supplied stream.</returns>
-        public abstract TStream EncodeToStream<TStream>(TStream stream) where TStream : Stream;
-
-        public static bool operator ==(BObject<TY> first, BObject<TY> second)
+        /// <returns>The raw bytes of the bencoded object.</returns>
+        public virtual byte[] EncodeAsBytes()
         {
-            if (ReferenceEquals(first, null))
-                return ReferenceEquals(second, null);
-
-            return first.Equals(second);
-        }
-
-        public static bool operator !=(BObject<TY> first, BObject<TY> second)
-        {
-            return !(first == second);
-        }
-
-        public override bool Equals(object other)
-        {
-            var obj = other as BObject<TY>;
-            if (obj == null)
-                return false;
-
-            using (var ms1 = EncodeToStream(new MemoryStream()))
-            using (var ms2 = obj.EncodeToStream(new MemoryStream()))
+            using (var stream = new MemoryStream())
             {
-                var bytes1 = ms1.ToArray();
-                var bytes2 = ms2.ToArray();
-
-                return bytes1.SequenceEqual(bytes2);
+                EncodeTo(stream);
+                return stream.ToArray();
             }
         }
 
-        public override int GetHashCode()
+        /// <summary>
+        /// Writes the object as bencode to the specified stream.
+        /// </summary>
+        /// <typeparam name="TStream">The type of stream.</typeparam>
+        /// <param name="stream">The stream to write to.</param>
+        /// <returns>The used stream.</returns>
+        public TStream EncodeTo<TStream>(TStream stream) where TStream : Stream
         {
-            throw new NotImplementedException();
+            EncodeObject(new BencodeStream(stream));
+            return stream;
         }
+
+        /// <summary>
+        /// Writes the object as bencode to the specified stream.
+        /// </summary>
+        /// <param name="stream">The stream to write to.</param>
+        /// <returns>The used stream.</returns>
+        public BencodeStream EncodeTo(BencodeStream stream)
+        {
+            EncodeObject(stream);
+            return stream;
+        }
+
+        /// <summary>
+        /// Writes the object as bencode to the specified file path.
+        /// </summary>
+        /// <param name="filePath">The file path to write the encoded object to.</param>
+        public virtual void EncodeTo(string filePath)
+        {
+            using (var stream = File.OpenWrite(filePath))
+            {
+                EncodeTo(stream);
+            }
+        }
+
+        /// <summary>
+        /// Implementations of this method should encode their
+        /// underlying value to bencode and write it to the stream.
+        /// </summary>
+        /// <param name="stream">The stream to encode to.</param>
+        protected abstract void EncodeObject(BencodeStream stream);
+    }
+
+    /// <summary>
+    /// Base class of bencode objects with a specific underlying value type.
+    /// </summary>
+    /// <typeparam name="T">Type of the underlying value.</typeparam>
+    public abstract class BObject<T> : BObject
+    {
+        internal BObject()
+        { }
+
+        /// <summary>
+        /// The underlying value of the <see cref="BObject{T}"/>.
+        /// </summary>
+        public abstract T Value { get; }
     }
 }

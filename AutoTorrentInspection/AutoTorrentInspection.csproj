@@ -52,8 +52,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BencodeNET\Bencode.cs" />
-    <Compile Include="BencodeNET\Exceptions\BencodeDecodingException.cs" />
+    <Compile Include="BencodeNET\Exceptions\BencodeException.cs" />
+    <Compile Include="BencodeNET\Exceptions\InvalidBencodeException.cs" />
+    <Compile Include="BencodeNET\Exceptions\InvalidTorrentException.cs" />
     <Compile Include="BencodeNET\Exceptions\UnsupportedBencodeException.cs" />
     <Compile Include="BencodeNET\IO\BencodeStream.cs" />
     <Compile Include="BencodeNET\Objects\BDictionary.cs" />
@@ -62,13 +63,37 @@
     <Compile Include="BencodeNET\Objects\BObject.cs" />
     <Compile Include="BencodeNET\Objects\BString.cs" />
     <Compile Include="BencodeNET\Objects\IBObject.cs" />
-    <Compile Include="BencodeNET\Objects\TorrentFile.cs" />
+    <Compile Include="BencodeNET\Parsing\BDictionaryParser.cs" />
+    <Compile Include="BencodeNET\Parsing\BencodeParser.cs" />
+    <Compile Include="BencodeNET\Parsing\BListParser.cs" />
+    <Compile Include="BencodeNET\Parsing\BNumberParser.cs" />
+    <Compile Include="BencodeNET\Parsing\BObjectParser.cs" />
+    <Compile Include="BencodeNET\Parsing\BObjectParserList.cs" />
+    <Compile Include="BencodeNET\Parsing\BStringParser.cs" />
+    <Compile Include="BencodeNET\Parsing\IBencodeParser.cs" />
+    <Compile Include="BencodeNET\Parsing\IBObjectParser.cs" />
+    <Compile Include="BencodeNET\Parsing\ParseUtil.cs" />
+    <Compile Include="BencodeNET\Parsing\TorrentParser.cs" />
+    <Compile Include="BencodeNET\Torrents\MagnetLinkOptions.cs" />
+    <Compile Include="BencodeNET\Torrents\MultiFileInfo.cs" />
+    <Compile Include="BencodeNET\Torrents\MultiFileInfoList.cs" />
+    <Compile Include="BencodeNET\Torrents\SingleFileInfo.cs" />
+    <Compile Include="BencodeNET\Torrents\Torrent.cs" />
+    <Compile Include="BencodeNET\Torrents\TorrentFields.cs" />
+    <Compile Include="BencodeNET\Torrents\TorrentFileMode.cs" />
+    <Compile Include="BencodeNET\Torrents\TorrentUtil.cs" />
     <Compile Include="BencodeNET\UtilityExtensions.cs" />
     <Compile Include="FormAbout.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FormAbout.Designer.cs">
       <DependentUpon>FormAbout.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormFileDup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormFileDup.Designer.cs">
+      <DependentUpon>FormFileDup.cs</DependentUpon>
     </Compile>
     <Compile Include="FormUpdater.cs">
       <SubType>Form</SubType>
@@ -141,6 +166,9 @@
     <EmbeddedResource Include="FormAbout.resx">
       <DependentUpon>FormAbout.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FormFileDup.resx">
+      <DependentUpon>FormFileDup.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormUpdater.resx">
       <DependentUpon>FormUpdater.cs</DependentUpon>
     </EmbeddedResource>
@@ -157,6 +185,7 @@
     <EmbeddedResource Include="TreeViewForm.resx">
       <DependentUpon>TreeViewForm.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="BencodeNET\project.json" />
     <None Include="Compress.bat" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

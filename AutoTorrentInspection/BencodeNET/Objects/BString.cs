@@ -6,14 +6,33 @@ using BencodeNET.IO;
 
 namespace BencodeNET.Objects
 {
-    public sealed class BString : BObject<byte[]>, IComparable<BString>
+    /// <summary>
+    /// Represents a bencoded string, i.e. a byte-string.
+    /// It isn't necessarily human-readable.
+    /// </summary>
+    /// <remarks>
+    /// The underlying value is a <see cref="byte"/> array.
+    /// </remarks>
+    public class BString : BObject<IReadOnlyList<byte>>, IComparable<BString>
     {
         /// <summary>
         /// The maximum number of digits that can be handled as the length part of a bencoded string.
         /// </summary>
         internal const int LengthMaxDigits = 10;
 
-        private Encoding _encoding;
+        /// <summary>
+        /// The underlying bytes of the string.
+        /// </summary>
+        public override IReadOnlyList<byte> Value => _value;
+        private readonly byte[] _value;
+
+        /// <summary>
+        /// Gets the length of the string in bytes.
+        /// </summary>
+        public int Length => _value.Length;
+
+        private static readonly Encoding DefaultEncoding = Encoding.UTF8;
+
         /// <summary>
         /// Gets or sets the encoding used as the default with <c>ToString()</c>.
         /// </summary>
@@ -21,57 +40,56 @@ namespace BencodeNET.Objects
         public Encoding Encoding
         {
             get { return _encoding; }
-            set
-            {
-                if (value == null)
-                    throw new ArgumentNullException(nameof(value), "Encoding may not be set to null");
-                _encoding = value;
-            }
+            set { _encoding = value ?? DefaultEncoding; }
         }
+        private Encoding _encoding;
 
-        public BString(IEnumerable<byte> bytes)
-            : this(bytes, Bencode.DefaultEncoding)
-        { }
-
-        public BString(IEnumerable<byte> bytes, Encoding encoding)
+        /// <summary>
+        /// Creates a <see cref="BString"/> from bytes with the specified encoding.
+        /// </summary>
+        /// <param name="bytes">The bytes representing the data.</param>
+        /// <param name="encoding">The encoding of the bytes. Defaults to <see cref="System.Text.Encoding.UTF8"/>.</param>
+        public BString(IEnumerable<byte> bytes, Encoding encoding = null)
         {
             if (bytes == null) throw new ArgumentNullException(nameof(bytes));
-            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
-            _encoding = encoding;
-            Value = bytes as byte[] ?? bytes.ToArray();
+            _encoding = encoding ?? DefaultEncoding;
+            _value = bytes as byte[] ?? bytes.ToArray();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BString"/> class using
-        /// the default encoding from <c>Bencode.DefaultEncoding</c> to convert the string to bytes.
-        /// </summary>
-        /// <param name="str"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public BString(string str)
-            : this(str, Bencode.DefaultEncoding)
-        { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BString"/> class using
-        /// the specified encoding to convert the string to bytes.
+        /// Creates a <see cref="BString"/> using the specified encoding to convert the string to bytes.
         /// </summary>
         /// <param name="str">The string.</param>
         /// <param name="encoding">The encoding used to convert the string to bytes.</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public BString(string str, Encoding encoding)
+        public BString(string str, Encoding encoding = null)
         {
             if (str == null) throw new ArgumentNullException(nameof(str));
-            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
-            _encoding = encoding;
-            Value = encoding.GetBytes(str);
+            _encoding = encoding ?? DefaultEncoding;
+            _value = _encoding.GetBytes(str);
         }
 
         /// <summary>
-        /// Gets the length in bytes of the string.
+        /// Encodes this byte-string as bencode and returns the encoded string.
+        /// Uses the current value of the <see cref="Encoding"/> property.
         /// </summary>
-        public int Length => Value.Length;
+        /// <returns>
+        /// This byte-string as a bencoded string.
+        /// </returns>
+        public override string EncodeAsString()
+        {
+            return EncodeAsString(_encoding);
+        }
+
+#pragma warning disable 1591
+        protected override void EncodeObject(BencodeStream stream)
+        {
+            stream.Write(_value.Length);
+            stream.Write(':');
+            stream.Write(_value);
+        }
 
         public static implicit operator BString(string value)
         {
@@ -93,16 +111,23 @@ namespace BencodeNET.Objects
 
         public override bool Equals(object other)
         {
-            if (other == null)
-                return false;
+            var bstring = other as BString;
+            if (bstring != null)
+                return Value.SequenceEqual(bstring.Value);
 
-            var bstr = other as BString;
-            return bstr != null && Value.SequenceEqual(bstr.Value);
+            return false;
+        }
+
+        public bool Equals(BString bstring)
+        {
+            if (bstring == null)
+                return false;
+            return Value.SequenceEqual(bstring.Value);
         }
 
         public override int GetHashCode()
         {
-            var bytesToHash = Math.Min(Value.Length, 32);
+            var bytesToHash = Math.Min(Value.Count, 32);
 
             long hashValue = 0;
             for (var i = 0; i < bytesToHash; i++)
@@ -139,9 +164,10 @@ namespace BencodeNET.Objects
 
             return 0;
         }
+#pragma warning restore 1591
 
         /// <summary>
-        /// Converts the underlying bytes to a string representation using the current value of the Encoding property.
+        /// Converts the underlying bytes to a string representation using the current value of the <see cref="Encoding"/> property.
         /// </summary>
         /// <returns>
         /// A <see cref="System.String" /> that represents this instance.
@@ -160,37 +186,8 @@ namespace BencodeNET.Objects
         /// </returns>
         public string ToString(Encoding encoding)
         {
+            encoding = encoding ?? _encoding;
             return encoding.GetString(Value.ToArray());
-        }
-
-        /// <summary>
-        /// Encodes the object and returns the result as a string using
-        /// the current value of the Encoding property.
-        /// </summary>
-        /// <returns>
-        /// The object bencoded and converted to a string using
-        /// the current value of the Encoding property.
-        /// </returns>
-        public override string Encode()
-        {
-            return Encode(_encoding);
-        }
-
-        /// <summary>
-        /// Encodes the object to the specified stream and returns a reference to the stream.
-        /// </summary>
-        /// <typeparam name="TStream">The type of stream.</typeparam>
-        /// <param name="stream">The stream to encode the object to.</param>
-        /// <returns>The supplied stream.</returns>
-        public override TStream EncodeToStream<TStream>(TStream stream)
-        {
-            using (var bstream = new BencodeStream(stream, leaveOpen:true))
-            {
-                bstream.Write(Length);
-                bstream.Write(':');
-                bstream.Write(Value);
-                return stream;
-            }
         }
     }
 }

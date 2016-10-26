@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace AutoTorrentInspection.Util
 {
@@ -16,7 +17,7 @@ namespace AutoTorrentInspection.Util
 
         public Node() { }
 
-        public string Json => "[" + _GetJson().TrimEnd(',', '\n') + "\n]";
+        public string Json => $"[{_GetJson().TrimEnd(',', '\n')}\n]";
 
         private string _GetJson(int depth = 0)
         {
@@ -26,7 +27,7 @@ namespace AutoTorrentInspection.Util
             switch (NodeType)
             {
                 case NodeTypeEnum.File:
-                    json += $"{tab}{{\"type\":\"{NodeType.ToString().ToLower()}\",\"name\":\"{NodeName}\",\"size\":{Attribute.Length}}},\n";
+                    json += $"{tab}{{\"type\":\"{NodeType.ToString().ToLower()}\",\"name\":\"{NodeName}\",\"size\":{Attribute?.Length}}},\n";
                     break;
                 case NodeTypeEnum.Directory:
                     json += $"{tab}{{\"type\":\"{NodeType.ToString().ToLower()}\",\"name\":\"{NodeName}\",\"contents\":[\n{subJson}{tab}]}},\n";
@@ -113,28 +114,38 @@ namespace AutoTorrentInspection.Util
             return currentNode;
         }
 
-        public long InsertTo(System.Windows.Forms.TreeNodeCollection tn)
+        public long InsertTo(System.Windows.Forms.TreeNodeCollection tn, KnownColor color = KnownColor.Black)
         {
-            return InsertToViewInner(this, tn);
+            int index = 1;
+            return InsertToViewInner(this, tn, Color.FromKnownColor(color), ref index);
         }
 
-        private static long InsertToViewInner(Node currentNode, System.Windows.Forms.TreeNodeCollection tn)
+        private static long InsertToViewInner(Node currentNode, System.Windows.Forms.TreeNodeCollection tn, Color color, ref int index)
         {
             long length = 0;
             foreach (var node in currentNode.GetDirectories())
             {
-                var treeNode = tn.Insert(tn.Count, node.NodeName); //将文件夹插入当前TreeNode节点的末尾
-                var folderLength = InsertToViewInner(node, treeNode.Nodes); //由于是文件夹，故获取其子项并继续插入
-                if (folderLength != 0) treeNode.Text += $" [{FileSize.FileSizeToString(folderLength)}]";
+                var treeNode = tn.Insert(tn.Count, node.NodeName);
+                var folderLength = InsertToViewInner(node, treeNode.Nodes, color, ref index); //由于是文件夹，故获取其子项并继续插入
+                if (folderLength != 0) treeNode.Text += $@" [{FileSize.FileSizeToString(folderLength)}]";
+                treeNode.ForeColor = color;
                 length += folderLength;
             }
             foreach (var node in currentNode.GetFiles())
             {
                 //将文件插入当前TreeNode结点的末尾
-                tn.Insert(tn.Count, node.NodeName + (node.Attribute != null ? $" [{node.Attribute}]" : ""));
+                tn.Insert(tn.Count, node.NodeName + (node.Attribute != null ? $" [{node.Attribute}] {{{index++}}}" : ""));
                 length += node.Attribute?.Length ?? 0;
             }
             return length;
+        }
+
+        public IEnumerable<string> GetFileList() => GetFileListInner(this);
+
+        private static IEnumerable<string> GetFileListInner(Node currentNode)
+        {
+            foreach (var file in currentNode.GetDirectories().SelectMany(GetFileListInner)) yield return file;
+            foreach (var node in currentNode.GetFiles()) yield return node.FullPath;
         }
     }
 }

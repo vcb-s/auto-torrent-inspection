@@ -1,6 +1,6 @@
 ﻿namespace AutoTorrentInspection
 {
-    partial class TreeViewForm
+    partial class FormFileDup
     {
         /// <summary>
         /// Required designer variable.
@@ -33,32 +33,23 @@
             // 
             // treeView1
             // 
-            this.treeView1.AllowDrop = true;
             this.treeView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.treeView1.Location = new System.Drawing.Point(11, 11);
-            this.treeView1.Margin = new System.Windows.Forms.Padding(2);
+            this.treeView1.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.treeView1.Location = new System.Drawing.Point(12, 12);
             this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(536, 392);
+            this.treeView1.Size = new System.Drawing.Size(452, 439);
             this.treeView1.TabIndex = 0;
-            this.treeView1.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeView1_DragDrop);
-            this.treeView1.DragEnter += new System.Windows.Forms.DragEventHandler(this.treeView1_DragEnter);
             // 
-            // TreeViewForm
+            // FormFileDup
             // 
-            this.AllowDrop = true;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(560, 414);
+            this.ClientSize = new System.Drawing.Size(476, 463);
             this.Controls.Add(this.treeView1);
-            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.Name = "TreeViewForm";
-            this.Text = "TreeViewForm";
-            this.Load += new System.EventHandler(this.TreeViewForm_Load);
-            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.TreeViewForm_DragDrop);
-            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.TreeViewForm_DragEnter);
+            this.Name = "FormFileDup";
+            this.Text = "Duplicate Inspection";
             this.ResumeLayout(false);
 
         }

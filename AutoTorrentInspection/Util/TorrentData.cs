@@ -4,23 +4,24 @@ using System.Text;
 using BencodeNET;
 using BencodeNET.Objects;
 using System.Collections.Generic;
+using BencodeNET.Parsing;
+using BencodeNET.Torrents;
 
 namespace AutoTorrentInspection.Util
 {
     public class TorrentData
     {
-        private readonly TorrentFile _torrent;
+        private readonly Torrent _torrent;
 
         public TorrentData(string path)
         {
-            _torrent = Bencode.DecodeTorrentFile(path);
+            var parser = new BencodeParser();
+            _torrent = parser.Parse<Torrent>(path);
         }
 
         public IEnumerable<string> GetAnnounceList()
         {
-            var list = _torrent.AnnounceList;
-            if(list == null || list.Count < 1) return new []{ _torrent.Announce };
-            return list.Select(item => ((BList) item).First().ToString());
+            return _torrent.Trackers.Flatten();
         }
 
         public string CreatedBy => _torrent.CreatedBy;
@@ -29,8 +30,8 @@ namespace AutoTorrentInspection.Util
         {
             get
             {
-                TimeSpan timeZoneOffset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
-                DateTime utcTime        = _torrent.CreationDate;
+                var timeZoneOffset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
+                var utcTime        = _torrent.CreationDate ?? new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                 return utcTime.Add(timeZoneOffset);
             }
         }
@@ -41,90 +42,46 @@ namespace AutoTorrentInspection.Util
         {
             get
             {
-                string source = string.Empty;
-                if (_torrent.Info.ContainsKey("source"))
+                var extra = _torrent.ExtraFields["info"] as BDictionary;
+                if (extra == null) return "";
+                if (extra.ContainsKey("source"))
                 {
-                    source = _torrent.Info["source"].ToString();
+                    return (extra["source"] as BString)?.ToString() ?? "";
                 }
-                else
+                if (extra.ContainsKey("publisher"))
                 {
-                    if (_torrent.Info.ContainsKey("publisher"))
-                    {
-                        source = _torrent.Info.ContainsKey("publisher").ToString();
-                    }
-                    if (_torrent.Info.ContainsKey("publisher.utf-8"))
-                    {
-                        source = _torrent.Info["publisher.utf-8"].ToString();
-                    }
+                    return (extra["publisher"] as BString)?.ToString() ?? "";
                 }
-                return source;
+                return "";
             }
         }
 
-        public string TorrentName
-        {
-            get
-            {
-                if (_torrent.Info.ContainsKey("name.utf-8"))
-                {
-                    return _torrent.Info["name.utf-8"].ToString();
-                }
-                return _torrent.Info["name"].ToString();
-            }
-        }
+        public string TorrentName => _torrent.DisplayName;
 
-        public bool IsPrivate
-        {
-            get
-            {
-                var pri = _torrent.Info["private"];
-                return pri != null && (BNumber) pri != 0 && (BNumber) pri == 1;
-            }
-        }
+        public bool IsPrivate => _torrent.IsPrivate;
 
-        public string Encoding => _torrent.Encoding;
+        public string Encoding => _torrent.Encoding?.WebName;
+
+        public string MagnetLink => _torrent.GetMagnetLink();
 
         public IEnumerable<IEnumerable<string>> GetRawFileList()
         {
-            if (!_torrent.Info.ContainsKey("files"))
-            {
-                yield return new []{ TorrentName };
-                yield break;
-            }
-            var files = (BList)_torrent.Info["files"];
-            foreach (var file in files)
-            {
-                BList singleFile = (BList)((BDictionary)file)["path"];
-                if (((BDictionary)file).ContainsKey("path.utf-8"))
-                {
-                    singleFile = (BList)((BDictionary)file)["path.utf-8"];
-                }
-                if (singleFile.Last().ToString().Contains("_____padding_file_")) continue;
-                var length = ((BNumber)((BDictionary)file)["length"]).Value;
-                yield return singleFile.Select(item=>item.ToString());
-            }
+            return GetRawFileListWithAttribute().Select(item => item.Key);
         }
 
         public IEnumerable<KeyValuePair<IEnumerable<string>, FileSize>> GetRawFileListWithAttribute()
         {
-            if (!_torrent.Info.ContainsKey("files"))
+            if (_torrent.FileMode == TorrentFileMode.Single)
             {
-                FileSize fs = new FileSize(((BNumber)_torrent.Info["length"]).Value);
+                FileSize fs = new FileSize(_torrent.File.FileSize);
                 yield return new KeyValuePair<IEnumerable<string>, FileSize>(new[] {TorrentName}, fs);
                 yield break;
             }
-            var files = (BList)_torrent.Info["files"];
-            foreach (var file in files)
+            foreach (var file in _torrent.Files)
             {
-                BList singleFile = (BList)((BDictionary)file)["path"];
-                if (((BDictionary)file).ContainsKey("path.utf-8"))
-                {
-                    singleFile = (BList)((BDictionary)file)["path.utf-8"];
-                }
-                if (singleFile.Last().ToString().Contains("_____padding_file_")) continue;
-                var length = ((BNumber)((BDictionary)file)["length"]).Value;
-                FileSize fs = new FileSize(length);
-                yield return new KeyValuePair<IEnumerable<string>, FileSize>(singleFile.Select(item => item.ToString()), fs);
+                if (file.Path.Last().StartsWith("_____padding_file")) continue;
+                FileSize fs = new FileSize(file.FileSize);
+                yield return new KeyValuePair<IEnumerable<string>, FileSize>(file.Path, fs);
             }
         }
 
@@ -133,35 +90,27 @@ namespace AutoTorrentInspection.Util
         {
             var fileDic = new Dictionary<string, List<FileDescription>>();
             var torrentName = TorrentName;
-            if (!_torrent.Info.ContainsKey("files"))
+            if (_torrent.FileMode == TorrentFileMode.Single)
             {
-
-                var length = ((BNumber)_torrent.Info["length"]).Value;
-                fileDic.Add("single", new List<FileDescription> { new FileDescription(torrentName, "", torrentName, length) });
-                return fileDic;
+                return new Dictionary<string, List<FileDescription>>
+                {
+                    ["single"] = new List<FileDescription>
+                    {
+                        new FileDescription(torrentName, "", torrentName, _torrent.File.FileSize)
+                    }
+                };
             }
-            var files = (BList)_torrent.Info["files"];
-            foreach (var file in files)
+            foreach (var file in _torrent.Files)
             {
-                BList singleFile = (BList) ((BDictionary) file)["path"];
-                if (((BDictionary) file).ContainsKey("path.utf-8"))
-                {
-                    singleFile = (BList) ((BDictionary) file)["path.utf-8"];
-                }
-                var length     = ((BNumber) ((BDictionary) file)["length"]).Value;
-                var category   = singleFile.Count != 1 ? singleFile.First().ToString() : "root";
-                var path       = new StringBuilder();
-                for (int i = 0; i < singleFile.Count - 1; i++)
-                {
-                    path.Append($"{singleFile[i]}\\");
-                }
-                //var path = singleFile.Aggregate(new StringBuilder(), (current, item) => current.Append($"{item}\\"));
-                var name = singleFile.Last().ToString();
-                if (name.Contains("_____padding_file_")) continue;
+                var singleFile = file.Path.ToList();
+                var category   = singleFile.Count != 1 ? singleFile.First() : "root";
+                var path       = singleFile.Take(singleFile.Count - 1).Aggregate("", (current, item) => current += $"{item}\\");
+                var name       = singleFile.Last();
+                if (name.StartsWith("_____padding_file")) continue;
                 //reason: https://zh.wikipedia.org/zh-hant/BitComet#.E6.96.87.E4.BB.B6.E5.88.86.E5.A1.8A.E5.B0.8D.E9.BD.8A
 
                 fileDic.TryAdd(category, new List<FileDescription>());
-                fileDic[category].Add(new FileDescription(name, path.ToString(), torrentName, length));
+                fileDic[category].Add(new FileDescription(name, path, torrentName, file.FileSize));
             }
             return fileDic;
         }
