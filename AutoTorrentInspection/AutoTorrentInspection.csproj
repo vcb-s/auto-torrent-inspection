@@ -166,6 +166,9 @@
     <EmbeddedResource Include="FormAbout.resx">
       <DependentUpon>FormAbout.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FormFileDup.resx">
+      <DependentUpon>FormFileDup.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormUpdater.resx">
       <DependentUpon>FormUpdater.cs</DependentUpon>
     </EmbeddedResource>

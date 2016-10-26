@@ -78,7 +78,7 @@ namespace AutoTorrentInspection
         private string[] _paths = new string[20];
         private TorrentData _torrent;
         private Dictionary<string, List<FileDescription>> _data;
-        private IEnumerable<KeyValuePair<long, List<FileDescription>>> _sizeData;
+        private IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> _sizeData;
 
         private bool _isUrl;
 
@@ -271,7 +271,7 @@ namespace AutoTorrentInspection
             cbCategory.Enabled = cbCategory.Items.Count > 1;
         }
 
-        private IEnumerable<KeyValuePair<long, List<FileDescription>>> FileSizeDuplicateInspection()
+        private IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> FileSizeDuplicateInspection()
         {
             var dict = new Dictionary<long, List<FileDescription>>();
             foreach (var file in _data.Values.SelectMany(i => i))
@@ -284,14 +284,7 @@ namespace AutoTorrentInspection
                 foreach (var files in pair.Value.GroupBy(item=>item.Extension))
                 {
                     if (files.Count() <= 1) continue;
-                    Debug.WriteLine(pair.Key + ":");
-                    var ret = new List<FileDescription>();
-                    foreach (var file in files)
-                    {
-                        ret.Add(file);
-                        Debug.WriteLine(file.FileName);
-                    }
-                    yield return new KeyValuePair<long, List<FileDescription>>(pair.Key, ret);
+                    yield return new KeyValuePair<long, IEnumerable<FileDescription>>(pair.Key, files);
                 }
             }
         }
