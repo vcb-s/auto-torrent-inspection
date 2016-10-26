@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AutoTorrentInspection.Util;
+using AutoTorrentInspection.Util.Crc32.NET;
 
 namespace AutoTorrentInspection
 {
@@ -34,7 +35,8 @@ namespace AutoTorrentInspection
                 filesize = size.Key,
                 files = size.Value.Select(item => new
                 {
-                    crc = CRC32.FileCRC(item.FullPath),
+                    //crc = CRC32.FileCRC(item.FullPath),
+                    crc = Crc32Algorithm.FileCRC(item.FullPath),
                     file = item
                 })
             });

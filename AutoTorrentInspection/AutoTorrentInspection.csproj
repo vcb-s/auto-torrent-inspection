@@ -142,6 +142,8 @@
     <Compile Include="Ude\ICharsetDetector.cs" />
     <Compile Include="Util\ConvertMethod.cs" />
     <Compile Include="Util\CRC32.cs" />
+    <Compile Include="Util\Crc32.NET\Crc32Algorithm.cs" />
+    <Compile Include="Util\Crc32.NET\SafeProxy.cs" />
     <Compile Include="Util\CueCurer.cs" />
     <Compile Include="Util\EncodingConverter.cs" />
     <Compile Include="Util\EncodingDetector.cs" />
