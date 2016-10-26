@@ -48,8 +48,12 @@ namespace AutoTorrentInspection
                 {
                     uint crc = await file.crc;
                     tmp.Add(crc);
-                    node.Nodes.Add($"[{crc:X}] " + file.file.FullPath);
-                    Debug.WriteLine(file.file.FileName + " ||| crc: " + crc.ToString("X"));
+                    if (crc == 0) node.Nodes.Add(file.file.ReletivePath + file.file.FileName);
+                    else
+                    {
+                        node.Nodes.Add($"[{crc:X}] " + file.file.FullPath);
+                        Debug.WriteLine(file.file.FileName + " ||| crc: " + crc.ToString("X"));
+                    }
                 }
                 var valid = tmp.GroupBy(_=>_).Count() != tmp.Count;
                 if (valid) treenode.Add(node);

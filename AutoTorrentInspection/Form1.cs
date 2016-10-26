@@ -194,8 +194,7 @@ namespace AutoTorrentInspection
                     btnTreeView.Visible = btnTreeView.Enabled = false;
                     cbFixCue.Enabled = true;
                     _sizeData = FileSizeDuplicateInspection();
-                    if (_sizeData.Any())
-                        btnCompare.Visible = btnCompare.Enabled = true;
+                    if (_sizeData?.Any() ?? false) btnCompare.Visible = btnCompare.Enabled = true;
                     InspecteOperation();
                     return;
                 }
@@ -205,8 +204,8 @@ namespace AutoTorrentInspection
                 btnTreeView.Visible = btnTreeView.Enabled = true;
                 cbFixCue.Enabled = false;
 
-                if (_sizeData == null)
-                    _sizeData = FileSizeDuplicateInspection();
+                if (_sizeData == null) _sizeData = FileSizeDuplicateInspection();
+                if (_sizeData?.Any() ?? false) btnCompare.Visible = btnCompare.Enabled = true;
 
                 if (_torrent.IsPrivate)
                 {

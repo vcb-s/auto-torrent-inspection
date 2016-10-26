@@ -26,7 +26,7 @@ namespace AutoTorrentInspection.Util
     public class FileDescription
     {
         public string FileName      { get; }
-        private string ReletivePath { get; }
+        public string ReletivePath { get; }
         private string BasePath     { get; }
         public string FullPath      { get; }
         public string Extension     { get; }
