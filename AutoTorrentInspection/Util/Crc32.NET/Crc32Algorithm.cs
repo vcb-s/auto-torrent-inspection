@@ -145,4 +145,3 @@ namespace AutoTorrentInspection.Util.Crc32.NET
         }
     }
 }
-
