@@ -72,11 +72,12 @@ namespace AutoTorrentInspection.Util
 
         public FileDescription(SingleFileInfo file, string torrentName)
         {
-            FileName   = file.FileName;
-            Extension  = Path.GetExtension(FileName);
-            BasePath   = torrentName;
-            Length     = file.FileSize;
-            SourceType = SourceTypeEnum.Torrent;
+            FileName     = file.FileName;
+            Extension    = Path.GetExtension(FileName);
+            BasePath     = torrentName;
+            Length       = file.FileSize;
+            SourceType   = SourceTypeEnum.Torrent;
+            ReletivePath = "";
             CheckValidTorrent();
         }
 
