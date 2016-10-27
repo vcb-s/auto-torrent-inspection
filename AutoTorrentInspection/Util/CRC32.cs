@@ -26,9 +26,6 @@ namespace AutoTorrentInspection.Util
 {
     public static class CRC32
     {
-        public delegate void ProgressHandler(long current, long total);
-        public static event ProgressHandler ProgressUpdated;
-
         /// <summary>
         /// Calculate file's CRC32 Value
         /// </summary>
@@ -36,19 +33,30 @@ namespace AutoTorrentInspection.Util
         /// <returns></returns>
         public static async Task<uint> FileCRC(string filePath)
         {
-            uint crc = 0xFFFFFFFF;
+            uint crc;
             if (!File.Exists(filePath)) return 0;
             using (FileStream file = File.OpenRead(filePath))
             {
                 long length = file.Length;
                 var arr = new byte[length];
                 await file.ReadAsync(arr, 0, (int) length);
-                foreach (var b in arr)
-                {
-                    crc = CRC32Table[(crc ^ b) & 0xFF] ^ (crc >> 8);
-                    ProgressUpdated?.Invoke(file.Position, length);
-                }
-                file.Close();
+                crc = GetCRC(arr);
+            }
+            return crc;
+        }
+
+        /// <summary>
+        /// Calculate data's CRC32 Value
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static uint GetCRC(byte[] data)
+        {
+            uint crc = 0xFFFFFFFF;
+            if (data.Length == 0) return 0;
+            foreach (var b in data)
+            {
+                crc = CRC32Table[(crc ^ b) & 0xFF] ^ (crc >> 8);
             }
             crc = crc ^ 0xFFFFFFFF;
             return crc;

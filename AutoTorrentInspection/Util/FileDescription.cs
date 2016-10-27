@@ -2,8 +2,10 @@
 using System.IO;
 using System.Drawing;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
+using BencodeNET.Torrents;
 // ReSharper disable InconsistentNaming
 
 namespace AutoTorrentInspection.Util
@@ -57,14 +59,25 @@ namespace AutoTorrentInspection.Util
 
         private const long MaxFilePathLength = 210;
 
-        public FileDescription(string fileName, string reletivePath, string basePath, long length)//Torrent
+        public FileDescription(MultiFileInfo file, string torrentName)
         {
-            FileName     = fileName;
-            ReletivePath = reletivePath;
-            BasePath     = basePath;
-            Extension    = Path.GetExtension(fileName)?.ToLower();
-            Length       = length;
+            FileName      = file.FileName;
+            Extension     = Path.GetExtension(FileName);
+            BasePath      = torrentName;
+            Length        = file.FileSize;
+            SourceType    = SourceTypeEnum.Torrent;
+            ReletivePath  = file.Path.Take(file.Path.Count - 1).Aggregate("", (current, item) => current += $"{item}\\");
+            CheckValidTorrent();
+        }
+
+        public FileDescription(SingleFileInfo file, string torrentName)
+        {
+            FileName     = file.FileName;
+            Extension    = Path.GetExtension(FileName);
+            BasePath     = torrentName;
+            Length       = file.FileSize;
             SourceType   = SourceTypeEnum.Torrent;
+            ReletivePath = "";
             CheckValidTorrent();
         }
 
