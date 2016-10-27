@@ -272,18 +272,11 @@ namespace AutoTorrentInspection
 
         private IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> FileSizeDuplicateInspection()
         {
-            var dict = new Dictionary<long, List<FileDescription>>();
-            foreach (var file in _data.Values.SelectMany(i => i))
+            foreach (var sizePair in _data.Values.SelectMany(i => i).GroupBy(i => i.Length))
             {
-                if (!dict.ContainsKey(file.Length)) dict[file.Length] = new List<FileDescription>();
-                dict[file.Length].Add(file);
-            }
-            foreach (var pair in dict)
-            {
-                foreach (var files in pair.Value.GroupBy(item=>item.Extension))
+                foreach (var files in sizePair.GroupBy(i => i.Extension).SkipWhile(i => i.Count() <= 1))
                 {
-                    if (files.Count() <= 1) continue;
-                    yield return new KeyValuePair<long, IEnumerable<FileDescription>>(pair.Key, files);
+                    yield return new KeyValuePair<long, IEnumerable<FileDescription>>(sizePair.Key, files);
                 }
             }
         }
