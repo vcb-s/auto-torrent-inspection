@@ -136,7 +136,10 @@ namespace AutoTorrentInspection.Util.Crc32.NET
                     if (num > 0) hash.HashCore(buffer, 0, num);
                 } while (num > 0);
                 var crc = hash.HashFinal();
-                for (int i = 0; i < crc.Length; ++i) ret |= (uint)crc[i] << i*8;
+                for (int i = crc.Length - 1; i >= 0; --i)
+                {
+                    ret |= (uint) crc[i] << ((crc.Length - 1 - i)*8);
+                }
             }
             return ret;
         }
