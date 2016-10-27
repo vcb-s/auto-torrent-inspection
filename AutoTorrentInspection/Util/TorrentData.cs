@@ -96,21 +96,18 @@ namespace AutoTorrentInspection.Util
                 {
                     ["single"] = new List<FileDescription>
                     {
-                        new FileDescription(torrentName, "", torrentName, _torrent.File.FileSize)
+                        new FileDescription(_torrent.File, torrentName)
                     }
                 };
             }
             foreach (var file in _torrent.Files)
             {
-                var singleFile = file.Path.ToList();
-                var category   = singleFile.Count != 1 ? singleFile.First() : "root";
-                var path       = singleFile.Take(singleFile.Count - 1).Aggregate("", (current, item) => current += $"{item}\\");
-                var name       = singleFile.Last();
-                if (name.StartsWith("_____padding_file")) continue;
+                var category   = file.Path.Count != 1 ? file.Path.First() : "root";
+                if (file.FileName.StartsWith("_____padding_file")) continue;
                 //reason: https://zh.wikipedia.org/zh-hant/BitComet#.E6.96.87.E4.BB.B6.E5.88.86.E5.A1.8A.E5.B0.8D.E9.BD.8A
 
                 fileDic.TryAdd(category, new List<FileDescription>());
-                fileDic[category].Add(new FileDescription(name, path, torrentName, file.FileSize));
+                fileDic[category].Add(new FileDescription(file, torrentName));
             }
             return fileDic;
         }
