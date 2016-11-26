@@ -35,8 +35,7 @@ namespace AutoTorrentInspection
                 filesize = size.Key,
                 files = size.Value.Select(item => new
                 {
-                    //crc = CRC32.FileCRC(item.FullPath),
-                    crc = Crc32Algorithm.FileCRC(item.FullPath),
+                    crc  = Crc32Algorithm.FileCRC(item.FullPath),
                     file = item
                 })
             });
@@ -57,9 +56,10 @@ namespace AutoTorrentInspection
                         Debug.WriteLine(file.file.FileName + " ||| crc: " + crc.ToString("X"));
                     }
                 }
-                var valid = tmp.GroupBy(_=>_).Count() != tmp.Count;
+                var valid = tmp.Distinct().Count() != tmp.Count;
                 if (valid) treenode.Add(node);
             }
+            treeView1.Sort();
             treeView1.ExpandAll();
         }
     }
