@@ -38,10 +38,10 @@ namespace AutoTorrentInspection
         {
             _systemMenu = new SystemMenu(this);
             _systemMenu.AddCommand("生成Json(&J)", () =>
-                 {
-                     Clipboard.SetText(_node.Json);
-                     Notification.ShowInfo("已复制至剪贴板");
-                 }, true);
+            {
+                Clipboard.SetText(_node.Json);
+                Notification.ShowInfo("已复制至剪贴板");
+            }, true);
             if (_data != null)
             {
                 _systemMenu.AddCommand("生成磁力链接(&M)", () =>
@@ -116,5 +116,13 @@ namespace AutoTorrentInspection
         private void treeView1_DragEnter(object sender, DragEventArgs e) => TreeViewForm_DragEnter(sender, e);
 
         private void treeView1_DragDrop(object sender, DragEventArgs e) => TreeViewForm_DragDrop(sender, e);
+
+        private void treeView1_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            string text = e.Node.Text;
+            try { text = text.Substring(0, text.IndexOf('\ufeff')); }
+            catch { /* ignored */ }
+            Clipboard.SetText(text);
+        }
     }
 }

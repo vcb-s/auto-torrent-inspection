@@ -127,14 +127,14 @@ namespace AutoTorrentInspection.Util
             {
                 var treeNode = tn.Insert(tn.Count, node.NodeName);
                 var folderLength = InsertToViewInner(node, treeNode.Nodes, color, ref index); //由于是文件夹，故获取其子项并继续插入
-                if (folderLength != 0) treeNode.Text += $@" [{FileSize.FileSizeToString(folderLength)}]";
+                if (folderLength != 0) treeNode.Text += $"\ufeff [{FileSize.FileSizeToString(folderLength)}]";
                 treeNode.ForeColor = color;
                 length += folderLength;
             }
             foreach (var node in currentNode.GetFiles())
             {
                 //将文件插入当前TreeNode结点的末尾
-                tn.Insert(tn.Count, node.NodeName + (node.Attribute != null ? $" [{node.Attribute}] {{{index++}}}" : ""));
+                tn.Insert(tn.Count, node.NodeName + (node.Attribute != null ? $"\ufeff [{node.Attribute}] {{{index++}}}" : "\ufeff"));
                 length += node.Attribute?.Length ?? 0;
             }
             return length;
