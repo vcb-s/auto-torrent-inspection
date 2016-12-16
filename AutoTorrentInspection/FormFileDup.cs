@@ -25,10 +25,10 @@ namespace AutoTorrentInspection
         {
             InitializeComponent();
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
-            GetCRC(sizeData);
+            GetCRCAsync(sizeData);
         }
 
-        private async void GetCRC(IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> sizeData)
+        private async void GetCRCAsync(IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> sizeData)
         {
             var ret = sizeData.Select(size => new
             {
