@@ -65,7 +65,7 @@ namespace AutoTorrentInspection
         {
             if (_data == null)
             {
-                Text = $@"颜色含义：{KnownColor.PowderBlue}为甲有乙无，{KnownColor.PaleVioletRed}为甲无乙有";
+                Text = $@"颜色含义：{KnownColor.PowderBlue}为甲有乙无/大小不一致，{KnownColor.PaleVioletRed}为甲无乙有";
                 return;
             }
             Text = _data.TorrentName;
