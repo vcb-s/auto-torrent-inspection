@@ -156,6 +156,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util\AssFonts.cs" />
     <Compile Include="Util\Notification.cs" />
     <Compile Include="Util\RegistryStorage.cs" />
     <Compile Include="Util\SystemMenu.cs" />

@@ -8,6 +8,8 @@ using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
+using System.Threading;
 using AutoTorrentInspection.Util;
 using AutoTorrentInspection.Properties;
 
@@ -79,6 +81,8 @@ namespace AutoTorrentInspection
         private TorrentData _torrent;
         private Dictionary<string, List<FileDescription>> _data;
         private IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> _sizeData;
+        private HashSet<string> _fonts;
+        private AssFonts _assFonts;
 
         private bool _isUrl;
 
@@ -128,12 +132,9 @@ namespace AutoTorrentInspection
                     }
                 }
             }
-            else
-            {
-                _paths = e.Data.GetData(DataFormats.FileDrop) as string[];
-                if (string.IsNullOrEmpty(FilePath)) return;
-                if (Path.GetExtension(FilePath).ToLower() != ".torrent" && !Directory.Exists(FilePath)) return;
-            }
+            _paths = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (string.IsNullOrEmpty(FilePath)) return;
+            if (Path.GetExtension(FilePath).ToLower() != ".torrent" && !Directory.Exists(FilePath)) return;
             LoadFile(FilePath);
         }
 
@@ -165,7 +166,21 @@ namespace AutoTorrentInspection
 
         private void btnAnnounceList_Click(object sender, EventArgs e)
         {
-            if (_torrent == null) return;
+            if (_torrent == null)
+            {
+                new Thread(() =>
+                {
+                    _assFonts = new AssFonts();
+                    var ass = _data.SelectMany(item => item.Value).Where(file => file.Extension == ".ass");
+                    foreach (var file in ass) _assFonts.FeedSubtitle(file.FullPath);
+                    _fonts = _assFonts.UsedFonts;
+                    string context = string.Empty;
+                    foreach (var item in _fonts.ToList().OrderBy(i => i)) context += item + "\n";
+                    if (string.IsNullOrEmpty(context)) return;
+                    MessageBox.Show(text: context, caption: @"Fonts used in subtitles");
+                }).Start();
+                return;
+            }
             var combineList = string.Join("\n", _torrent.GetAnnounceList());
             var currentRuler = combineList == CurrentTrackList;
             MessageBox.Show(text: combineList, caption: $@"Tracker List == {currentRuler}");
@@ -190,7 +205,8 @@ namespace AutoTorrentInspection
                 if (Directory.Exists(filepath))
                 {
                     _data = ConvertMethod.GetFileList(filepath);
-                    btnAnnounceList.Enabled = false;
+                    btnAnnounceList.Enabled = true;
+                    btnAnnounceList.Text = "Fonts";
                     btnTreeView.Visible = btnTreeView.Enabled = false;
                     cbFixCue.Enabled = true;
                     _sizeData = FileSizeDuplicateInspection();
@@ -201,6 +217,7 @@ namespace AutoTorrentInspection
                 _torrent = new TorrentData(filepath);
                 _data    = _torrent.GetFileList();
                 btnAnnounceList.Enabled = true;
+                btnAnnounceList.Text = "Tracker";
                 btnTreeView.Visible = btnTreeView.Enabled = true;
                 cbFixCue.Enabled = false;
 

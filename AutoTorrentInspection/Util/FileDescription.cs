@@ -71,7 +71,7 @@ namespace AutoTorrentInspection.Util
         public FileDescription(MultiFileInfo file, string torrentName)
         {
             FileName      = file.FileName;
-            Extension     = Path.GetExtension(FileName);
+            Extension     = Path.GetExtension(FileName)?.ToLower();
             BasePath      = torrentName;
             Length        = file.FileSize;
             SourceType    = SourceTypeEnum.Torrent;
@@ -82,7 +82,7 @@ namespace AutoTorrentInspection.Util
         public FileDescription(SingleFileInfo file, string torrentName)
         {
             FileName     = file.FileName;
-            Extension    = Path.GetExtension(FileName);
+            Extension    = Path.GetExtension(FileName)?.ToLower();
             BasePath     = torrentName;
             Length       = file.FileSize;
             SourceType   = SourceTypeEnum.Torrent;
@@ -166,15 +166,14 @@ namespace AutoTorrentInspection.Util
                 State = FileState.InValidPathLength;
                 return;
             }
+
+            State = FileState.InValidFile;
             if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) ||
                 MenuPngPattern.IsMatch(FileName) || FchPattern.IsMatch(FileName) || MaWenPattern.IsMatch(FileName))
             {
                 State = FileState.ValidFile;
             }
-            else
-            {
-                State = FileState.InValidFile;
-            }
+
             if (FileName == "readme about WebP.txt")
             {
                 State = FileState.ValidFile;
