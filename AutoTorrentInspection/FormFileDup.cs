@@ -36,31 +36,38 @@ namespace AutoTorrentInspection
                 files = size.Value.Select(item => new
                 {
                     crc  = Crc32Algorithm.FileCRC(item.FullPath),
-                    file = item
+                    info = item
                 })
             });
             TreeNodeCollection treenode = treeView1.Nodes;
-            foreach (var size in ret)
-            {
-                Debug.WriteLine(size.filesize + ":");
-                var node = new TreeNode(FileSize.FileSizeToString(size.filesize));
-                var tmp = new List<uint>();
-                foreach (var file in size.files)
+            try {
+                foreach (var size in ret)
                 {
-                    uint crc = await file.crc;
-                    tmp.Add(crc);
-                    if (crc == 0) node.Nodes.Add(file.file.ReletivePath + file.file.FileName);
-                    else
+                    Debug.WriteLine(size.filesize + ":");
+                    var node = new TreeNode(FileSize.FileSizeToString(size.filesize));
+                    var tmp = new List<uint>();
+                    foreach (var file in size.files)
                     {
-                        node.Nodes.Add($"[{crc:X}] " + file.file.FullPath);
-                        Debug.WriteLine(file.file.FileName + " ||| crc: " + crc.ToString("X"));
+                        uint crc = await file.crc;
+                        tmp.Add(crc);
+                        if (crc == 0) node.Nodes.Add(file.info.ReletivePath + file.info.FileName);
+                        else
+                        {
+                            node.Nodes.Add($"[{crc:X}] " + file.info.FullPath);
+                            Debug.WriteLine($"{file.info.FileName} ||| crc: {crc:X}");
+                        }
                     }
+                    var valid = tmp.Distinct().Count() != tmp.Count;
+                    if (valid) treenode.Add(node);
                 }
-                var valid = tmp.Distinct().Count() != tmp.Count;
-                if (valid) treenode.Add(node);
+                treeView1.Sort();
+                treeView1.ExpandAll();
             }
-            treeView1.Sort();
-            treeView1.ExpandAll();
+            catch (Exception exception)
+            {
+                Notification.ShowError("Exception catched in GetCRCAsync", exception);
+                Close();
+            }
         }
     }
 }
