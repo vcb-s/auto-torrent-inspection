@@ -134,8 +134,7 @@ namespace AutoTorrentInspection.Util
             foreach (var node in currentNode.GetFiles())
             {
                 //将文件插入当前TreeNode结点的末尾
-                var endNode = tn.Insert(tn.Count, node.NodeName + $"\ufeff [{node.Attribute}] {{{index++}}}");
-                endNode.ForeColor = color;
+                tn.Insert(tn.Count, node.NodeName + $"\ufeff [{node.Attribute}] {{{index++}}}").ForeColor = color;
                 length += node.Attribute?.Length ?? 0;
             }
             return length;
