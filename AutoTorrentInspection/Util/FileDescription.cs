@@ -23,17 +23,19 @@ namespace AutoTorrentInspection.Util
         InValidPathLength,
         InValidFile,
         InValidCue,
-        InValidEncode
+        InValidEncode,
+        InValidFlacLevel
     }
 
     public class FileDescription
     {
-        public string FileName      { get; }
+        public string FileName      { get; private set; }
         public string ReletivePath  { get; }
         private string BasePath     { get; }
         public string FullPath      { get; }
         public string Extension     { get; }
         public long Length          { get; }
+        public FlacInfo Flac        { get; private set; }
 
         public FileState State { get; private set; } = FileState.InValidFile;
 
@@ -56,6 +58,7 @@ namespace AutoTorrentInspection.Util
         private static readonly Color INVALID_CUE         = Color.FromArgb(255, 101, 056);
         private static readonly Color INVALID_ENCODE      = Color.FromArgb(078, 079, 151);
         private static readonly Color INVALID_PATH_LENGTH = Color.FromArgb(255, 010, 050);
+        private static readonly Color INVALID_FLAC_LEVEL  = Color.FromArgb(207, 216, 220);
 
         private static readonly Dictionary<FileState, Color> StateColor = new Dictionary<FileState, Color>
         {
@@ -63,7 +66,8 @@ namespace AutoTorrentInspection.Util
             [FileState.InValidPathLength] = INVALID_PATH_LENGTH,
             [FileState.InValidFile]       = INVALID_FILE,
             [FileState.InValidCue]        = INVALID_CUE,
-            [FileState.InValidEncode]     = INVALID_ENCODE
+            [FileState.InValidEncode]     = INVALID_ENCODE,
+            [FileState.InValidFlacLevel]  = INVALID_FLAC_LEVEL
         };
 
         private const long MaxFilePathLength = 210;
@@ -178,6 +182,17 @@ namespace AutoTorrentInspection.Util
             {
                 State = FileState.ValidFile;
                 return;
+            }
+            if (Extension == ".flac")
+            {
+                Flac = new FlacInfo(FullPath);
+                FileName += $"[{Flac.CompressRate*100:00.00}%]";
+                if (Flac.HasCover) FileName += "[图]";
+                Encode = Flac.Encoder;
+                if (Flac.CompressRate > 0.9) //Maybe a level 0 file
+                {
+                    State = FileState.InValidFlacLevel;
+                }
             }
             if (Extension != ".cue"/* || FullPath.Length > 256*/) return;
 
