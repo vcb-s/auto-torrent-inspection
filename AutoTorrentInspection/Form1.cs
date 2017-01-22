@@ -245,13 +245,14 @@ namespace AutoTorrentInspection
         {
             if (_data.Any(catalog => catalog.Value.Any(item => item.Extension == ".webp")))
             {
+                const string webpReadMe = "readme about WebP.txt";
                 if (_data.ContainsKey("root"))
                 {
-                    var readme = _data["root"].Where(item => item.FileName == "readme about WebP.txt").ToList();
+                    var readme = _data["root"].Where(item => item.FileName == webpReadMe).ToList();
                     var show = false;
                     if (!readme.Any())
                     {
-                        Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现readme about WebP.txt");
+                        Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现{webpReadMe}");
                         if (_torrent == null)
                         {
                             show = true;
@@ -264,20 +265,20 @@ namespace AutoTorrentInspection
                             var path = readme.First().FullPath;
                             if (readme.First().Length != 1186 || File.ReadAllText(path) != Resources.ReadmeAboutWebP)
                             {
-                                Notification.ShowInfo($"readme about WebP.txt的内容在报道上出现了偏差");
+                                Notification.ShowInfo($"{webpReadMe}的内容在报道上出现了偏差");
                                 show = true;
                             }
                         }
                         catch (Exception exception)
                         {
-                            Notification.ShowError("读取readme about WebP.txt失败", exception);
+                            Notification.ShowError($"读取{webpReadMe}失败", exception);
                         }
                     }
                     else
                     {
                         if (readme.First().Length != 1186)
                         {
-                            Notification.ShowInfo($"readme about WebP.txt的内容在报道上出现了偏差");
+                            Notification.ShowInfo($"{webpReadMe}的内容在报道上出现了偏差");
                         }
                     }
                     btnWebP.Visible = btnWebP.Enabled = show;

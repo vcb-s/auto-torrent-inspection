@@ -185,7 +185,7 @@ namespace AutoTorrentInspection.Util
             }
             if (Extension == ".flac")
             {
-                Flac = new FlacInfo(FullPath);
+                Flac = FlacData.GetMetadataFromFlac(FullPath);
                 FileName += $"[{Flac.CompressRate*100:00.00}%]";
                 if (Flac.HasCover) FileName += "[图]";
                 Encode = Flac.Encoder;
