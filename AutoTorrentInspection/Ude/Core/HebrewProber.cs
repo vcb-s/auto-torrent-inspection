@@ -37,6 +37,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 using System;
+using System.Diagnostics;
 
 
 /**
@@ -293,7 +294,7 @@ namespace Ude.Core
 
         public override void DumpStatus()
         {
-            Console.WriteLine("  HEB: {0} - {1} [Logical-Visual score]",
+            Debug.WriteLine("  HEB: {0} - {1} [Logical-Visual score]",
                finalCharLogicalScore, finalCharVisualScore);
         }
 

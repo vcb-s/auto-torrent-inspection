@@ -37,6 +37,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 using System;
+using System.Diagnostics;
 
 namespace Ude.Core
 {
@@ -123,7 +124,7 @@ namespace Ude.Core
 
         public override void DumpStatus()
         {
-            Console.WriteLine("  SBCS: {0} [{1}]", GetConfidence(),
+            Debug.WriteLine("  SBCS: {0} [{1}]", GetConfidence(),
                 GetCharsetName());
         }
 
