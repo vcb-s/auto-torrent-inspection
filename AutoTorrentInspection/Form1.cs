@@ -243,6 +243,16 @@ namespace AutoTorrentInspection
 
         private void InspecteOperation()
         {
+            if (_data.Any(catalog => catalog.Value.Any(item => item.Extension == ".ass")))
+            {
+                if (_data.ContainsKey("root"))
+                {
+                    if (!_data["root"].Any(item => item.FileName.ToLower().Contains("font")))
+                    {
+                        Notification.ShowInfo($"发现ass格式字幕\n但未在根目录发现字体包");
+                    }
+                }
+            }
             if (_data.Any(catalog => catalog.Value.Any(item => item.Extension == ".webp")))
             {
                 const string webpReadMe = "readme about WebP.txt";
@@ -250,15 +260,12 @@ namespace AutoTorrentInspection
                 {
                     var readme = _data["root"].Where(item => item.FileName == webpReadMe).ToList();
                     var show = false;
-                    if (!readme.Any())
+                    if (!readme.Any())//no readme found
                     {
                         Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现{webpReadMe}");
-                        if (_torrent == null)
-                        {
-                            show = true;
-                        }
+                        show = _torrent == null;//create the txt
                     }
-                    else if(_torrent == null)
+                    else if(_torrent == null)// found and in folder mode
                     {
                         try
                         {
@@ -266,7 +273,7 @@ namespace AutoTorrentInspection
                             if (readme.First().Length != 1186 || File.ReadAllText(path) != Resources.ReadmeAboutWebP)
                             {
                                 Notification.ShowInfo($"{webpReadMe}的内容在报道上出现了偏差");
-                                show = true;
+                                show = true;//rewrite the txt
                             }
                         }
                         catch (Exception exception)
