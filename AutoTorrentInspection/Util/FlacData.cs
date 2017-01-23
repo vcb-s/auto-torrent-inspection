@@ -48,9 +48,9 @@ namespace AutoTorrentInspection.Util
             {
                 if (fs.Length < SizeThreshold) return new FlacInfo();
                 FlacInfo info = new FlacInfo {TrueLength = fs.Length};
-                var header = fs.ReadBytes(4);
-                if (Encoding.ASCII.GetString(header, 0, 4) != "fLaC")
-                    throw new InvalidDataException($"Except an flac but get an {Encoding.ASCII.GetString(header, 0, 4)}");
+                var header = Encoding.ASCII.GetString(fs.ReadBytes(4), 0, 4);
+                if (header != "fLaC")
+                    throw new InvalidDataException($"Except an flac but get an {header}");
                 //METADATA_BLOCK_HEADER
                 //1-bit Last-metadata-block flag
                 //7-bit BLOCK_TYPE
