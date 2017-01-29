@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Drawing;
 using System.Diagnostics;
@@ -22,17 +23,19 @@ namespace AutoTorrentInspection.Util
         InValidPathLength,
         InValidFile,
         InValidCue,
-        InValidEncode
+        InValidEncode,
+        InValidFlacLevel
     }
 
     public class FileDescription
     {
-        public string FileName      { get; }
+        public string FileName      { get; private set; }
         public string ReletivePath  { get; }
         private string BasePath     { get; }
         public string FullPath      { get; }
         public string Extension     { get; }
         public long Length          { get; }
+        public FlacInfo Flac        { get; private set; }
 
         public FileState State { get; private set; } = FileState.InValidFile;
 
@@ -43,7 +46,6 @@ namespace AutoTorrentInspection.Util
 
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
 
-        //private static readonly Regex AnimePattern   = new Regex(@"^\[[^\[\]]*VCB-S(?:tudio)?[^\[\]]*\] [^\[\]]+ (?:\[[^\[\]]*\d*\])?\[(?:(?:(?:(?<Ma>Ma10p)|(?<Hi>(?:Hi(?:10|444p)p)))_(?:2160|1080|720|576|480)p)|(?<EIGHT>(?:1080|576|720)p))\]\[(?:(?<HEVC-Ma>x265)|(?<AVC-Hi>x264)|(?(EIGHT)x264))_\d*(?:flac|aac|ac3)\](?:\.(?:sc|tc|chs|cht))?\.(?:(?(AVC)(?:mkv|mka|flac))|(?(HEVC)(?:mkv|mka|flac))|(?(EIGHT)mp4)|ass)$");
         private static readonly Regex AnimePattern   = new Regex(@"^\[[^\[\]]*VCB\-S(?:tudio)?[^\[\]]*\] [^\[\]]+ (?:\[[^\[\]]*\d*\])?\[(?:(?:(?:(?:Hi10p|Hi444pp)_(?:2160|1080|720|576|480)p\]\[x264)|(?:(?:Ma10p_(?:2160|1080|720|576|480)p\]\[x265)))(?:_\d*(?:flac|aac|ac3))+\](?:\.(?:mkv|mka|flac))?|(?:(?:1080|720|576)p\]\[(?:x264|x265)_(?:aac|ac3)\](?:\.mp4)?))(?:(?<!(?:mkv|mka|mp4))(?:\.(?:[SsTt]c|[Cc]h(?:s|t)|[Jj](?:pn|ap)|[Cc]h(?:s|t)&[Jj](?:pn|ap)))?\.ass)?$"); //implement without Balancing group
         private static readonly Regex MenuPngPattern = new Regex(@"^\[[^\[\]]*VCB\-S(?:tudio)*[^\[\]]*\] [^\[\]]+ \[[^\[\]]*\]\.png$");
         private static readonly Regex MusicPattern   = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2|webp)$", RegexOptions.IgnoreCase);
@@ -56,13 +58,24 @@ namespace AutoTorrentInspection.Util
         private static readonly Color INVALID_CUE         = Color.FromArgb(255, 101, 056);
         private static readonly Color INVALID_ENCODE      = Color.FromArgb(078, 079, 151);
         private static readonly Color INVALID_PATH_LENGTH = Color.FromArgb(255, 010, 050);
+        private static readonly Color INVALID_FLAC_LEVEL  = Color.FromArgb(207, 216, 220);
+
+        private static readonly Dictionary<FileState, Color> StateColor = new Dictionary<FileState, Color>
+        {
+            [FileState.ValidFile]         = VALID_FILE,
+            [FileState.InValidPathLength] = INVALID_PATH_LENGTH,
+            [FileState.InValidFile]       = INVALID_FILE,
+            [FileState.InValidCue]        = INVALID_CUE,
+            [FileState.InValidEncode]     = INVALID_ENCODE,
+            [FileState.InValidFlacLevel]  = INVALID_FLAC_LEVEL
+        };
 
         private const long MaxFilePathLength = 210;
 
         public FileDescription(MultiFileInfo file, string torrentName)
         {
             FileName      = file.FileName;
-            Extension     = Path.GetExtension(FileName);
+            Extension     = Path.GetExtension(FileName)?.ToLower();
             BasePath      = torrentName;
             Length        = file.FileSize;
             SourceType    = SourceTypeEnum.Torrent;
@@ -73,7 +86,7 @@ namespace AutoTorrentInspection.Util
         public FileDescription(SingleFileInfo file, string torrentName)
         {
             FileName     = file.FileName;
-            Extension    = Path.GetExtension(FileName);
+            Extension    = Path.GetExtension(FileName)?.ToLower();
             BasePath     = torrentName;
             Length       = file.FileSize;
             SourceType   = SourceTypeEnum.Torrent;
@@ -157,19 +170,29 @@ namespace AutoTorrentInspection.Util
                 State = FileState.InValidPathLength;
                 return;
             }
+
+            State = FileState.InValidFile;
             if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) ||
                 MenuPngPattern.IsMatch(FileName) || FchPattern.IsMatch(FileName) || MaWenPattern.IsMatch(FileName))
             {
                 State = FileState.ValidFile;
             }
-            else
-            {
-                State = FileState.InValidFile;
-            }
+
             if (FileName == "readme about WebP.txt")
             {
                 State = FileState.ValidFile;
                 return;
+            }
+            if (Extension == ".flac")
+            {
+                Flac = FlacData.GetMetadataFromFlac(FullPath);
+                FileName += $"[{Flac.CompressRate*100:00.00}%]";
+                if (Flac.HasCover) FileName += "[图]";
+                Encode = Flac.Encoder;
+                if (Flac.CompressRate > 0.9) //Maybe a level 0 file
+                {
+                    State = FileState.InValidFlacLevel;
+                }
             }
             if (Extension != ".cue"/* || FullPath.Length > 256*/) return;
 
@@ -191,26 +214,7 @@ namespace AutoTorrentInspection.Util
             row.Cells.Add(new DataGridViewTextBoxCell {Value = ReletivePath});
             row.Cells.Add(new DataGridViewTextBoxCell {Value = FileName});
             row.Cells.Add(new DataGridViewTextBoxCell {Value = FileSize.FileSizeToString(Length)});
-            switch (State)
-            {
-                case FileState.ValidFile:
-                    row.DefaultCellStyle.BackColor = VALID_FILE;
-                    break;
-                case FileState.InValidPathLength:
-                    row.DefaultCellStyle.BackColor = INVALID_PATH_LENGTH;
-                    break;
-                case FileState.InValidFile:
-                    row.DefaultCellStyle.BackColor = INVALID_FILE;
-                    break;
-                case FileState.InValidCue:
-                    row.DefaultCellStyle.BackColor = INVALID_CUE;
-                    break;
-                case FileState.InValidEncode:
-                    row.DefaultCellStyle.BackColor = INVALID_ENCODE;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            row.DefaultCellStyle.BackColor = StateColor[State];
             return row;
         }
     }

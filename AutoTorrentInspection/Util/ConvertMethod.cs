@@ -86,7 +86,15 @@ namespace AutoTorrentInspection.Util
             var ret = new Dictionary<IEnumerable<string>, FileSize>[2];
             ret[0] = new Dictionary<IEnumerable<string>, FileSize>();
             ret[1] = new Dictionary<IEnumerable<string>, FileSize>();
-            foreach (var item in set[0].Where(item => !set[1].Any(tmp => tmp.Key.SequenceEqual(item.Key))))
+
+            foreach (var item in set[0].Where(item =>
+            {
+                var suspicious = set[1].Where(tmp => tmp.Key.SequenceEqual(item.Key)).ToArray();
+                if (!suspicious.Any()) return true;
+                var suspiciousItem = suspicious.First();
+                if (item.Value.Length != suspiciousItem.Value.Length) return true;
+                return false;
+            }))
                 ret[0].Add(item.Key, item.Value);//in torrent1, not in torrent2
             foreach (var item in set[1].Where(item => !set[0].Any(tmp => tmp.Key.SequenceEqual(item.Key))))
                 ret[1].Add(item.Key, item.Value);

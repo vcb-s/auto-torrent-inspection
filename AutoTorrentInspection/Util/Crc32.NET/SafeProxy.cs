@@ -20,9 +20,9 @@ namespace AutoTorrentInspection.Util.Crc32.NET
             for (uint i = 0; i < 256; i++)
             {
                 uint res = i;
-                for (int t = 0; t < 16; t++)
+                for (uint t = 0; t < 16; t++)
                 {
-                    for (int k = 0; k < 8; k++) res = (res & 1) == 1 ? Poly ^ (res >> 1) : (res >> 1);
+                    for (uint k = 0; k < 8; k++) res = (res & 1) == 1 ? Poly ^ (res >> 1) : (res >> 1);
                     Table[(t * 256) + i] = res;
                 }
             }
@@ -36,7 +36,7 @@ namespace AutoTorrentInspection.Util.Crc32.NET
             while (length >= 16)
             {
                 crcLocal =
-                      table[(15 * 256) + ((crcLocal ^ input[offset]) & 0xff)]
+                      table[(15 * 256) + (( crcLocal        ^ input[offset + 0]) & 0xff)]
                     ^ table[(14 * 256) + (((crcLocal >>  8) ^ input[offset + 1]) & 0xff)]
                     ^ table[(13 * 256) + (((crcLocal >> 16) ^ input[offset + 2]) & 0xff)]
                     ^ table[(12 * 256) + (((crcLocal >> 24) ^ input[offset + 3]) & 0xff)]

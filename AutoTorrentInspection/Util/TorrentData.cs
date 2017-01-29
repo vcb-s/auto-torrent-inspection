@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using BencodeNET;
 using BencodeNET.Objects;
 using System.Collections.Generic;
@@ -55,7 +54,7 @@ namespace AutoTorrentInspection.Util
                 return "";
             }
         }
-
+        
         public string TorrentName => _torrent.DisplayName;
 
         public bool IsPrivate => _torrent.IsPrivate;

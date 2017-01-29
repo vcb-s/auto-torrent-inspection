@@ -8,6 +8,8 @@ using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
+using System.Threading;
 using AutoTorrentInspection.Util;
 using AutoTorrentInspection.Properties;
 
@@ -79,6 +81,8 @@ namespace AutoTorrentInspection
         private TorrentData _torrent;
         private Dictionary<string, List<FileDescription>> _data;
         private IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> _sizeData;
+        private HashSet<string> _fonts;
+        private AssFonts _assFonts;
 
         private bool _isUrl;
 
@@ -128,12 +132,9 @@ namespace AutoTorrentInspection
                     }
                 }
             }
-            else
-            {
-                _paths = e.Data.GetData(DataFormats.FileDrop) as string[];
-                if (string.IsNullOrEmpty(FilePath)) return;
-                if (Path.GetExtension(FilePath).ToLower() != ".torrent" && !Directory.Exists(FilePath)) return;
-            }
+            _paths = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (string.IsNullOrEmpty(FilePath)) return;
+            if (Path.GetExtension(FilePath).ToLower() != ".torrent" && !Directory.Exists(FilePath)) return;
             LoadFile(FilePath);
         }
 
@@ -165,7 +166,21 @@ namespace AutoTorrentInspection
 
         private void btnAnnounceList_Click(object sender, EventArgs e)
         {
-            if (_torrent == null) return;
+            if (_torrent == null)
+            {
+                new Thread(() =>
+                {
+                    _assFonts = new AssFonts();
+                    var ass = _data.SelectMany(item => item.Value).Where(file => file.Extension == ".ass");
+                    foreach (var file in ass) _assFonts.FeedSubtitle(file.FullPath);
+                    _fonts = _assFonts.UsedFonts;
+                    string context = string.Empty;
+                    foreach (var item in _fonts.ToList().OrderBy(i => i)) context += item + "\n";
+                    if (string.IsNullOrEmpty(context)) return;
+                    MessageBox.Show(text: context, caption: @"Fonts used in subtitles");
+                }).Start();
+                return;
+            }
             var combineList = string.Join("\n", _torrent.GetAnnounceList());
             var currentRuler = combineList == CurrentTrackList;
             MessageBox.Show(text: combineList, caption: $@"Tracker List == {currentRuler}");
@@ -190,7 +205,8 @@ namespace AutoTorrentInspection
                 if (Directory.Exists(filepath))
                 {
                     _data = ConvertMethod.GetFileList(filepath);
-                    btnAnnounceList.Enabled = false;
+                    btnAnnounceList.Enabled = true;
+                    btnAnnounceList.Text = "Fonts";
                     btnTreeView.Visible = btnTreeView.Enabled = false;
                     cbFixCue.Enabled = true;
                     _sizeData = FileSizeDuplicateInspection();
@@ -201,6 +217,7 @@ namespace AutoTorrentInspection
                 _torrent = new TorrentData(filepath);
                 _data    = _torrent.GetFileList();
                 btnAnnounceList.Enabled = true;
+                btnAnnounceList.Text = "Tracker";
                 btnTreeView.Visible = btnTreeView.Enabled = true;
                 cbFixCue.Enabled = false;
 
@@ -226,41 +243,49 @@ namespace AutoTorrentInspection
 
         private void InspecteOperation()
         {
-            if (_data.Any(catalog => catalog.Value.Any(item => item.Extension == ".webp")))
+            if (_data.Any(catalog => catalog.Value.Any(item => item.Extension == ".ass")))
             {
                 if (_data.ContainsKey("root"))
                 {
-                    var readme = _data["root"].Where(item => item.FileName == "readme about WebP.txt").ToList();
-                    var show = false;
-                    if (!readme.Any())
+                    if (!_data["root"].Any(item => item.FileName.ToLower().Contains("font")))
                     {
-                        Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现readme about WebP.txt");
-                        if (_torrent == null)
-                        {
-                            show = true;
-                        }
+                        Notification.ShowInfo($"发现ass格式字幕\n但未在根目录发现字体包");
                     }
-                    else if(_torrent == null)
+                }
+            }
+            if (_data.Any(catalog => catalog.Value.Any(item => item.Extension == ".webp")))
+            {
+                const string webpReadMe = "readme about WebP.txt";
+                if (_data.ContainsKey("root"))
+                {
+                    var readme = _data["root"].Where(item => item.FileName == webpReadMe).ToList();
+                    var show = false;
+                    if (!readme.Any())//no readme found
+                    {
+                        Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现{webpReadMe}");
+                        show = _torrent == null;//create the txt
+                    }
+                    else if(_torrent == null)// found and in folder mode
                     {
                         try
                         {
                             var path = readme.First().FullPath;
                             if (readme.First().Length != 1186 || File.ReadAllText(path) != Resources.ReadmeAboutWebP)
                             {
-                                Notification.ShowInfo($"readme about WebP.txt的内容在报道上出现了偏差");
-                                show = true;
+                                Notification.ShowInfo($"{webpReadMe}的内容在报道上出现了偏差");
+                                show = true;//rewrite the txt
                             }
                         }
                         catch (Exception exception)
                         {
-                            Notification.ShowError("读取readme about WebP.txt失败", exception);
+                            Notification.ShowError($"读取{webpReadMe}失败", exception);
                         }
                     }
                     else
                     {
                         if (readme.First().Length != 1186)
                         {
-                            Notification.ShowInfo($"readme about WebP.txt的内容在报道上出现了偏差");
+                            Notification.ShowInfo($"{webpReadMe}的内容在报道上出现了偏差");
                         }
                     }
                     btnWebP.Visible = btnWebP.Enabled = show;
@@ -272,18 +297,11 @@ namespace AutoTorrentInspection
 
         private IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> FileSizeDuplicateInspection()
         {
-            var dict = new Dictionary<long, List<FileDescription>>();
-            foreach (var file in _data.Values.SelectMany(i => i))
+            foreach (var sizePair in _data.Values.SelectMany(i => i).GroupBy(i => i.Length))
             {
-                if (!dict.ContainsKey(file.Length)) dict[file.Length] = new List<FileDescription>();
-                dict[file.Length].Add(file);
-            }
-            foreach (var pair in dict)
-            {
-                foreach (var files in pair.Value.GroupBy(item=>item.Extension))
+                foreach (var files in sizePair.GroupBy(i => i.Extension).SkipWhile(i => i.Count() <= 1))
                 {
-                    if (files.Count() <= 1) continue;
-                    yield return new KeyValuePair<long, IEnumerable<FileDescription>>(pair.Key, files);
+                    yield return new KeyValuePair<long, IEnumerable<FileDescription>>(sizePair.Key, files);
                 }
             }
         }
