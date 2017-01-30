@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AutoTorrentInspection.Util
 {
@@ -12,7 +12,7 @@ namespace AutoTorrentInspection.Util
     {
         public long RawLength                           { get; set; }
         public long TrueLength                          { get; set; }
-        public double CompressRate => TrueLength / (double)RawLength;
+        public double CompressRate => TrueLength / (double) RawLength;
         public bool HasCover                            { get; set; }
         public string Encoder                           { get; set; }
         public Dictionary<string, string> VorbisComment { get; set; }
@@ -26,8 +26,6 @@ namespace AutoTorrentInspection.Util
     //https://xiph.org/flac/format.html
     public static class FlacData
     {
-        private const long SizeThreshold = 1 << 20;
-
         public static event Action<string> OnLog;
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -46,7 +44,6 @@ namespace AutoTorrentInspection.Util
         {
             using (var fs = File.Open(flacPath, FileMode.Open, FileAccess.Read))
             {
-                if (fs.Length < SizeThreshold) return new FlacInfo();
                 FlacInfo info = new FlacInfo {TrueLength = fs.Length};
                 var header = Encoding.ASCII.GetString(fs.ReadBytes(4), 0, 4);
                 if (header != "fLaC")
@@ -59,9 +56,9 @@ namespace AutoTorrentInspection.Util
                 {
                     uint blockHeader = fs.ReadUInt();
                     bool lastMetadataBlock = blockHeader >> 31 == 0x1;
-                    BlockType blockType = (BlockType)((blockHeader >> 24) & 0x7f);
+                    BlockType blockType = (BlockType) ((blockHeader >> 24) & 0x7f);
                     int length = (int) (blockHeader & 0xffffff);
-                    info.TrueLength -= length;
+                    info.TrueLength -= length - 4;
                     OnLog?.Invoke($"|+{blockType} with Length: {length}");
                     switch (blockType)
                     {
