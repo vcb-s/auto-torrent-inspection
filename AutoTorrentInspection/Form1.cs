@@ -2,15 +2,14 @@
 using System.IO;
 using System.Text;
 using System.Linq;
+using System.Threading;
 using System.Reflection;
 using System.Diagnostics;
 using System.Windows.Forms;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text.RegularExpressions;
-using System.Threading;
+using System.Threading.Tasks;
 using AutoTorrentInspection.Util;
+using System.Collections.Generic;
 using AutoTorrentInspection.Properties;
 
 
