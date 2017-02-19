@@ -176,13 +176,13 @@ namespace AutoTorrentInspection
                     string context = string.Empty;
                     foreach (var item in _fonts.ToList().OrderBy(i => i)) context += item + "\n";
                     if (string.IsNullOrEmpty(context)) return;
-                    MessageBox.Show(text: context, caption: @"Fonts used in subtitles");
+                    context.ShowWithTitle("Fonts used in subtitles");
                 }).Start();
                 return;
             }
             var combineList = string.Join("\n", _torrent.GetAnnounceList());
             var currentRuler = combineList == CurrentTrackList;
-            MessageBox.Show(text: combineList, caption: $@"Tracker List == {currentRuler}");
+            combineList.ShowWithTitle($@"Tracker List == {currentRuler}");
         }
 
         private void LoadFile(object sender, AsyncCompletedEventArgs e)
@@ -246,8 +246,8 @@ namespace AutoTorrentInspection
                 }
                 if (!string.IsNullOrEmpty(_torrent.Comment) || !string.IsNullOrEmpty(_torrent.Source))
                 {
-                    MessageBox.Show(caption: @"Comment/Source",
-                                    text:    $@"Comment: {_torrent.Comment ?? "无可奉告"}{Environment.NewLine}Source: {_torrent.Source}");
+                    $@"Comment: {_torrent.Comment ?? "无可奉告"}{Environment.NewLine}Source: {_torrent.Source}"
+                        .ShowWithTitle("Comment/Source");
                 }
                 InspecteOperation();
             }
@@ -406,8 +406,7 @@ namespace AutoTorrentInspection
                 case FileState.InValidEncode:
                 {
                     var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.YesNo,
-                        text:
-                        $"该cue编码不是UTF-8, 是否尝试修复?\n注: 有{(confindence > 0.6 ? confindence > 0.9 ? "极小" : "小" : "大")}概率失败, 此时请检查备份。");
+                        text: $"该cue编码不是UTF-8, 是否尝试修复?\n注: 有{(confindence > 0.6 ? confindence > 0.9 ? "极小" : "小" : "大")}概率失败, 此时请检查备份。");
                     if (dResult == DialogResult.Yes)
                     {
                         CueCurer.MakeBackup(fileInfo.FullPath);
@@ -420,7 +419,7 @@ namespace AutoTorrentInspection
                 case FileState.InValidCue:
                 {
                     var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.YesNo,
-                        text: $@"该cue内文件名与实际文件不相符, 是否尝试修复?\n注: 非常规编码可能无法正确修复, 此时请检查备份。");
+                        text: $"该cue内文件名与实际文件不相符, 是否尝试修复?\n注: 非常规编码可能无法正确修复, 此时请检查备份。");
                     if (dResult == DialogResult.Yes)
                     {
                         CueCurer.MakeBackup(fileInfo.FullPath);
