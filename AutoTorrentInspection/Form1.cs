@@ -190,6 +190,22 @@ namespace AutoTorrentInspection
             LoadFile(FilePath);
         }
 
+        private readonly string[] _loadingText = {
+            "正在重新校正什么来着",
+            "正在打蜡、除蜡",
+            "正在树立威望",
+            "正在纸上谈兵",
+            "正在蓄势待发",
+            "正在勇敢梦想",
+            "正在试着装忙",
+            "正在抽丝剥茧",
+            "正在更换灯泡",
+            "正在加油打气",
+            "正在挑拨离间",
+            "正在推向极限",
+            "耐心就是美德",
+        };
+
         private void LoadFile(string filepath)
         {
             btnWebP.Visible = btnWebP.Enabled = false;
@@ -197,9 +213,10 @@ namespace AutoTorrentInspection
             _sizeData = null;
             _torrent  = null;
             btnRefresh.Enabled = true;
+            
             try
             {
-                toolStripStatusLabel_Status.Text = @"读取并检查文件中…";
+                toolStripStatusLabel_Status.Text = _loadingText[new Random().Next() % _loadingText.Length];
                 Application.DoEvents();
                 if (Directory.Exists(filepath))
                 {
@@ -389,7 +406,8 @@ namespace AutoTorrentInspection
                 case FileState.InValidEncode:
                 {
                     var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.YesNo,
-                        text: $@"该cue编码不是UTF-8, 是否尝试修复?\n注: 有{(confindence > 0.6 ? "小" : "大")}概率失败, 此时请检查备份。");
+                        text:
+                        $"该cue编码不是UTF-8, 是否尝试修复?\n注: 有{(confindence > 0.6 ? confindence > 0.9 ? "极小" : "小" : "大")}概率失败, 此时请检查备份。");
                     if (dResult == DialogResult.Yes)
                     {
                         CueCurer.MakeBackup(fileInfo.FullPath);
