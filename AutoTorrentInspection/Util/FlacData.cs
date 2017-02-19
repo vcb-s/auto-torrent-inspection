@@ -57,7 +57,7 @@ namespace AutoTorrentInspection.Util
                 //24-bit Length
                 while (fs.Position < fs.Length)
                 {
-                    uint blockHeader = fs.ReadUInt();
+                    uint blockHeader = fs.BEInt32();
                     bool lastMetadataBlock = blockHeader >> 31 == 0x1;
                     BlockType blockType = (BlockType)((blockHeader >> 24) & 0x7f);
                     int length = (int) (blockHeader & 0xffffff);
@@ -92,10 +92,10 @@ namespace AutoTorrentInspection.Util
 
         private static void ParseStreamInfo(Stream fs, ref FlacInfo info)
         {
-            long minBlockSize = fs.ReadUShort();
-            long maxBlockSize = fs.ReadUShort();
-            long minFrameSize = fs.ReadInt24();
-            long maxFrameSize = fs.ReadInt24();
+            long minBlockSize = fs.BEInt16();
+            long maxBlockSize = fs.BEInt16();
+            long minFrameSize = fs.BEInt24();
+            long maxFrameSize = fs.BEInt24();
             var buffer = fs.ReadBytes(8);
             BitReader br = new BitReader(buffer);
             int sampleRate = (int) br.GetBits(20);
@@ -115,15 +115,15 @@ namespace AutoTorrentInspection.Util
         private static void ParseVorbisComment(Stream fs, ref FlacInfo info)
         {
             //only here in flac use little-endian
-            int vendorLength = (int) fs.ReadUInt(true);
+            int vendorLength = (int) fs.LEInt32();
             var vendorRawStringData = fs.ReadBytes(vendorLength);
             var vendor = Encoding.UTF8.GetString(vendorRawStringData, 0, vendorLength);
             info.Encoder = vendor;
             OnLog?.Invoke($" | Vendor: {vendor}");
-            int userCommentListLength = (int) fs.ReadUInt(true);
+            int userCommentListLength = (int) fs.LEInt32();
             for (int i = 0; i < userCommentListLength; ++i)
             {
-                int commentLength = (int) fs.ReadUInt(true);
+                int commentLength = (int) fs.LEInt32();
                 var commentRawStringData = fs.ReadBytes(commentLength);
                 var comment = Encoding.UTF8.GetString(commentRawStringData, 0, commentLength);
                 var spilterIndex = comment.IndexOf('=');
@@ -137,56 +137,73 @@ namespace AutoTorrentInspection.Util
 
         private static void ParsePicture(Stream fs, ref FlacInfo info)
         {
-            int pictureType = (int) fs.ReadUInt();
-            int mimeStringLength = (int) fs.ReadUInt();
+            int pictureType = (int) fs.BEInt32();
+            int mimeStringLength = (int) fs.BEInt32();
             string mimeType = Encoding.ASCII.GetString(fs.ReadBytes(mimeStringLength), 0, mimeStringLength);
-            int descriptionLength = (int) fs.ReadUInt();
+            int descriptionLength = (int) fs.BEInt32();
             string description = Encoding.UTF8.GetString(fs.ReadBytes(descriptionLength), 0, descriptionLength);
-            int pictureWidth = (int) fs.ReadUInt();
-            int pictureHeight = (int) fs.ReadUInt();
-            int colorDepth = (int) fs.ReadUInt();
-            int indexedColorCount = (int) fs.ReadUInt();
-            int pictureDataLength = (int) fs.ReadUInt();
+            int pictureWidth = (int) fs.BEInt32();
+            int pictureHeight = (int) fs.BEInt32();
+            int colorDepth = (int) fs.BEInt32();
+            int indexedColorCount = (int) fs.BEInt32();
+            int pictureDataLength = (int) fs.BEInt32();
             fs.Seek(pictureDataLength, SeekOrigin.Current);
             info.TrueLength -= pictureDataLength;
             info.HasCover = true;
             OnLog?.Invoke($" | picture type: {mimeType}");
             OnLog?.Invoke($" | attribute: {pictureWidth}px*{pictureHeight}px@{colorDepth}-bit");
         }
+    }
 
-        private static ushort ReadUShort(this Stream fs)
-        {
-            var buffer = fs.ReadBytes(2).Reverse().ToArray();
-            return BitConverter.ToUInt16(buffer, 0);
-        }
-
-        private static int ReadInt24(this Stream fs)
-        {
-            var buffer = fs.ReadBytes(3);
-            int ret = 0;
-            for (int i = 0; i < 3; ++i)
-            {
-                ret |= buffer[i] << ((2 - i) * 8);
-            }
-            return ret;
-        }
-
-        private static uint ReadUInt(this Stream fs, bool littleEndian = false)
-        {
-            var buffer = fs.ReadBytes(4);
-            if (!littleEndian) buffer = buffer.Reverse().ToArray();
-            return BitConverter.ToUInt32(buffer, 0);
-        }
-
-        private static byte[] ReadBytes(this Stream fs, int length)
+    internal static class Utils
+    {
+        public static byte[] ReadBytes(this Stream fs, int length)
         {
             var ret = new byte[length];
             fs.Read(ret, 0, length);
             return ret;
         }
+
+        #region int reader
+        public static uint BEInt32(this Stream fs)
+        {
+            var b = fs.ReadBytes(4);
+            return b[3] + ((uint)b[2] << 8) + ((uint)b[1] << 16) + ((uint)b[0] << 24);
+        }
+
+        public static uint LEInt32(this Stream fs)
+        {
+            var b = fs.ReadBytes(4);
+            return b[0] + ((uint)b[1] << 8) + ((uint)b[2] << 16) + ((uint)b[3] << 24);
+        }
+
+        public static int BEInt24(this Stream fs)
+        {
+            var b = fs.ReadBytes(3);
+            return b[2] + (b[1] << 8) + (b[0] << 16);
+        }
+
+        public static int LEInt24(this Stream fs)
+        {
+            var b = fs.ReadBytes(3);
+            return b[0] + (b[1] << 8) + (b[2] << 16);
+        }
+
+        public static int BEInt16(this Stream fs)
+        {
+            var b = fs.ReadBytes(2);
+            return b[1] + (b[0] << 8);
+        }
+
+        public static int LEInt16(this Stream fs)
+        {
+            var b = fs.ReadBytes(2);
+            return b[0] + (b[1] << 8);
+        }
+        #endregion
     }
 
-    public class BitReader
+    internal class BitReader
     {
         private readonly byte[] _buffer;
         private int _bytePosition;
@@ -223,12 +240,20 @@ namespace AutoTorrentInspection.Util
             ++_bytePosition;
         }
 
+        public void Skip(int length)
+        {
+            for (int i = 0; i < length; ++i)
+            {
+                Next();
+            }
+        }
+
         public long GetBits(int length)
         {
             long ret = 0;
             for (int i = 0; i < length; ++i)
             {
-                ret |= ((long)(_buffer[_bytePosition] >> (7 - _bitPositionInByte) & 1) << (length - 1 - i));
+                ret |= ((long) (_buffer[_bytePosition] >> (7 - _bitPositionInByte)) & 1) << (length - 1 - i);
                 Next();
             }
             return ret;
