@@ -12,7 +12,7 @@ namespace AutoTorrentInspection.Util
     {
         public long RawLength                           { get; set; }
         public long TrueLength                          { get; set; }
-        public double CompressRate => TrueLength / (double) RawLength;
+        public double CompressRate => TrueLength / (double)RawLength;
         public bool HasCover                            { get; set; }
         public string Encoder                           { get; set; }
         public Dictionary<string, string> VorbisComment { get; set; }
@@ -26,6 +26,8 @@ namespace AutoTorrentInspection.Util
     //https://xiph.org/flac/format.html
     public static class FlacData
     {
+        private const long SizeThreshold = 1 << 20;
+
         public static event Action<string> OnLog;
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -42,8 +44,9 @@ namespace AutoTorrentInspection.Util
 
         public static FlacInfo GetMetadataFromFlac(string flacPath)
         {
-            using (var fs = File.Open(flacPath, FileMode.Open, FileAccess.Read))
+            using (var fs = File.Open(flacPath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
+                if (fs.Length < SizeThreshold) return new FlacInfo();
                 FlacInfo info = new FlacInfo {TrueLength = fs.Length};
                 var header = Encoding.ASCII.GetString(fs.ReadBytes(4), 0, 4);
                 if (header != "fLaC")
@@ -56,9 +59,9 @@ namespace AutoTorrentInspection.Util
                 {
                     uint blockHeader = fs.ReadUInt();
                     bool lastMetadataBlock = blockHeader >> 31 == 0x1;
-                    BlockType blockType = (BlockType) ((blockHeader >> 24) & 0x7f);
+                    BlockType blockType = (BlockType)((blockHeader >> 24) & 0x7f);
                     int length = (int) (blockHeader & 0xffffff);
-                    info.TrueLength -= length - 4;
+                    info.TrueLength -= length;
                     OnLog?.Invoke($"|+{blockType} with Length: {length}");
                     switch (blockType)
                     {
@@ -79,7 +82,7 @@ namespace AutoTorrentInspection.Util
                         fs.Seek(length, SeekOrigin.Current);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException($"Invalid BLOCK_TYPE: 0x{blockType:X}");
+                        throw new ArgumentOutOfRangeException($"Invalid BLOCK_TYPE: 0x{blockType:X2}");
                     }
                     if (lastMetadataBlock) break;
                 }
@@ -100,7 +103,7 @@ namespace AutoTorrentInspection.Util
             int bitPerSample = (int) br.GetBits(5)+1;
             int totalSample = (int) br.GetBits(36);
             var md5 = fs.ReadBytes(16);
-            info.RawLength = channelCount * bitPerSample/8 * totalSample;
+            info.RawLength = channelCount * bitPerSample / 8 * totalSample;
             OnLog?.Invoke($" | minimum block size: {minBlockSize}, maximum block size: {maxBlockSize}");
             OnLog?.Invoke($" | minimum frame size: {minFrameSize}, maximum frame size: {maxFrameSize}");
             OnLog?.Invoke($" | Sample rate: {sampleRate}Hz, bits per sample: {bitPerSample}-bit");
@@ -174,7 +177,7 @@ namespace AutoTorrentInspection.Util
             if (!littleEndian) buffer = buffer.Reverse().ToArray();
             return BitConverter.ToUInt32(buffer, 0);
         }
-        
+
         private static byte[] ReadBytes(this Stream fs, int length)
         {
             var ret = new byte[length];
