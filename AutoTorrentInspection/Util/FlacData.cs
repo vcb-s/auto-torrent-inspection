@@ -15,7 +15,7 @@ namespace AutoTorrentInspection.Util
         public double CompressRate => TrueLength / (double)RawLength;
         public bool HasCover                            { get; set; }
         public string Encoder                           { get; set; }
-        public Dictionary<string, string> VorbisComment { get; set; }
+        public Dictionary<string, string> VorbisComment { get; }
 
         public FlacInfo()
         {
@@ -135,6 +135,18 @@ namespace AutoTorrentInspection.Util
             }
         }
 
+        private static readonly string[] PictureTypeName =
+        {
+            "Other", "32x32 pixels 'file icon'", "Other file icon",
+            "Cover (front)", "Cover (back)", "Leaflet page",
+            "Media", "Lead artist/lead performer/soloist", "Artist/performer",
+            "Conductor", "Band/Orchestra", "Composer",
+            "Lyricist/text writer", "Recording Location", "During recording",
+            "During performance", "Movie/video screen capture", "A bright coloured fish",
+            "Illustration", "Band/artist logotype", "Publisher/Studio logotype",
+            "Reserved"
+        };
+
         private static void ParsePicture(Stream fs, ref FlacInfo info)
         {
             int pictureType = (int) fs.BEInt32();
@@ -150,8 +162,13 @@ namespace AutoTorrentInspection.Util
             fs.Seek(pictureDataLength, SeekOrigin.Current);
             info.TrueLength -= pictureDataLength;
             info.HasCover = true;
-            OnLog?.Invoke($" | picture type: {mimeType}");
+            if (pictureType > 20) pictureType = 21;
+            OnLog?.Invoke($" | picture type: {PictureTypeName[pictureType]}");
+            OnLog?.Invoke($" | picture format type: {mimeType}");
+            OnLog?.Invoke($" | description: {description}");
             OnLog?.Invoke($" | attribute: {pictureWidth}px*{pictureHeight}px@{colorDepth}-bit");
+            if (indexedColorCount != 0)
+                OnLog?.Invoke($" | indexed-color color: {indexedColorCount}");
         }
     }
 
