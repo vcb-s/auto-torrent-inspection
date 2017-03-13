@@ -165,7 +165,8 @@ namespace AutoTorrentInspection.Util
             if (pictureType > 20) pictureType = 21;
             OnLog?.Invoke($" | picture type: {PictureTypeName[pictureType]}");
             OnLog?.Invoke($" | picture format type: {mimeType}");
-            OnLog?.Invoke($" | description: {description}");
+            if (descriptionLength > 0)
+                OnLog?.Invoke($" | description: {description}");
             OnLog?.Invoke($" | attribute: {pictureWidth}px*{pictureHeight}px@{colorDepth}-bit");
             if (indexedColorCount != 0)
                 OnLog?.Invoke($" | indexed-color color: {indexedColorCount}");

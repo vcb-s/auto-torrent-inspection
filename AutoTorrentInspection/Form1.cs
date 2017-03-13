@@ -449,7 +449,7 @@ namespace AutoTorrentInspection
                 case MouseButtons.Left:
                     if (cbFixCue.Checked)
                     {
-                        CueFix(fileInfo,e.RowIndex);
+                        CueFix(fileInfo, e.RowIndex);
                     }
                     break;
                 case MouseButtons.Right:
