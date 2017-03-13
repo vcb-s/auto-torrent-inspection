@@ -2,15 +2,14 @@
 using System.IO;
 using System.Text;
 using System.Linq;
+using System.Threading;
 using System.Reflection;
 using System.Diagnostics;
 using System.Windows.Forms;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text.RegularExpressions;
-using System.Threading;
+using System.Threading.Tasks;
 using AutoTorrentInspection.Util;
+using System.Collections.Generic;
 using AutoTorrentInspection.Properties;
 
 
@@ -159,9 +158,9 @@ namespace AutoTorrentInspection
             dataGridView1.SuspendDrawing(() => Inspection(cbCategory.Text));
         }
 
-        private const string CurrentTrackList = "http://208.67.16.113:8000/annonuce\n" +
-                                                "udp://208.67.16.113:8000/annonuce\n" +
-                                                "udp://tracker.openbittorrent.com:80/announce\n"+
+        private const string CurrentTrackerList = "http://208.67.16.113:8000/annonuce\n\n" +
+                                                "udp://208.67.16.113:8000/annonuce\n\n" +
+                                                "udp://tracker.openbittorrent.com:80/announce\n\n"+
                                                 "http://t.acg.rip:6699/announce";
 
         private void btnAnnounceList_Click(object sender, EventArgs e)
@@ -177,19 +176,36 @@ namespace AutoTorrentInspection
                     string context = string.Empty;
                     foreach (var item in _fonts.ToList().OrderBy(i => i)) context += item + "\n";
                     if (string.IsNullOrEmpty(context)) return;
-                    MessageBox.Show(text: context, caption: @"Fonts used in subtitles");
+                    context.ShowWithTitle("Fonts used in subtitles");
                 }).Start();
                 return;
             }
-            var combineList = string.Join("\n", _torrent.GetAnnounceList());
-            var currentRuler = combineList == CurrentTrackList;
-            MessageBox.Show(text: combineList, caption: $@"Tracker List == {currentRuler}");
+
+            var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd();
+            var currentRuler = trackerList == CurrentTrackerList;
+            trackerList.ShowWithTitle($@"Tracker List == {currentRuler}");
         }
 
         private void LoadFile(object sender, AsyncCompletedEventArgs e)
         {
             LoadFile(FilePath);
         }
+
+        private readonly string[] _loadingText = {
+            "正在重新校正什么来着",
+            "正在打蜡、除蜡",
+            "正在树立威望",
+            "正在纸上谈兵",
+            "正在蓄势待发",
+            "正在勇敢梦想",
+            "正在试着装忙",
+            "正在抽丝剥茧",
+            "正在更换灯泡",
+            "正在加油打气",
+            "正在挑拨离间",
+            "正在推向极限",
+            "耐心就是美德",
+        };
 
         private void LoadFile(string filepath)
         {
@@ -198,9 +214,10 @@ namespace AutoTorrentInspection
             _sizeData = null;
             _torrent  = null;
             btnRefresh.Enabled = true;
+            
             try
             {
-                toolStripStatusLabel_Status.Text = @"读取并检查文件中…";
+                toolStripStatusLabel_Status.Text = _loadingText[new Random().Next() % _loadingText.Length];
                 Application.DoEvents();
                 if (Directory.Exists(filepath))
                 {
@@ -230,8 +247,8 @@ namespace AutoTorrentInspection
                 }
                 if (!string.IsNullOrEmpty(_torrent.Comment) || !string.IsNullOrEmpty(_torrent.Source))
                 {
-                    MessageBox.Show(caption: @"Comment/Source",
-                                    text:    $@"Comment: {_torrent.Comment ?? "无可奉告"}{Environment.NewLine}Source: {_torrent.Source}");
+                    $@"Comment: {_torrent.Comment ?? "无可奉告"}{Environment.NewLine}Source: {_torrent.Source}"
+                        .ShowWithTitle("Comment/Source");
                 }
                 InspecteOperation();
             }
@@ -390,7 +407,7 @@ namespace AutoTorrentInspection
                 case FileState.InValidEncode:
                 {
                     var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.YesNo,
-                        text: $@"该cue编码不是UTF-8, 是否尝试修复?\n注: 有{(confindence > 0.6 ? "小" : "大")}概率失败, 此时请检查备份。");
+                        text: $"该cue编码不是UTF-8, 是否尝试修复?\n注: 有{(confindence > 0.6 ? confindence > 0.9 ? "极小" : "小" : "大")}概率失败, 此时请检查备份。");
                     if (dResult == DialogResult.Yes)
                     {
                         CueCurer.MakeBackup(fileInfo.FullPath);
@@ -403,7 +420,7 @@ namespace AutoTorrentInspection
                 case FileState.InValidCue:
                 {
                     var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.YesNo,
-                        text: $@"该cue内文件名与实际文件不相符, 是否尝试修复?\n注: 非常规编码可能无法正确修复, 此时请检查备份。");
+                        text: $"该cue内文件名与实际文件不相符, 是否尝试修复?\n注: 非常规编码可能无法正确修复, 此时请检查备份。");
                     if (dResult == DialogResult.Yes)
                     {
                         CueCurer.MakeBackup(fileInfo.FullPath);
@@ -433,7 +450,7 @@ namespace AutoTorrentInspection
                 case MouseButtons.Left:
                     if (cbFixCue.Checked)
                     {
-                        CueFix(fileInfo,e.RowIndex);
+                        CueFix(fileInfo, e.RowIndex);
                     }
                     break;
                 case MouseButtons.Right:

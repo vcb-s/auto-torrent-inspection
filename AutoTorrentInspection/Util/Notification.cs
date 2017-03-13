@@ -19,7 +19,12 @@ namespace AutoTorrentInspection.Util
         {
             return MessageBox.Show(caption: @"ATI Info",
                 text: argMessage,
-                buttons: MessageBoxButtons.OK,icon: MessageBoxIcon.Information);
+                buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Information);
+        }
+
+        public static DialogResult ShowWithTitle(this string argMessage, string title)
+        {
+            return MessageBox.Show(caption: title, text: argMessage);
         }
     }
 }
