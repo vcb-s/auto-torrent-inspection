@@ -23,6 +23,8 @@ namespace AutoTorrentInspection.Util
             return _torrent.Trackers.Flatten();
         }
 
+        public IList<IList<string>> RawAnnounceList => _torrent.Trackers;
+
         public string CreatedBy => _torrent.CreatedBy;
 
         public DateTime CreationDate
