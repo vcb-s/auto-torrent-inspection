@@ -82,7 +82,7 @@ namespace AutoTorrentInspection.Util
                         fs.Seek(length, SeekOrigin.Current);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException($"Invalid BLOCK_TYPE: 0x{blockType:X2}");
+                        throw new ArgumentOutOfRangeException($"Invalid BLOCK_TYPE: 0x{blockType:X}");
                     }
                     if (lastMetadataBlock) break;
                 }
