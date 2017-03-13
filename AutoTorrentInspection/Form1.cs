@@ -158,7 +158,7 @@ namespace AutoTorrentInspection
             dataGridView1.SuspendDrawing(() => Inspection(cbCategory.Text));
         }
 
-        private const string CurrentTrackList = "http://208.67.16.113:8000/annonuce\n\n" +
+        private const string CurrentTrackerList = "http://208.67.16.113:8000/annonuce\n\n" +
                                                 "udp://208.67.16.113:8000/annonuce\n\n" +
                                                 "udp://tracker.openbittorrent.com:80/announce\n\n"+
                                                 "http://t.acg.rip:6699/announce";
@@ -182,7 +182,7 @@ namespace AutoTorrentInspection
             }
 
             var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd();
-            var currentRuler = trackerList == CurrentTrackList;
+            var currentRuler = trackerList == CurrentTrackerList;
             trackerList.ShowWithTitle($@"Tracker List == {currentRuler}");
         }
 
