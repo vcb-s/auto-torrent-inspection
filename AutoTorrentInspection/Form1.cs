@@ -214,7 +214,7 @@ namespace AutoTorrentInspection
             _sizeData = null;
             _torrent  = null;
             btnRefresh.Enabled = true;
-            
+
             try
             {
                 toolStripStatusLabel_Status.Text = _loadingText[new Random().Next() % _loadingText.Length];
@@ -413,7 +413,7 @@ namespace AutoTorrentInspection
                         CueCurer.MakeBackup(fileInfo.FullPath);
                         var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
                         EncodingConverter.SaveAsEncoding(originContext, fileInfo.FullPath, Encoding.UTF8);
-                        fileInfo.RecheckCueFile(dataGridView1.Rows[rowIndex]);
+                        fileInfo.CueFileRevalidation(dataGridView1.Rows[rowIndex]);
                     }
                 }
                 break;
@@ -428,7 +428,7 @@ namespace AutoTorrentInspection
                         var directory = Path.GetDirectoryName(fileInfo.FullPath);
                         var editedContext = CueCurer.FixFilename(originContext, directory);
                         EncodingConverter.SaveAsEncoding(editedContext, fileInfo.FullPath, Encoding.UTF8);
-                        fileInfo.RecheckCueFile(dataGridView1.Rows[rowIndex]);
+                        fileInfo.CueFileRevalidation(dataGridView1.Rows[rowIndex]);
                     }
                 }
                 break;

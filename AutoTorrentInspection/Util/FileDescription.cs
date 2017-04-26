@@ -1,12 +1,12 @@
-﻿using System;
+﻿using BencodeNET.Torrents;
+using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Drawing;
 using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Linq;
-using System.Windows.Forms;
 using System.Text.RegularExpressions;
-using BencodeNET.Torrents;
+using System.Windows.Forms;
 // ReSharper disable InconsistentNaming
 
 namespace AutoTorrentInspection.Util
@@ -29,17 +29,17 @@ namespace AutoTorrentInspection.Util
 
     public class FileDescription
     {
-        public string FileName      { get; private set; }
-        public string ReletivePath  { get; }
-        private string BasePath     { get; }
-        public string FullPath      { get; }
-        public string Extension     { get; }
-        public long Length          { get; }
-        public FlacInfo Flac        { get; private set; }
+        public string FileName           { get; private set; }
+        public string ReletivePath       { get; }//载入文件夹到文件中间的相对路径
+        private string BasePath          { get; }//所载入的文件夹的路径
+        public string FullPath           { get; }//完整路径，Torrent下为手动拼接
+        public string Extension          { get; }
+        public long Length               { get; }
+        public FlacInfo Flac             { get; private set; }
 
-        public FileState State { get; private set; } = FileState.InValidFile;
+        public FileState State           { get; private set; } = FileState.InValidFile;
 
-        public string Encode   { private set; get; }
+        public string Encode             { private set; get; }
         public float Confidence => _confindece;
         private float _confindece;
         public SourceTypeEnum SourceType { private set; get; }
@@ -70,64 +70,105 @@ namespace AutoTorrentInspection.Util
             [FileState.InValidFlacLevel]  = INVALID_FLAC_LEVEL
         };
 
-        private const long MaxFilePathLength = 210;
+        private const long MaxFilePathLength = 240;
 
         public FileDescription(MultiFileInfo file, string torrentName)
         {
-            FileName      = file.FileName;
-            Extension     = Path.GetExtension(FileName)?.ToLower();
             BasePath      = torrentName;
+            ReletivePath  = file.Path.Take(file.Path.Count - 1).Aggregate("", (current, item) => current += $"{item}\\");
+            FileName      = file.FileName;
+            FullPath      = Path.Combine(BasePath, ReletivePath, FileName);
+            Extension     = Path.GetExtension(FileName)?.ToLower();
+
             Length        = file.FileSize;
             SourceType    = SourceTypeEnum.Torrent;
-            ReletivePath  = file.Path.Take(file.Path.Count - 1).Aggregate("", (current, item) => current += $"{item}\\");
-            CheckValidTorrent();
+            BaseValidation();
         }
 
         public FileDescription(SingleFileInfo file, string torrentName)
         {
-            FileName     = file.FileName;
-            Extension    = Path.GetExtension(FileName)?.ToLower();
             BasePath     = torrentName;
+            ReletivePath = "";
+            FileName     = file.FileName;
+            FullPath     = Path.Combine(BasePath, ReletivePath, FileName);
+            Extension    = Path.GetExtension(FileName).ToLower();
+
             Length       = file.FileSize;
             SourceType   = SourceTypeEnum.Torrent;
-            ReletivePath = "";
-            CheckValidTorrent();
+            BaseValidation();
         }
 
         public FileDescription(string fileName, string reletivePath, string basePath, string fullPath)//file
         {
-            FileName     = fileName;
-            ReletivePath = reletivePath;
             BasePath     = basePath;
+            ReletivePath = reletivePath;
+            FileName     = fileName;
             FullPath     = fullPath;
             Extension    = Path.GetExtension(fileName)?.ToLower();
-            //Length       = fullPath.Length > 256 ? -1024*1024L : new FileInfo(fullPath).Length
+
             Length       = ConvertMethod.GetFile(fullPath).Length;
             SourceType   = SourceTypeEnum.RealFile;
-            CheckValidFile();
+            FileValidation();
         }
 
-        private void CheckValidTorrent()
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>true代表无需进一步的检查</returns>
+        private bool BaseValidation()
         {
-            if (BasePath.Length + ReletivePath.Length + FileName.Length > MaxFilePathLength)
+            if (FullPath.Length > MaxFilePathLength)
             {
                 State = FileState.InValidPathLength;
-                return;
+                return true;
             }
+
+            if (FileName == "readme about WebP.txt")
+            {
+                State = FileState.ValidFile;
+                return true;
+            }
+
+            State = FileState.InValidFile;
             if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) ||
                 MenuPngPattern.IsMatch(FileName) || FchPattern.IsMatch(FileName) || MaWenPattern.IsMatch(FileName))
             {
                 State = FileState.ValidFile;
+            }
+
+            return false;
+        }
+
+        private void FileValidation()
+        {
+            if (BaseValidation() || State == FileState.InValidFile) return;
+            if (Extension == ".flac")
+            {
+                Flac = FlacData.GetMetadataFromFlac(FullPath);
+                _confindece = (float)Flac.CompressRate;
+                FileName += $"[{Flac.CompressRate * 100:00.00}%]";
+                if (Flac.HasCover) FileName += "[图]";
+                Encode = Flac.Encoder;
+                if (Flac.CompressRate > 0.9) //Maybe a level 0 file
+                {
+                    State = FileState.InValidFlacLevel;
+                }
+            }
+            if (Extension != ".cue") return;
+
+            Encode = EncodingDetector.GetEncoding(FullPath, out _confindece);
+            if (Encode != "UTF-8")
+            {
+                State = FileState.InValidEncode;
                 return;
             }
-            State = FileState.InValidFile;
-            if (FileName == "readme about WebP.txt")
+            if (!CueCurer.CueMatchCheck(this))
             {
-                State = FileState.ValidFile;
+                State = FileState.InValidCue;
             }
         }
 
-        public void RecheckCueFile(DataGridViewRow row)
+        public void CueFileRevalidation(DataGridViewRow row)
         {
             State = FileState.ValidFile;
             Debug.WriteLine(@"----ReCheck--Begin----");
@@ -160,53 +201,6 @@ namespace AutoTorrentInspection.Util
             }
             Application.DoEvents();
             Debug.WriteLine(@"----ReCheck--End----");
-        }
-
-        private void CheckValidFile()
-        {
-            //Debug.WriteLine(FullPath.Length);
-            if (BasePath.Length + ReletivePath.Length + FileName.Length > MaxFilePathLength)
-            {
-                State = FileState.InValidPathLength;
-                return;
-            }
-
-            State = FileState.InValidFile;
-            if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) ||
-                MenuPngPattern.IsMatch(FileName) || FchPattern.IsMatch(FileName) || MaWenPattern.IsMatch(FileName))
-            {
-                State = FileState.ValidFile;
-            }
-
-            if (FileName == "readme about WebP.txt")
-            {
-                State = FileState.ValidFile;
-                return;
-            }
-            if (Extension == ".flac")
-            {
-                Flac = FlacData.GetMetadataFromFlac(FullPath);
-                _confindece = (float) Flac.CompressRate;
-                FileName += $"[{Flac.CompressRate*100:00.00}%]";
-                if (Flac.HasCover) FileName += "[图]";
-                Encode = Flac.Encoder;
-                if (Flac.CompressRate > 0.9) //Maybe a level 0 file
-                {
-                    State = FileState.InValidFlacLevel;
-                }
-            }
-            if (Extension != ".cue"/* || FullPath.Length > 256*/) return;
-
-            Encode = EncodingDetector.GetEncoding(FullPath, out _confindece);
-            if (Encode != "UTF-8")
-            {
-                State = FileState.InValidEncode;
-                return;
-            }
-            if (!CueCurer.CueMatchCheck(this))
-            {
-                State = FileState.InValidCue;
-            }
         }
 
         public DataGridViewRow ToRow()
