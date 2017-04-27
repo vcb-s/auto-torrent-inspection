@@ -8,7 +8,7 @@ namespace AutoTorrentInspection.Util
         public static DialogResult ShowError(string argMessage, Exception exception)
         {
             return MessageBox.Show(caption: @"ATI Error",
-                text: $"{argMessage}:{Environment.NewLine}{exception.Message}"
+                text: $"{_(argMessage)}:{Environment.NewLine}{_(exception.Message)}"
 #if DEBUG
                 + $"{Environment.NewLine}{exception.StackTrace}"
 #endif
@@ -18,13 +18,15 @@ namespace AutoTorrentInspection.Util
         public static DialogResult ShowInfo(string argMessage)
         {
             return MessageBox.Show(caption: @"ATI Info",
-                text: argMessage,
+                text: _(argMessage),
                 buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Information);
         }
 
         public static DialogResult ShowWithTitle(this string argMessage, string title)
         {
-            return MessageBox.Show(caption: title, text: argMessage);
+            return MessageBox.Show(caption: _(title), text: _(argMessage));
         }
+
+        private static string _(string value) => value.Replace('\0', ' ');
     }
 }

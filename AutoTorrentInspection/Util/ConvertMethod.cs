@@ -11,6 +11,11 @@ namespace AutoTorrentInspection.Util
 {
     public static class ConvertMethod
     {
+        /// <summary>
+        /// 枚举指定文件夹下的所有文件
+        /// </summary>
+        /// <param name="folderPath"></param>
+        /// <returns>均为相对路径</returns>
         private static IEnumerable<string> EnumerateFolder(string folderPath)
         {
             Func<string[], IEnumerable<string>> splitFunc =
@@ -32,31 +37,36 @@ namespace AutoTorrentInspection.Util
             }
         }
 
+        /// <summary>
+        /// 获取并检查指定文件夹下所有文件
+        /// </summary>
+        /// <param name="folderPath">载入的文件夹的绝对路径</param>
+        /// <returns></returns>
         public static Dictionary<string, List<FileDescription>> GetFileList(string folderPath)
         {
             folderPath = folderPath.Trim('\\');
-            string basePath = Path.GetDirectoryName(folderPath);
             var fileDic = new Dictionary<string, List<FileDescription>>();
             foreach (var file in EnumerateFolder(folderPath))
             {
-                var categorySlashPosition = file.IndexOf("\\", StringComparison.Ordinal);
-                var category              = categorySlashPosition > -1 ? file.Substring(0, categorySlashPosition) : "root";
-                var pathSlashPosition     = file.LastIndexOf("\\", StringComparison.Ordinal);
-                var relativePath          = category == "root" ? "" : file.Substring(0, pathSlashPosition);
+                var slashPosition = file.IndexOf('\\');
+                var category      = slashPosition != -1 ? file.Substring(0, slashPosition) : "root";
+                var relativePath  = Path.GetDirectoryName(file);
                 fileDic.TryAdd(category, new List<FileDescription>());
-                fileDic[category].Add(new FileDescription(Path.GetFileName(file), relativePath, basePath, $"{folderPath}\\{file}"));
+                fileDic[category].Add(new FileDescription(Path.GetFileName(file), relativePath, folderPath));
             }
             return fileDic;
         }
 
-        public static string GetUTF8String(byte[] buffer)
+        public static string GetUTFString(this byte[] buffer)
         {
             if (buffer == null) return null;
             if (buffer.Length <= 3) return Encoding.UTF8.GetString(buffer);
-            if (buffer[0] == 0xef && buffer[1] == 0xbb && buffer[2] == 0xbf)
-            {
+            if (buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF)
                 return new UTF8Encoding(false).GetString(buffer, 3, buffer.Length - 3);
-            }
+            if (buffer[0] == 0xFF && buffer[1] == 0xFE)
+                return Encoding.Unicode.GetString(buffer);
+            if (buffer[0] == 0xFE && buffer[1] == 0xFF)
+                return Encoding.BigEndianUnicode.GetString(buffer);
             return Encoding.UTF8.GetString(buffer);
         }
 
@@ -124,48 +134,40 @@ namespace AutoTorrentInspection.Util
 
         private static FileInfo GetFileWithLongPath(string path)
         {
-            string[] subpaths = path.Split('\\');
-            StringBuilder sbNewPath = new StringBuilder(subpaths[0]);
+            var subpaths  = path.Split('\\');
+            var newPathBuilder = new StringBuilder(subpaths.FirstOrDefault());
             // Build longest sub-path that is less than MAX_PATH characters
-            for (int index = 1; index < subpaths.Length; index++)
+            int index;
+            for (index = 1; index < subpaths.Length; ++index)
             {
-                if (sbNewPath.Length + subpaths[index].Length >= MAX_DIR_PATH)
-                {
-                    subpaths = subpaths.Skip(index).ToArray();
+                if (newPathBuilder.Length + subpaths[index].Length >= MAX_DIR_PATH)
                     break;
-                }
-                sbNewPath.Append("\\" + subpaths[index]);
+                newPathBuilder.Append("\\" + subpaths[index]);
             }
-            DirectoryInfo dir = new DirectoryInfo(sbNewPath.ToString());
-            bool foundMatch = dir.Exists;
-            if (!foundMatch) return null;// If we didn't find a match, return null;
+            var dir = new DirectoryInfo(newPathBuilder.ToString());
+            var foundMatch = dir.Exists;
 
             // Make sure that all of the subdirectories in our path exist.
             // Skip the last entry in subpaths, since it is our filename.
             // If we try to specify the path in dir.GetDirectories(),
             // We get a max path length error.
-            int i = 0;
-            while (i < subpaths.Length - 1 && foundMatch)
+            for (; index < subpaths.Length - 1 && foundMatch; ++index)
             {
                 foundMatch = false;
-                foreach (DirectoryInfo subDir in dir.GetDirectories())
+                foreach (var subDir in dir.GetDirectories())
                 {
-                    if (subDir.Name == subpaths[i])
-                    {
-                        // Move on to the next subDirectory
-                        dir = subDir;
-                        foundMatch = true;
-                        break;
-                    }
+                    if (subDir.Name != subpaths[index]) continue;
+                    // Move on to the next subDirectory
+                    dir = subDir;
+                    foundMatch = true;
+                    break;
                 }
-                i++;
             }
-            if (!foundMatch) return null;
 
             // Now that we've gone through all of the subpaths, see if our file exists.
             // Once again, If we try to specify the path in dir.GetFiles(),
             // we get a max path length error.
-            return dir.GetFiles().First(item => item.Name == subpaths[subpaths.Length - 1]);
+            return foundMatch ? dir.GetFiles().First(item => item.Name == subpaths[subpaths.Length - 1]) : null;
         }
 
         /// <summary>
@@ -174,7 +176,7 @@ namespace AutoTorrentInspection.Util
         /// <param name="queue">用作要添加的目标 <see cref= "T:System.Collections.Generic.Queue`1"/>。</param>  <param name="source">应将其元素添加到 <see cref= "T:System.Collections.Generic.Queue`1"/> 的结尾的集合。</param>
         private static void EnqueueRange<T>(this Queue<T> queue, IEnumerable<T> source)
         {
-            foreach (T item in source)
+            foreach (var item in source)
             {
                 queue.Enqueue(item);
             }

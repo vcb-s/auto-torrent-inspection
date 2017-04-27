@@ -47,21 +47,24 @@ namespace AutoTorrentInspection.Util
             using (var fs = File.Open(flacPath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 if (fs.Length < SizeThreshold) return new FlacInfo();
-                FlacInfo info = new FlacInfo {TrueLength = fs.Length};
-                var header = Encoding.ASCII.GetString(fs.ReadBytes(4), 0, 4);
+                var info      = new FlacInfo();
+                var header    = Encoding.ASCII.GetString(fs.ReadBytes(4), 0, 4);
                 if (header != "fLaC")
-                    throw new InvalidDataException($"Except an flac but get an {header}");
+                    throw new InvalidDataException($"Except an flac but get an {header}" +
+                        $"{Environment.NewLine}File name: {Path.GetFileName(flacPath)}");
                 //METADATA_BLOCK_HEADER
                 //1-bit Last-metadata-block flag
                 //7-bit BLOCK_TYPE
                 //24-bit Length
+                long metaLength = 4/*header*/;
                 while (fs.Position < fs.Length)
                 {
-                    uint blockHeader = fs.BEInt32();
-                    bool lastMetadataBlock = blockHeader >> 31 == 0x1;
-                    BlockType blockType = (BlockType)((blockHeader >> 24) & 0x7f);
-                    int length = (int) (blockHeader & 0xffffff);
-                    info.TrueLength -= length;
+                    var blockHeader       = fs.BEInt32();
+                    var lastMetadataBlock = blockHeader >> 31 == 0x1;
+                    var blockType         = (BlockType)((blockHeader >> 24) & 0x7f);
+                    var length            = blockHeader & 0xffffff;
+                    var prePos            = fs.Position;
+                    metaLength           += length + 4/*length of METADATA_BLOCK_HEADER*/;
                     OnLog?.Invoke($"|+{blockType} with Length: {length}");
                     switch (blockType)
                     {
@@ -84,53 +87,56 @@ namespace AutoTorrentInspection.Util
                     default:
                         throw new ArgumentOutOfRangeException($"Invalid BLOCK_TYPE: 0x{blockType:X2}");
                     }
+                    Debug.Assert(fs.Position - prePos == length);
                     if (lastMetadataBlock) break;
                 }
+                Debug.Assert(fs.Position == metaLength);
+                info.TrueLength = fs.Length - fs.Position;
                 return info;
             }
         }
 
         private static void ParseStreamInfo(Stream fs, ref FlacInfo info)
         {
-            long minBlockSize = fs.BEInt16();
-            long maxBlockSize = fs.BEInt16();
-            long minFrameSize = fs.BEInt24();
-            long maxFrameSize = fs.BEInt24();
-            var buffer = fs.ReadBytes(8);
-            BitReader br = new BitReader(buffer);
-            int sampleRate = (int) br.GetBits(20);
-            int channelCount = (int) br.GetBits(3)+1;
-            int bitPerSample = (int) br.GetBits(5)+1;
-            int totalSample = (int) br.GetBits(36);
-            var md5 = fs.ReadBytes(16);
-            info.RawLength = channelCount * bitPerSample / 8 * totalSample;
+            var minBlockSize  = fs.BEInt16();
+            var maxBlockSize  = fs.BEInt16();
+            var minFrameSize  = fs.BEInt24();
+            var maxFrameSize  = fs.BEInt24();
+            var buffer        = fs.ReadBytes(8);
+            var br            = new BitReader(buffer);
+            var sampleRate    = br.GetBits(20);
+            var channelCount  = br.GetBits(3)+1;
+            var bitPerSample  = br.GetBits(5)+1;
+            var totalSample   = br.GetBits(36);
+            var md5           = fs.ReadBytes(16);
+            info.RawLength    = channelCount * bitPerSample / 8 * totalSample;
             OnLog?.Invoke($" | minimum block size: {minBlockSize}, maximum block size: {maxBlockSize}");
             OnLog?.Invoke($" | minimum frame size: {minFrameSize}, maximum frame size: {maxFrameSize}");
             OnLog?.Invoke($" | Sample rate: {sampleRate}Hz, bits per sample: {bitPerSample}-bit");
             OnLog?.Invoke($" | Channel count: {channelCount}");
-            string md5String = md5.Aggregate("", (current, item) => current + $"{item:X2}");
+            var md5String     = md5.Aggregate("", (current, item) => current + $"{item:X2}");
             OnLog?.Invoke($" | MD5: {md5String}");
         }
 
         private static void ParseVorbisComment(Stream fs, ref FlacInfo info)
         {
             //only here in flac use little-endian
-            int vendorLength = (int) fs.LEInt32();
+            var vendorLength        = (int) fs.LEInt32();
             var vendorRawStringData = fs.ReadBytes(vendorLength);
-            var vendor = Encoding.UTF8.GetString(vendorRawStringData, 0, vendorLength);
-            info.Encoder = vendor;
+            var vendor              = Encoding.UTF8.GetString(vendorRawStringData, 0, vendorLength);
+            info.Encoder            = vendor;
             OnLog?.Invoke($" | Vendor: {vendor}");
-            int userCommentListLength = (int) fs.LEInt32();
-            for (int i = 0; i < userCommentListLength; ++i)
+            var userCommentListLength = fs.LEInt32();
+            for (var i = 0; i < userCommentListLength; ++i)
             {
-                int commentLength = (int) fs.LEInt32();
+                var commentLength        = (int) fs.LEInt32();
                 var commentRawStringData = fs.ReadBytes(commentLength);
-                var comment = Encoding.UTF8.GetString(commentRawStringData, 0, commentLength);
-                var spilterIndex = comment.IndexOf('=');
-                var key = comment.Substring(0, spilterIndex);
-                var value = comment.Substring(spilterIndex + 1, comment.Length - 1 - spilterIndex);
-                info.VorbisComment[key] = value;
-                var summary = value.Length > 25 ? value.Substring(0, 25) + "..." : value;
+                var comment              = Encoding.UTF8.GetString(commentRawStringData, 0, commentLength);
+                var spilterIndex         = comment.IndexOf('=');
+                var key                  = comment.Substring(0, spilterIndex);
+                var value                = comment.Substring(spilterIndex + 1, comment.Length - 1 - spilterIndex);
+                info.VorbisComment[key]  = value;
+                var summary              = value.Length > 25 ? value.Substring(0, 25) + "..." : value;
                 OnLog?.Invoke($" | [{key}] = '{summary.Replace('\n', ' ')}'");
             }
         }
@@ -149,19 +155,18 @@ namespace AutoTorrentInspection.Util
 
         private static void ParsePicture(Stream fs, ref FlacInfo info)
         {
-            int pictureType = (int) fs.BEInt32();
-            int mimeStringLength = (int) fs.BEInt32();
-            string mimeType = Encoding.ASCII.GetString(fs.ReadBytes(mimeStringLength), 0, mimeStringLength);
-            int descriptionLength = (int) fs.BEInt32();
-            string description = Encoding.UTF8.GetString(fs.ReadBytes(descriptionLength), 0, descriptionLength);
-            int pictureWidth = (int) fs.BEInt32();
-            int pictureHeight = (int) fs.BEInt32();
-            int colorDepth = (int) fs.BEInt32();
-            int indexedColorCount = (int) fs.BEInt32();
-            int pictureDataLength = (int) fs.BEInt32();
+            var pictureType       = fs.BEInt32();
+            var mimeStringLength  = (int) fs.BEInt32();
+            var mimeType          = Encoding.ASCII.GetString(fs.ReadBytes(mimeStringLength), 0, mimeStringLength);
+            var descriptionLength = (int) fs.BEInt32();
+            var description       = Encoding.UTF8.GetString(fs.ReadBytes(descriptionLength), 0, descriptionLength);
+            var pictureWidth      = fs.BEInt32();
+            var pictureHeight     = fs.BEInt32();
+            var colorDepth        = fs.BEInt32();
+            var indexedColorCount = fs.BEInt32();
+            var pictureDataLength = fs.BEInt32();
             fs.Seek(pictureDataLength, SeekOrigin.Current);
-            info.TrueLength -= pictureDataLength;
-            info.HasCover = true;
+            info.HasCover         = true;
             if (pictureType > 20) pictureType = 21;
             OnLog?.Invoke($" | picture type: {PictureTypeName[pictureType]}");
             OnLog?.Invoke($" | picture format type: {mimeType}");
@@ -245,7 +250,7 @@ namespace AutoTorrentInspection.Util
         {
             if (_bytePosition >= _buffer.Length)
                 throw new IndexOutOfRangeException(nameof(_bytePosition));
-            bool ret = ((_buffer[_bytePosition] >> (7 - _bitPositionInByte)) & 1) == 1;
+            var ret = ((_buffer[_bytePosition] >> (7 - _bitPositionInByte)) & 1) == 1;
             Next();
             return ret;
         }
@@ -260,7 +265,7 @@ namespace AutoTorrentInspection.Util
 
         public void Skip(int length)
         {
-            for (int i = 0; i < length; ++i)
+            for (var i = 0; i < length; ++i)
             {
                 Next();
             }
@@ -269,7 +274,7 @@ namespace AutoTorrentInspection.Util
         public long GetBits(int length)
         {
             long ret = 0;
-            for (int i = 0; i < length; ++i)
+            for (var i = 0; i < length; ++i)
             {
                 ret |= ((long) (_buffer[_bytePosition] >> (7 - _bitPositionInByte)) & 1) << (length - 1 - i);
                 Next();
