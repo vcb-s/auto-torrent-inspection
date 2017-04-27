@@ -98,15 +98,15 @@ namespace AutoTorrentInspection.Util
             BaseValidation();
         }
 
-        public FileDescription(string fileName, string reletivePath, string basePath, string fullPath)//file
+        public FileDescription(string fileName, string reletivePath, string basePath)//file
         {
             BasePath     = basePath;
             ReletivePath = reletivePath;
             FileName     = fileName;
-            FullPath     = fullPath;
+            FullPath     = Path.Combine(BasePath, ReletivePath, FileName);
             Extension    = Path.GetExtension(fileName)?.ToLower();
 
-            Length       = ConvertMethod.GetFile(fullPath).Length;
+            Length       = ConvertMethod.GetFile(FullPath).Length;
             SourceType   = SourceTypeEnum.RealFile;
             FileValidation();
         }
@@ -131,7 +131,7 @@ namespace AutoTorrentInspection.Util
 
             State = FileState.InValidFile;
             if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) ||
-                MenuPngPattern.IsMatch(FileName) || FchPattern.IsMatch(FileName) || MaWenPattern.IsMatch(FileName))
+                MenuPngPattern.IsMatch(FileName) || FchPattern.IsMatch(FileName)   || MaWenPattern.IsMatch(FileName))
             {
                 State = FileState.ValidFile;
             }
