@@ -255,6 +255,7 @@ namespace AutoTorrentInspection
             catch (Exception exception)
             {
                 Notification.ShowError("Exception catched in LoadFile", exception);
+                toolStripStatusLabel_Status.Text = exception.Message;
             }
         }
 
