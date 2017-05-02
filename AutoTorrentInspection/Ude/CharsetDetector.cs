@@ -83,7 +83,7 @@ namespace Ude
         {
             var buff = new byte[1024];
             int read;
-            while ((read = stream.Read(buff, 0, buff.Length)) > 0 && !done)
+            while ((read = stream.Read(buff, 0, buff.Length)) > 0 && !Done)
             {
                 Feed(buff, 0, read);
             }
@@ -91,7 +91,7 @@ namespace Ude
 
         public bool IsDone()
         {
-            return done;
+            return Done;
         }
 
         public override void Reset()

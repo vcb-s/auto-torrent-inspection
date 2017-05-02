@@ -184,7 +184,7 @@ namespace AutoTorrentInspection.Util
                 State = FileState.InValidEncode;
                 return false;
             }
-            using (var fs = new FileStream(FullPath, FileMode.Open, FileAccess.Read))
+            using (var fs = File.OpenRead(FullPath))
             {
                 var buffer = new byte[3];
                 fs.Read(buffer, 0, 3);
