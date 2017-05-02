@@ -133,7 +133,7 @@ namespace AutoTorrentInspection.Util.Crc32.NET
                     var num = await file.ReadAsync(buffer, 0, capacity).ConfigureAwait(false);
                     if (num > 0) hash.HashCore(buffer, 0, num);
                     else break;
-                } 
+                }
                 return hash._currentCrc;
             }
         }
