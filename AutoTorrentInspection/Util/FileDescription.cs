@@ -24,7 +24,8 @@ namespace AutoTorrentInspection.Util
         InValidFile,
         InValidCue,
         InValidEncode,
-        InValidFlacLevel
+        InValidFlacLevel,
+        NonUTF8WBOM
     }
 
     public class FileDescription
@@ -59,6 +60,7 @@ namespace AutoTorrentInspection.Util
         private static readonly Color INVALID_ENCODE      = Color.FromArgb(078, 079, 151);
         private static readonly Color INVALID_PATH_LENGTH = Color.FromArgb(255, 010, 050);
         private static readonly Color INVALID_FLAC_LEVEL  = Color.FromArgb(207, 216, 220);
+        private static readonly Color NON_UTF_8_W_BOM     = Color.FromArgb(251, 188, 005);
 
         private static readonly Dictionary<FileState, Color> StateColor = new Dictionary<FileState, Color>
         {
@@ -67,7 +69,8 @@ namespace AutoTorrentInspection.Util
             [FileState.InValidFile]       = INVALID_FILE,
             [FileState.InValidCue]        = INVALID_CUE,
             [FileState.InValidEncode]     = INVALID_ENCODE,
-            [FileState.InValidFlacLevel]  = INVALID_FLAC_LEVEL
+            [FileState.InValidFlacLevel]  = INVALID_FLAC_LEVEL,
+            [FileState.NonUTF8WBOM]       = NON_UTF_8_W_BOM
         };
 
         private const long MaxFilePathLength = 240;
@@ -155,46 +158,14 @@ namespace AutoTorrentInspection.Util
                 }
             }
             if (Extension != ".cue") return;
-
-            Encode = EncodingDetector.GetEncoding(FullPath, out _confindece);
-            if (Encode != "UTF-8")
-            {
-                State = FileState.InValidEncode;
-                return;
-            }
-            if (!CueCurer.CueMatchCheck(this))
-            {
-                State = FileState.InValidCue;
-            }
+            CheckCUE();
         }
 
         public void CueFileRevalidation(DataGridViewRow row)
         {
-            State = FileState.ValidFile;
             Debug.WriteLine(@"----ReCheck--Begin----");
-            Encode = EncodingDetector.GetEncoding(FullPath, out _confindece);
-            if (Encode != "UTF-8")
-            {
-                State = FileState.InValidEncode;
-                goto ReSetColor;
-            }
-            if (!CueCurer.CueMatchCheck(this))
-            {
-                State = FileState.InValidCue;
-            }
-
-            ReSetColor:
-            Color rowColor = VALID_FILE;
-            switch (State)
-            {
-                case FileState.InValidCue:
-                    rowColor = INVALID_CUE;
-                    break;
-                case FileState.InValidEncode:
-                    rowColor = INVALID_ENCODE;
-                    break;
-            }
-
+            CheckCUE();
+            var rowColor = StateColor[State];
             foreach (DataGridViewCell cell in row.Cells)
             {
                 cell.Style.BackColor = rowColor;
@@ -202,6 +173,34 @@ namespace AutoTorrentInspection.Util
             Application.DoEvents();
             Debug.WriteLine(@"----ReCheck--End----");
         }
+
+
+        private bool CheckCUE()
+        {
+            State       = FileState.ValidFile;
+            Encode     = EncodingDetector.GetEncoding(FullPath, out _confindece);
+            if (Encode != "UTF-8")
+            {
+                State = FileState.InValidEncode;
+                return false;
+            }
+            using (var fs = new FileStream(FullPath, FileMode.Open, FileAccess.Read))
+            {
+                var buffer = new byte[3];
+                fs.Read(buffer, 0, 3);
+                if (buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF)
+                {
+                    if (!CueCurer.CueMatchCheck(this))
+                    {
+                        State = FileState.InValidCue;
+                    }
+                    return true;
+                }
+            }
+            State = FileState.NonUTF8WBOM;
+            return false;
+        }
+
 
         public DataGridViewRow ToRow()
         {
