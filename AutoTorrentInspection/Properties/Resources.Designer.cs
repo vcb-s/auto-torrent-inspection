@@ -79,7 +79,7 @@ namespace AutoTorrentInspection.Properties {
         ///
         ///--------------------------------------------------------------------------
         ///
-        ///Some of the pictures in this release are encoded in WebP format, which is a more advanced format than the traditional JPEG. It offers better qua [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        ///Some of the pictures in this release are encoded in WebP format, which is a more advanced format than the traditional JPEG. It offers better quali [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string ReadmeAboutWebP {
             get {
