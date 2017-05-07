@@ -576,7 +576,8 @@ namespace AutoTorrentInspection
 
         private void ExportSummary()
         {
-            using (var writer = new StreamWriter(Console.OpenStandardOutput(), Encoding.GetEncoding("GBK")))
+            if (string.IsNullOrEmpty(FilePath)) return;
+            using (var writer = new StreamWriter(File.OpenWrite(FilePath + ".md"), Encoding.UTF8))
             {
                 writer.WriteLine("# Summary");
                 writer.WriteLine($"## Source type: {(_torrent == null ? "Folder" : "Torrent")}");
