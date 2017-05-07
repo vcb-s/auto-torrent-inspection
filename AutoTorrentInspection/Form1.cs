@@ -519,12 +519,12 @@ namespace AutoTorrentInspection
 
                 if (_torrent != null)
                 {
-                    writer.WriteLine($"- TorrentName: \t{_torrent.TorrentName}\n" +
-                                     $"- CreatedBy: \t{_torrent.CreatedBy}\n" +
-                                     $"- IsPrivate: \t{_torrent.IsPrivate}");
+                    writer.WriteLine($"- TorrentName:\t{_torrent.TorrentName}\n" +
+                                     $"- CreatedBy:\t{_torrent.CreatedBy}\n" +
+                                     $"- IsPrivate:\t{_torrent.IsPrivate}");
                     writer.WriteLine();
                     var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd();
-                    writer.WriteLine($"- TrackerList: \t{trackerList == CurrentTrackerList}");
+                    writer.WriteLine($"- TrackerList:\t{trackerList == CurrentTrackerList}");
                     writer.WriteLine();
                     writer.WriteLine($"{new string('=', 20)}\n\n" +
                                      $"{trackerList}\n\n" +
@@ -533,13 +533,13 @@ namespace AutoTorrentInspection
                 }
                 else
                 {
-                    writer.WriteLine($"- PathName: \t{FilePath}");
+                    writer.WriteLine($"- PathName:\t{FilePath}");
                     writer.WriteLine();
-                    var fonts = string.Join("\n- ", GetUsedFonts());
+                    var fonts = string.Join("\n\t- ", GetUsedFonts());
                     if (!string.IsNullOrEmpty(fonts))
                     {
-                        writer.WriteLine("- Fonts: \n");
-                        writer.WriteLine("- " + fonts);
+                        writer.WriteLine("- Fonts:");
+                        writer.WriteLine("\t- " + fonts);
                         writer.WriteLine();
                     }
                 }
