@@ -26,6 +26,12 @@ namespace AutoTorrentInspection.Util
             GetFontsUsed(subtitlePath, ref _usedFonts);
         }
 
+        public void FeedSubtitle(IEnumerable<string> subtitlePaths)
+        {
+            foreach(var subtitlePath in subtitlePaths)
+                GetFontsUsed(subtitlePath, ref _usedFonts);
+        }
+
         public void FeedFont(string fontPath)
         {
             GetNameVia(fontPath, ref _existFonts);

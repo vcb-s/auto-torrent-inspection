@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using AutoTorrentInspection.Util;
 using System.Collections.Generic;
 using AutoTorrentInspection.Properties;
@@ -81,8 +80,6 @@ namespace AutoTorrentInspection
         private TorrentData _torrent;
         private Dictionary<string, List<FileDescription>> _data;
         private IEnumerable<(long, IEnumerable<FileDescription>)> _sizeData;
-        private HashSet<string> _fonts;
-        private AssFonts _assFonts;
 
         private bool _isUrl;
 
@@ -164,18 +161,20 @@ namespace AutoTorrentInspection
                                                   "udp://tracker.openbittorrent.com:80/announce\n\n"+
                                                   "http://t.acg.rip:6699/announce";
 
+        private IEnumerable<string> GetUsedFonts()
+        {
+            var assFonts = new AssFonts();
+            assFonts.FeedSubtitle(_data.Values.SelectMany(_ => _).Where(file => file.Extension == ".ass").Select(file => file.FullPath));
+            return assFonts.UsedFonts.OrderBy(i => i);
+        }
+
         private void btnAnnounceList_Click(object sender, EventArgs e)
         {
             if (_torrent == null)
             {
                 new Thread(() =>
                 {
-                    _assFonts = new AssFonts();
-                    var ass = _data.SelectMany(item => item.Value).Where(file => file.Extension == ".ass");
-                    foreach (var file in ass) _assFonts.FeedSubtitle(file.FullPath);
-                    _fonts = _assFonts.UsedFonts;
-                    string context = string.Empty;
-                    foreach (var item in _fonts.ToList().OrderBy(i => i)) context += item + "\n";
+                    var context = string.Join("\n", GetUsedFonts());
                     if (string.IsNullOrEmpty(context)) return;
                     context.ShowWithTitle("Fonts used in subtitles");
                 }).Start();
@@ -183,8 +182,8 @@ namespace AutoTorrentInspection
             }
 
             var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd();
-            var currentRuler = trackerList == CurrentTrackerList;
-            trackerList.ShowWithTitle($@"Tracker List == {currentRuler}");
+            var currentRule = trackerList == CurrentTrackerList;
+            trackerList.ShowWithTitle($@"Tracker List == {currentRule}");
         }
 
         private void LoadFile(object sender, AsyncCompletedEventArgs e)
@@ -316,8 +315,10 @@ namespace AutoTorrentInspection
 
         private IEnumerable<(long, IEnumerable<FileDescription>)> FileSizeDuplicateInspection()
         {
+            //拍扁并按体积分组
             foreach (var sizePair in _data.Values.SelectMany(i => i).GroupBy(i => i.Length))
             {
+                //再按后缀分组并跳过单个文件的
                 foreach (var files in sizePair.GroupBy(i => i.Extension).SkipWhile(i => i.Count() <= 1))
                 {
                     yield return (sizePair.Key, files);
@@ -534,6 +535,13 @@ namespace AutoTorrentInspection
                 {
                     writer.WriteLine($"- PathName: \t{FilePath}");
                     writer.WriteLine();
+                    var fonts = string.Join("\n- ", GetUsedFonts());
+                    if (!string.IsNullOrEmpty(fonts))
+                    {
+                        writer.WriteLine("- Fonts: \n");
+                        writer.WriteLine("- " + fonts);
+                        writer.WriteLine();
+                    }
                 }
                 writer.WriteLine("## Doubtful files");
                 writer.WriteLine();
