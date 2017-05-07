@@ -56,7 +56,7 @@ namespace AutoTorrentInspection.Util
                 return "";
             }
         }
-        
+
         public string TorrentName => _torrent.DisplayName;
 
         public bool IsPrivate => _torrent.IsPrivate;
@@ -67,22 +67,22 @@ namespace AutoTorrentInspection.Util
 
         public IEnumerable<IEnumerable<string>> GetRawFileList()
         {
-            return GetRawFileListWithAttribute().Select(item => item.Key);
+            return GetRawFileListWithAttribute().Select(item => item.path);
         }
 
-        public IEnumerable<KeyValuePair<IEnumerable<string>, FileSize>> GetRawFileListWithAttribute()
+        public IEnumerable<(IEnumerable<string> path, FileSize size)> GetRawFileListWithAttribute()
         {
             if (_torrent.FileMode == TorrentFileMode.Single)
             {
                 FileSize fs = new FileSize(_torrent.File.FileSize);
-                yield return new KeyValuePair<IEnumerable<string>, FileSize>(new[] {TorrentName}, fs);
+                yield return (new[] {TorrentName}, fs);
                 yield break;
             }
             foreach (var file in _torrent.Files)
             {
                 if (file.Path.Last().StartsWith("_____padding_file")) continue;
                 FileSize fs = new FileSize(file.FileSize);
-                yield return new KeyValuePair<IEnumerable<string>, FileSize>(file.Path, fs);
+                yield return (file.Path, fs);
             }
         }
 

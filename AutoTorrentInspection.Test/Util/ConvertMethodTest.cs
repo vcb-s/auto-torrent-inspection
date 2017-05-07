@@ -53,16 +53,12 @@ namespace AutoTorrentInspection.Test.Util
         {
             const string ghost1 = @"..\..\[Torrent Sample]\Ghost in the Shell：STAND ALONE COMPLEX.v1.torrent";
             const string ghost2 = @"..\..\[Torrent Sample]\Ghost in the Shell：STAND ALONE COMPLEX.v2.torrent";
-            var ret = ConvertMethod.GetDiff(new TorrentData(ghost1), new TorrentData(ghost2));
+            var ret = ConvertMethod.GetDiffNode(new TorrentData(ghost1), new TorrentData(ghost2));
 
-            Node node1 = new Node(ret[0].Select(item => new KeyValuePair<IEnumerable<string>, FileSize>(item.Key, item.Value)));
-            Node node2 = new Node(ret[1].Select(item => new KeyValuePair<IEnumerable<string>, FileSize>(item.Key, item.Value)));
             Console.WriteLine(@"in a not in b:");
-            //foreach (var item in ret[false]) Console.WriteLine(item);
-            Console.WriteLine(node1.Json);
+            Console.WriteLine(ret.inANotInB.Json);
             Console.WriteLine(@"in b not in a:");
-            //foreach (var item in ret[true]) Console.WriteLine(item);
-            Console.WriteLine(node2.Json);
+            Console.WriteLine(ret.inBNotInA.Json);
         }
 
         [TestMethod()]

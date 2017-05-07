@@ -46,11 +46,11 @@ namespace AutoTorrentInspection.Util
             }
         }
 
-        public Node(IEnumerable<KeyValuePair<IEnumerable<string>, FileSize>> fileList)
+        public Node(IEnumerable<(IEnumerable<string> path, FileSize size)> fileList)
         {
             foreach (var list in fileList)
             {
-                Insert(list.Key, list.Value);
+                Insert(list.path, list.size);
             }
         }
 

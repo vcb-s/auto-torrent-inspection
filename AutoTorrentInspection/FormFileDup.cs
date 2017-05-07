@@ -21,19 +21,19 @@ namespace AutoTorrentInspection
             InitializeComponent();
         }
 
-        public FormFileDup(IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> sizeData)
+        public FormFileDup(IEnumerable<(long, IEnumerable<FileDescription>)> sizeData)
         {
             InitializeComponent();
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             GetCRCAsync(sizeData);
         }
 
-        private async void GetCRCAsync(IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> sizeData)
+        private async void GetCRCAsync(IEnumerable<(long length, IEnumerable<FileDescription> files)> sizeData)
         {
             var ret = sizeData.Select(size => new
             {
-                filesize = size.Key,
-                files = size.Value.Select(item => new
+                filesize = size.length,
+                files = size.files.Select(item => new
                 {
                     crc  = Crc32Algorithm.FileCRC(item.FullPath),
                     info = item

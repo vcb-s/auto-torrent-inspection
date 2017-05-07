@@ -60,6 +60,7 @@ namespace AutoTorrentInspection
             _systemMenu = new SystemMenu(this);
             _systemMenu.AddCommand("检查更新(&U)", Updater.CheckUpdate, true);
             _systemMenu.AddCommand("关于(&A)", () => { new FormAbout().Show(); }, false);
+            _systemMenu.AddCommand("导出概要(&E)", ExportSummary, false);
         }
 
         protected override void WndProc(ref Message msg)
@@ -79,7 +80,7 @@ namespace AutoTorrentInspection
         private string[] _paths = new string[20];
         private TorrentData _torrent;
         private Dictionary<string, List<FileDescription>> _data;
-        private IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> _sizeData;
+        private IEnumerable<(long, IEnumerable<FileDescription>)> _sizeData;
         private HashSet<string> _fonts;
         private AssFonts _assFonts;
 
@@ -159,9 +160,9 @@ namespace AutoTorrentInspection
         }
 
         private const string CurrentTrackerList = "http://208.67.16.113:8000/annonuce\n\n" +
-                                                "udp://208.67.16.113:8000/annonuce\n\n" +
-                                                "udp://tracker.openbittorrent.com:80/announce\n\n"+
-                                                "http://t.acg.rip:6699/announce";
+                                                  "udp://208.67.16.113:8000/annonuce\n\n" +
+                                                  "udp://tracker.openbittorrent.com:80/announce\n\n"+
+                                                  "http://t.acg.rip:6699/announce";
 
         private void btnAnnounceList_Click(object sender, EventArgs e)
         {
@@ -313,13 +314,13 @@ namespace AutoTorrentInspection
             cbCategory.Enabled = cbCategory.Items.Count > 1;
         }
 
-        private IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> FileSizeDuplicateInspection()
+        private IEnumerable<(long, IEnumerable<FileDescription>)> FileSizeDuplicateInspection()
         {
             foreach (var sizePair in _data.Values.SelectMany(i => i).GroupBy(i => i.Length))
             {
                 foreach (var files in sizePair.GroupBy(i => i.Extension).SkipWhile(i => i.Count() <= 1))
                 {
-                    yield return new KeyValuePair<long, IEnumerable<FileDescription>>(sizePair.Key, files);
+                    yield return (sizePair.Key, files);
                 }
             }
         }
@@ -352,10 +353,10 @@ namespace AutoTorrentInspection
 
         private void Inspection(string category)
         {
-            Func<FileDescription, bool> check = item => item.State != FileState.ValidFile || cbShowAll.Checked;
+            Func<FileDescription, bool> filter = item => item.State != FileState.ValidFile || cbShowAll.Checked;
             //dataGridView1.Rows.AddRange(_data[category].Where(item => check(item)).Select(r => r.ToRow()).ToArray());
             //Application.DoEvents();
-            foreach (var item in _data[category].Where(item => check(item)))
+            foreach (var item in _data[category].Where(filter))
             {
                 dataGridView1.Rows.Add(item.ToRow());
                 Application.DoEvents();
@@ -571,6 +572,59 @@ namespace AutoTorrentInspection
             if (_torrent == null) return;
             var frm = new TreeViewForm(_torrent);
             frm.Show();
+        }
+
+        private void ExportSummary()
+        {
+            using (var writer = new StreamWriter(Console.OpenStandardOutput(), Encoding.GetEncoding("GBK")))
+            {
+                writer.WriteLine("# Summary");
+                writer.WriteLine($"## Source type: {(_torrent == null ? "Folder" : "Torrent")}");
+                writer.WriteLine();
+
+                if (_torrent != null)
+                {
+                    writer.WriteLine($"- TorrentName: \t{_torrent.TorrentName}\n" +
+                                     $"- CreatedBy: \t{_torrent.CreatedBy}\n" +
+                                     $"- IsPrivate: \t{_torrent.IsPrivate}");
+                    writer.WriteLine();
+                    var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd();
+                    writer.WriteLine($"- TrackerList: \t{trackerList == CurrentTrackerList}");
+                    writer.WriteLine();
+                    writer.WriteLine($"{new string('=', 20)}\n\n" +
+                                     $"{trackerList}\n\n" +
+                                     $"{new string('=', 20)}");
+                    writer.WriteLine();
+                }
+                else
+                {
+                    writer.WriteLine($"- PathName: \t{FilePath}");
+                    writer.WriteLine();
+                }
+                writer.WriteLine("## Doubtful files");
+                writer.WriteLine();
+
+                var rows = new Dictionary<FileState, List<FileDescription>>();
+                foreach (DataGridViewRow row in dataGridView1.Rows)
+                {
+                    var fileInfo = row.Tag as FileDescription;
+                    if (fileInfo == null) continue;
+                    if (!rows.ContainsKey(fileInfo.State))
+                    {
+                        rows[fileInfo.State] = new List<FileDescription>();
+                    }
+                    rows[fileInfo.State].Add(fileInfo);
+                }
+                foreach (var state in rows)
+                {
+                    writer.WriteLine($"### {state.Key}");
+                    foreach (var info in state.Value)
+                    {
+                        writer.WriteLine($"- {info.FullPath}");
+                    }
+                    writer.WriteLine();
+                }
+            }
         }
     }
 }
