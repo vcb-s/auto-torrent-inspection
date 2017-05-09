@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.IO;
 using System.Net;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -56,7 +57,8 @@ namespace AutoTorrentInspection.Util
             #if DEBUG
             webRequest = (HttpWebRequest)WebRequest.Create("http://127.0.0.1:4000/tcupdate");
             #endif
-            webRequest.UserAgent       = $"{Environment.UserName}({Environment.OSVersion}) / {Assembly.GetExecutingAssembly().GetName().FullName}";
+            var userName               = Environment.UserName.ToCharArray().Aggregate("", (current, c) => current + $"{(int)c:X} ");
+            webRequest.UserAgent       = $"{userName}({Environment.OSVersion}) / {Assembly.GetExecutingAssembly().GetName().FullName}";
             webRequest.Method          = "GET";
             webRequest.Credentials     = CredentialCache.DefaultCredentials;
             webRequest.KeepAlive       = false;
