@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using AutoTorrentInspection.Util;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using AutoTorrentInspection.Properties;
 
 
@@ -73,8 +74,8 @@ namespace AutoTorrentInspection
 
         private string FilePath
         {
-            get { return _paths[0]; }
-            set { _paths[0] = value; }
+            get => _paths[0];
+            set => _paths[0] = value;
         }
         private string[] _paths = new string[20];
         private TorrentData _torrent;
@@ -326,6 +327,27 @@ namespace AutoTorrentInspection
             }
         }
 
+        private static readonly Regex FileOrderPattern = new Regex(@"^\[[^\[\]]*VCB\-S(?:tudio)*[^\[\]]*\] (?<name>[^\[\]]+)\[(?<type>[^\d]*)(?<ord>\d+)\]");
+
+        private IEnumerable<string> FileOrderMissingInspection()
+        {
+            var data = _data.Values.SelectMany(i => i).Select(file =>
+            {
+                var match = FileOrderPattern.Match(file.FileName);
+                var name = $"{file.ReletivePath}/{match.Groups["name"]}[{match.Groups["type"].Value}]{file.Extension}";
+                return match.Success ? (name, int.Parse(match.Groups["ord"].Value)) : ("", -1);
+            }).Where(file => file.Item2 != -1).GroupBy(file => file.Item1);
+            foreach (var group in data)
+            {
+                var arr = group.Select(file => file.Item2).OrderBy(i=>i);
+                int begin = arr.First(), length = arr.Count();
+                if (begin > 1 || !arr.SequenceEqual(Enumerable.Range(begin, length)))
+                {
+                    yield return group.First().Item1;
+                }
+            }
+        }
+
         private void ThroughInspection()
         {
             dataGridView1.Rows.Clear();
@@ -350,6 +372,9 @@ namespace AutoTorrentInspection
             Text = $@"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version} - " +
                    $@"{_torrent?.TorrentName ?? FilePath} - By [{_torrent?.CreatedBy ?? "Folder"}] - " +
                    $@"{_torrent?.Encoding ?? "UND"} - {time}";
+            var ret = FileOrderMissingInspection().ToList();
+            if (ret.Count != 0)
+                string.Join("\n", ret).ShowWithTitle("以下可能存在序号乱写的嫌疑");
         }
 
         private void Inspection(string category)
