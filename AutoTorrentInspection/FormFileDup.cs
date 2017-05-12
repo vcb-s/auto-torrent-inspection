@@ -57,6 +57,8 @@ namespace AutoTorrentInspection
                 }
                 treeView1.Sort();
                 treeView1.ExpandAll();
+                if (treenode.Count == 0)
+                    Notification.ShowInfo(@"没有出现雷同的文件");
             }
             catch (Exception exception)
             {

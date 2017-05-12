@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using AutoTorrentInspection.Util;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text.RegularExpressions;
 using AutoTorrentInspection.Properties;
 
@@ -21,12 +22,14 @@ namespace AutoTorrentInspection
         {
             InitializeComponent();
             AddCommand();
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         }
 
         public Form1(string args)
         {
             InitializeComponent();
             AddCommand();
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             FilePath = args;
             try
             {
