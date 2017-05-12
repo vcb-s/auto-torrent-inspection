@@ -339,8 +339,8 @@ namespace AutoTorrentInspection
             }).Where(file => file.Item2 != -1).GroupBy(file => file.Item1);
             foreach (var group in data)
             {
-                var arr = group.Select(file => file.Item2).OrderBy(i=>i);
-                int begin = arr.First(), length = arr.Count();
+                var arr = group.Select(file => file.Item2).OrderBy(i=>i).Distinct().ToList();
+                int begin = arr.First(), length = arr.Count;
                 if (begin > 1 || !arr.SequenceEqual(Enumerable.Range(begin, length)))
                 {
                     yield return group.First().Item1;
