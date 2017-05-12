@@ -78,7 +78,7 @@ namespace AutoTorrentInspection.Util
         public FileDescription(MultiFileInfo file, string torrentName)
         {
             BasePath      = torrentName;
-            ReletivePath  = file.Path.Take(file.Path.Count - 1).Aggregate("", (current, item) => current += $"{item}\\");
+            ReletivePath  = file.Path.Take(file.Path.Count - 1).Aggregate("", (current, item) => current += $"{item}\\").TrimEnd('\\');
             FileName      = file.FileName;
             FullPath      = Path.Combine(BasePath, ReletivePath, FileName);
             Extension     = Path.GetExtension(FileName)?.ToLower();
@@ -104,7 +104,7 @@ namespace AutoTorrentInspection.Util
         public FileDescription(string fileName, string reletivePath, string basePath)//file
         {
             BasePath     = basePath;
-            ReletivePath = reletivePath;
+            ReletivePath = reletivePath.TrimEnd('\\');
             FileName     = fileName;
             FullPath     = Path.Combine(BasePath, ReletivePath, FileName);
             Extension    = Path.GetExtension(fileName)?.ToLower();
