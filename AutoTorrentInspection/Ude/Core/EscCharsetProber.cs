@@ -57,7 +57,7 @@ namespace Ude.Core
         public override void Reset()
         {
             state = ProbingState.Detecting;
-            for (int i = 0; i < CHARSETS_NUM; i++)
+            for (var i = 0; i < CHARSETS_NUM; i++)
                 codingSM[i].Reset();
             activeSM = CHARSETS_NUM;
             detectedCharset = null;
@@ -65,12 +65,12 @@ namespace Ude.Core
 
         public override ProbingState HandleData(byte[] buf, int offset, int len)
         {
-            int max = offset + len;
+            var max = offset + len;
 
-            for (int i = offset; i < max && state == ProbingState.Detecting; i++) {
-                for (int j = activeSM - 1; j >= 0; j--) {
+            for (var i = offset; i < max && state == ProbingState.Detecting; i++) {
+                for (var j = activeSM - 1; j >= 0; j--) {
                     // byte is feed to all active state machine
-                    int codingState = codingSM[j].NextState(buf[i]);
+                    var codingState = codingSM[j].NextState(buf[i]);
                     if (codingState == SMModel.ERROR)  {
                         // got negative answer for this state machine, make it inactive
                         activeSM--;
@@ -78,7 +78,7 @@ namespace Ude.Core
                             state = ProbingState.NotMe;
                             return state;
                         } else if (j != activeSM) {
-                            CodingStateMachine t = codingSM[activeSM];
+                            var t = codingSM[activeSM];
                             codingSM[activeSM] = codingSM[j];
                             codingSM[j] = t;
                         }

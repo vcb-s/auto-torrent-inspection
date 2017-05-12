@@ -59,7 +59,7 @@ namespace Ude.Core
         {
             // for each byte we get its class, if it is first byte,
             // we also get byte length
-            int byteCls = model.GetClass(b);
+            var byteCls = model.GetClass(b);
             if (currentState == SMModel.START) {
                 currentBytePos = 0;
                 currentCharLen = model.charLenTable[byteCls];

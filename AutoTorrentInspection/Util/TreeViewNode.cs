@@ -11,7 +11,7 @@ namespace AutoTorrentInspection.Util
 
         private Node ParentNode { get; set; }
 
-        public string NodeName { get; private set; } = "."; //string.Empty;
+        public string NodeName { get; } = ".";
 
         public override string ToString() => NodeName;
 
@@ -21,9 +21,9 @@ namespace AutoTorrentInspection.Util
 
         private string _GetJson(int depth = 0)
         {
-            string json = string.Empty;
-            string subJson = Values.Aggregate(string.Empty, (current, value) => current + value._GetJson(depth + 1)).TrimEnd(',', '\n') + "\n";
-            string tab = new string(' ', depth*2);
+            var json = string.Empty;
+            var subJson = Values.Aggregate(string.Empty, (current, value) => current + value._GetJson(depth + 1)).TrimEnd(',', '\n') + "\n";
+            var tab = new string(' ', depth*2);
             switch (NodeType)
             {
                 case NodeTypeEnum.File:
@@ -101,7 +101,7 @@ namespace AutoTorrentInspection.Util
         public Node Insert(IEnumerable<string> nodes, FileSize attribute = null)
         {
             var currentNode = this;
-            foreach (string node in nodes)
+            foreach (var node in nodes)
             {
                 if (!currentNode.ContainsKey(node))
                 {
@@ -116,7 +116,7 @@ namespace AutoTorrentInspection.Util
 
         public long InsertTo(System.Windows.Forms.TreeNodeCollection tn, KnownColor color = KnownColor.Black)
         {
-            int index = 1;
+            var index = 1;
             return InsertToViewInner(this, tn, Color.FromKnownColor(color), ref index);
         }
 

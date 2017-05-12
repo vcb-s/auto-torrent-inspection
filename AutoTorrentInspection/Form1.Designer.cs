@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            var resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.btnLoadFile = new System.Windows.Forms.Button();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.cbCategory = new System.Windows.Forms.ComboBox();

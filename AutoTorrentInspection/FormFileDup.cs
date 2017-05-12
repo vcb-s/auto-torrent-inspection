@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using AutoTorrentInspection.Util;
 using AutoTorrentInspection.Util.Crc32.NET;
@@ -39,7 +34,7 @@ namespace AutoTorrentInspection
                     info = item
                 })
             });
-            TreeNodeCollection treenode = treeView1.Nodes;
+            var treenode = treeView1.Nodes;
             try {
                 foreach (var size in ret)
                 {
@@ -48,7 +43,7 @@ namespace AutoTorrentInspection
                     var tmp = new List<uint>();
                     foreach (var file in size.files)
                     {
-                        uint crc = await file.crc;
+                        var crc = await file.crc;
                         tmp.Add(crc);
                         if (crc == 0) node.Nodes.Add(file.info.ReletivePath + file.info.FileName);
                         else

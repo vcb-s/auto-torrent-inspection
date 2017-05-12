@@ -28,7 +28,7 @@ namespace AutoTorrentInspection
             }
             else
             {
-                string argsFull = string.Join(" ", args);
+                var argsFull = string.Join(" ", args);
                 //argsFull = "\"" + argsFull + "\"";
                 Application.Run(new Form1(argsFull));
             }

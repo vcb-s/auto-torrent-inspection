@@ -18,9 +18,7 @@
  */
 
 using System;
-using System.IO;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace AutoTorrentInspection.Util
 {

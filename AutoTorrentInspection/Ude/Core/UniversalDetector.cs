@@ -117,7 +117,7 @@ namespace Ude.Core
                 }
             }
 
-            for (int i = 0; i < len; i++) {
+            for (var i = 0; i < len; i++) {
 
                 // other than 0xa0, if every other character is ascii, the page is ascii
                 if ((buf[i] & 0x80) != 0 && buf[i] != 0xA0)  {
@@ -160,7 +160,7 @@ namespace Ude.Core
                     }
                     break;
                 case InputState.Highbyte:
-                    for (int i = 0; i < PROBERS_NUM; i++) {
+                    for (var i = 0; i < PROBERS_NUM; i++) {
                         if (CharsetProbers[i] != null) {
                             st = CharsetProbers[i].HandleData(buf, offset, len);
                             #if DEBUG
@@ -200,9 +200,9 @@ namespace Ude.Core
             }
 
             if (InputState == InputState.Highbyte) {
-                float maxProberConfidence = 0.0f;
-                int maxProber = 0;
-                for (int i = 0; i < PROBERS_NUM; i++) {
+                var maxProberConfidence = 0.0f;
+                var maxProber = 0;
+                for (var i = 0; i < PROBERS_NUM; i++) {
                     if (CharsetProbers[i] != null)
                     {
                         var proberConfidence = CharsetProbers[i].GetConfidence();
@@ -236,7 +236,7 @@ namespace Ude.Core
             InputState = InputState.PureASCII;
             LastChar = 0x00;
             EscCharsetProber?.Reset();
-            for (int i = 0; i < PROBERS_NUM; i++)
+            for (var i = 0; i < PROBERS_NUM; i++)
                 if (CharsetProbers[i] != null)
                     CharsetProbers[i].Reset();
         }

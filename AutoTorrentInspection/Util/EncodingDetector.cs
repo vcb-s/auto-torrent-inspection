@@ -9,7 +9,7 @@ namespace AutoTorrentInspection.Util
         public static string GetEncoding(string filename, out float confindece)
         {
             confindece = 0.0f;
-            using (FileStream fs = File.OpenRead(filename))
+            using (var fs = File.OpenRead(filename))
             {
                 ICharsetDetector cdet = new CharsetDetector();
                 cdet.Feed(fs);
@@ -36,8 +36,8 @@ namespace AutoTorrentInspection.Util
         {
             var bytes = File.ReadAllBytes(filePath);
             if (bytes.Length <= 0) return false;
-            bool asciiOnly = true;
-            int continuationBytes = 0;
+            var asciiOnly = true;
+            var continuationBytes = 0;
             foreach (var item in bytes)
             {
                 if ((sbyte)item < 0) asciiOnly = false;

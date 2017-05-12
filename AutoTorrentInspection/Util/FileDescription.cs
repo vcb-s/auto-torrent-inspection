@@ -81,7 +81,7 @@ namespace AutoTorrentInspection.Util
             ReletivePath  = file.Path.Take(file.Path.Count - 1).Aggregate("", (current, item) => current += $"{item}\\").TrimEnd('\\');
             FileName      = file.FileName;
             FullPath      = Path.Combine(BasePath, ReletivePath, FileName);
-            Extension     = Path.GetExtension(FileName)?.ToLower();
+            Extension     = Path.GetExtension(FileName).ToLower();
 
             Length        = file.FileSize;
             SourceType    = SourceTypeEnum.Torrent;

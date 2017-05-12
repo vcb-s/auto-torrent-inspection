@@ -218,11 +218,11 @@ namespace Ude.Core
             if (GetState() == ProbingState.NotMe)
                 return ProbingState.NotMe;
 
-            int max = offset + len;
+            var max = offset + len;
 
-            for (int i = offset; i < max; i++) {
+            for (var i = offset; i < max; i++) {
 
-                byte b = buf[i];
+                var b = buf[i];
 
                 // a word just ended
                 if (b == 0x20) {
@@ -254,14 +254,14 @@ namespace Ude.Core
         public override string GetCharsetName()
         {
             // If the final letter score distance is dominant enough, rely on it.
-            int finalsub = finalCharLogicalScore - finalCharVisualScore;
+            var finalsub = finalCharLogicalScore - finalCharVisualScore;
             if (finalsub >= MIN_FINAL_CHAR_DISTANCE)
                 return LOGICAL_HEBREW_NAME;
             if (finalsub <= -(MIN_FINAL_CHAR_DISTANCE))
                 return VISUAL_HEBREW_NAME;
 
             // It's not dominant enough, try to rely on the model scores instead.
-            float modelsub = logicalProber.GetConfidence() - visualProber.GetConfidence();
+            var modelsub = logicalProber.GetConfidence() - visualProber.GetConfidence();
             if (modelsub > MIN_MODEL_DISTANCE)
                 return LOGICAL_HEBREW_NAME;
             if (modelsub < -(MIN_MODEL_DISTANCE))

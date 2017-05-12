@@ -106,17 +106,17 @@ namespace AutoTorrentInspection
         {
             if (_isUrl)
             {
-                string url = e.Data.GetData("Text") as string;
+                var url = e.Data.GetData("Text") as string;
                 Debug.WriteLine(url ?? "null");
                 if (string.IsNullOrEmpty(url) || !url.ToLower().EndsWith(".torrent"))
                 {
                     return;
                 }
-                using (System.Net.WebClient wc = new System.Net.WebClient())
+                using (var wc = new System.Net.WebClient())
                 {
                     try
                     {
-                        string filePath = Path.Combine(Path.GetTempPath(), Path.GetTempFileName()+".torrent");
+                        var filePath = Path.GetTempFileName()+".torrent";
                         wc.DownloadFileCompleted += LoadFile;
                         wc.DownloadFileAsync(new Uri(url), filePath);
                         FilePath = filePath;
@@ -365,7 +365,7 @@ namespace AutoTorrentInspection
             {
                 cbCategory.SelectedIndex = cbCategory.SelectedIndex == -1 ? 0 : cbCategory.SelectedIndex;
             }
-            DateTime time = DateTime.Now;
+            var time = DateTime.Now;
             try {
                 time = _torrent?.CreationDate ?? new DirectoryInfo(FilePath).LastWriteTime;
             } catch { /* ignored */ }
@@ -393,7 +393,7 @@ namespace AutoTorrentInspection
 
         private void btnWebP_Click(object sender, EventArgs e)
         {
-            string txtpath = Path.Combine(FilePath, "readme about WebP.txt");
+            var txtpath = Path.Combine(FilePath, "readme about WebP.txt");
             if (MessageBox.Show(@"是否在根目录生成 readme about WebP.txt", @"ATI Tips", MessageBoxButtons.YesNo)
                 != DialogResult.Yes) return;
             try
@@ -468,7 +468,7 @@ namespace AutoTorrentInspection
         private void dataGridView1_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.RowIndex < 0) return;
-            FileDescription fileInfo = dataGridView1.Rows[e.RowIndex].Tag as FileDescription;
+            var fileInfo = dataGridView1.Rows[e.RowIndex].Tag as FileDescription;
             if (fileInfo == null)  return;
             var confindence = fileInfo.Confidence;
             toolStripStatusLabel_Encode.Text = $@"{fileInfo.Encode}({confindence:F2})";
@@ -508,7 +508,7 @@ namespace AutoTorrentInspection
             if (_fixing || dataGridView1.SelectedCells.Count != 1) return;
             Debug.WriteLine($"{e.KeyCode} - {dataGridView1.SelectedCells[0].RowIndex}");
             var rowIndex = dataGridView1.SelectedCells[0].RowIndex;
-            FileDescription fileInfo = dataGridView1.Rows[rowIndex].Tag as FileDescription;
+            var fileInfo = dataGridView1.Rows[rowIndex].Tag as FileDescription;
             if (fileInfo == null) return;
 
             var confindence = fileInfo.Confidence;

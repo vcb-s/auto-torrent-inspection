@@ -64,9 +64,9 @@ namespace Ude.Core
 
         public override ProbingState HandleData(byte[] buf, int offset, int len)
         {
-            int max = offset + len;
+            var max = offset + len;
 
-            for (int i = offset; i < max; i++) {
+            for (var i = offset; i < max; i++) {
 
                 var codingState = codingSM.NextState(buf[i]);
 
@@ -94,11 +94,11 @@ namespace Ude.Core
 
         public override float GetConfidence()
         {
-            float unlike = 0.99f;
+            var unlike = 0.99f;
             float confidence;
 
             if (numOfMBChar < 6) {
-                for (int i = 0; i < numOfMBChar; i++)
+                for (var i = 0; i < numOfMBChar; i++)
                     unlike *= ONE_CHAR_PROB;
                 confidence = 1.0f - unlike;
             } else {

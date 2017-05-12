@@ -69,7 +69,7 @@ namespace AutoTorrentInspection
                 return;
             }
             Text = _data.TorrentName;
-            TreeNode treenode = new TreeNode(_data.TorrentName);
+            var treenode = new TreeNode(_data.TorrentName);
             long length = 0;
             var task = new Task(() =>
             {
@@ -120,7 +120,7 @@ namespace AutoTorrentInspection
 
         private void treeView1_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            string text = e.Node.Text;
+            var text = e.Node.Text;
             try { text = text.Substring(0, text.IndexOf('\ufeff')); }
             catch { /* ignored */ }
             Clipboard.SetText(text);

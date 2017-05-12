@@ -88,10 +88,10 @@ namespace Ude.Core
 
         public override ProbingState HandleData(byte[] buf, int offset, int len)
         {
-            int max = offset + len;
+            var max = offset + len;
 
-            for (int i = offset; i < max; i++) {
-                byte order = model.GetOrder(buf[i]);
+            for (var i = offset; i < max; i++) {
+                var order = model.GetOrder(buf[i]);
 
                 if (order < SYMBOL_CAT_ORDER)
                     totalChar++;
@@ -112,7 +112,7 @@ namespace Ude.Core
 
             if (state == ProbingState.Detecting) {
                 if (totalSeqs > SB_ENOUGH_REL_THRESHOLD) {
-                    float cf = GetConfidence();
+                    var cf = GetConfidence();
                     if (cf > POSITIVE_SHORTCUT_THRESHOLD)
                         state = ProbingState.FoundIt;
                     else if (cf < NEGATIVE_SHORTCUT_THRESHOLD)
@@ -154,7 +154,7 @@ namespace Ude.Core
         {
             state = ProbingState.Detecting;
             lastOrder = 255;
-            for (int i = 0; i < NUMBER_OF_SEQ_CAT; i++)
+            for (var i = 0; i < NUMBER_OF_SEQ_CAT; i++)
                 seqCounters[i] = 0;
             totalSeqs = 0;
             totalChar = 0;

@@ -54,9 +54,9 @@ namespace Ude.Core
 
         public override ProbingState HandleData(byte[] buf, int offset, int len)
         {
-            int max = offset + len;
+            var max = offset + len;
 
-            for (int i = offset; i < max; i++) {
+            for (var i = offset; i < max; i++) {
                 var codingState = codingSM.NextState(buf[i]);
                 if (codingState == SMModel.ERROR) {
                     state = ProbingState.NotMe;
@@ -67,7 +67,7 @@ namespace Ude.Core
                     break;
                 }
                 if (codingState == SMModel.START) {
-                    int charLen = codingSM.CurrentCharLen;
+                    var charLen = codingSM.CurrentCharLen;
                     if (i == offset) {
                         lastChar[1] = buf[offset];
                         distributionAnalyser.HandleOneChar(lastChar, 0, charLen);

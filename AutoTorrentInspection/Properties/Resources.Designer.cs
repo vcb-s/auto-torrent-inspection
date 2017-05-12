@@ -39,7 +39,7 @@ namespace AutoTorrentInspection.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AutoTorrentInspection.Properties.Resources", typeof(Resources).Assembly);
+                    var temp = new global::System.Resources.ResourceManager("AutoTorrentInspection.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -65,7 +65,7 @@ namespace AutoTorrentInspection.Properties {
         /// </summary>
         internal static System.Drawing.Bitmap About {
             get {
-                object obj = ResourceManager.GetObject("About", resourceCulture);
+                var obj = ResourceManager.GetObject("About", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

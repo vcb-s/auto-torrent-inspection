@@ -74,14 +74,14 @@ namespace AutoTorrentInspection.Util
         {
             if (_torrent.FileMode == TorrentFileMode.Single)
             {
-                FileSize fs = new FileSize(_torrent.File.FileSize);
+                var fs = new FileSize(_torrent.File.FileSize);
                 yield return (new[] {TorrentName}, fs);
                 yield break;
             }
             foreach (var file in _torrent.Files)
             {
                 if (file.Path.Last().StartsWith("_____padding_file")) continue;
-                FileSize fs = new FileSize(file.FileSize);
+                var fs = new FileSize(file.FileSize);
                 yield return (file.Path, fs);
             }
         }

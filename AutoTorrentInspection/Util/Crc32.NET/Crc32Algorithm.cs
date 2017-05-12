@@ -123,10 +123,10 @@ namespace AutoTorrentInspection.Util.Crc32.NET
         public static async Task<uint> FileCRC(string filePath)
         {
             if (!File.Exists(filePath)) return 0;
-            Crc32Algorithm hash = new Crc32Algorithm();
+            var hash = new Crc32Algorithm();
             const int capacity = 1024*1024;
             var buffer = new byte[capacity];
-            using (FileStream file = File.OpenRead(filePath))
+            using (var file = File.OpenRead(filePath))
             {
                 while (true)
                 {

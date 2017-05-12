@@ -6,7 +6,7 @@ namespace AutoTorrentInspection.Util
     {
         public static string Load(string subKey = @"Software\AutoTorrentInspection", string name = "ExecutePath")
         {
-            string path = string.Empty;
+            var path = string.Empty;
             // HKCU_CURRENT_USER\Software\
             var registryKey = Registry.CurrentUser.OpenSubKey(subKey);
             if (registryKey == null) return path;
@@ -26,7 +26,7 @@ namespace AutoTorrentInspection.Util
         public static int RegistryAddCount(string subKey, string name, int delta = 1)
         {
             var countS = Load(subKey, name);
-            int count = string.IsNullOrEmpty(countS) ? 0 : int.Parse(countS);
+            var count = string.IsNullOrEmpty(countS) ? 0 : int.Parse(countS);
             count += delta;
             Save(count.ToString(), subKey, name);
             return count - delta;

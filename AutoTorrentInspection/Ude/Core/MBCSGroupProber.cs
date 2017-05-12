@@ -79,7 +79,7 @@ namespace Ude.Core
         public override void Reset()
         {
             activeNum = 0;
-            for (int i = 0; i < probers.Length; i++) {
+            for (var i = 0; i < probers.Length; i++) {
                 if (probers[i] != null) {
                    probers[i].Reset();
                    isActive[i] = true;
@@ -95,13 +95,13 @@ namespace Ude.Core
         public override ProbingState HandleData(byte[] buf, int offset, int len)
         {
             // do filtering to reduce load to probers
-            byte[] highbyteBuf = new byte[len];
-            int hptr = 0;
+            var highbyteBuf = new byte[len];
+            var hptr = 0;
             //assume previous is not ascii, it will do no harm except add some noise
-            bool keepNext = true;
-            int max = offset + len;
+            var keepNext = true;
+            var max = offset + len;
 
-            for (int i = offset; i < max; i++) {
+            for (var i = offset; i < max; i++) {
                 if ((buf[i] & 0x80) != 0) {
                     highbyteBuf[hptr++] = buf[i];
                     keepNext = true;
@@ -114,7 +114,7 @@ namespace Ude.Core
                 }
             }
 
-            for (int i = 0; i < probers.Length; i++) {
+            for (var i = 0; i < probers.Length; i++) {
                 if (!isActive[i])
                     continue;
                 var st = probers[i].HandleData(highbyteBuf, 0, hptr);
@@ -137,14 +137,14 @@ namespace Ude.Core
 
         public override float GetConfidence()
         {
-            float bestConf = 0.0f;
+            var bestConf = 0.0f;
 
             if (state == ProbingState.FoundIt) {
                 return 0.99f;
             } else if (state == ProbingState.NotMe) {
                 return 0.01f;
             } else {
-                for (int i = 0; i < PROBERS_NUM; i++) {
+                for (var i = 0; i < PROBERS_NUM; i++) {
                     if (!isActive[i])
                         continue;
                     var cf = probers[i].GetConfidence();
@@ -161,7 +161,7 @@ namespace Ude.Core
         {
             float cf;
             GetConfidence();
-            for (int i = 0; i < PROBERS_NUM; i++) {
+            for (var i = 0; i < PROBERS_NUM; i++) {
                 if (!isActive[i]) {
                     Debug.WriteLine("  MBCS inactive: {0} (confidence is too low).",
                          ProberName[i]);

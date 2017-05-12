@@ -61,7 +61,7 @@ namespace Ude.Core
             probers[7] = new SingleByteCharSetProber(new Win1253Model());
             probers[8] = new SingleByteCharSetProber(new Latin5BulgarianModel());
             probers[9] = new SingleByteCharSetProber(new Win1251BulgarianModel());
-            HebrewProber hebprober = new HebrewProber();
+            var hebprober = new HebrewProber();
             probers[10] = hebprober;
             // Logical
             probers[11] = new SingleByteCharSetProber(new Win1255Model(), false, hebprober);
@@ -83,11 +83,11 @@ namespace Ude.Core
             //this is done without any consideration to KeepEnglishLetters
             //of each prober since as of now, there are no probers here which
             //recognize languages with English characters.
-            byte[] newBuf = FilterWithoutEnglishLetters(buf, offset, len);
+            var newBuf = FilterWithoutEnglishLetters(buf, offset, len);
             if (newBuf.Length == 0)
                 return state; // Nothing to see here, move on.
 
-            for (int i = 0; i < PROBERS_NUM; i++) {
+            for (var i = 0; i < PROBERS_NUM; i++) {
                 if (!isActive[i])
                     continue;
                 var st = probers[i].HandleData(newBuf, 0, newBuf.Length);
@@ -118,7 +118,7 @@ namespace Ude.Core
             case ProbingState.NotMe:
                 return 0.01f;  //sure no
             default:
-                for (int i = 0; i < PROBERS_NUM; i++)
+                for (var i = 0; i < PROBERS_NUM; i++)
                 {
                     if (!isActive[i])
                         continue;
@@ -136,9 +136,9 @@ namespace Ude.Core
 
         public override void DumpStatus()
         {
-            float cf = GetConfidence();
+            var cf = GetConfidence();
             Debug.WriteLine(" SBCS Group Prober --------begin status");
-            for (int i = 0; i < PROBERS_NUM; i++) {
+            for (var i = 0; i < PROBERS_NUM; i++) {
                 if (!isActive[i])
                     Debug.WriteLine(" inactive: [{0}] (i.e. confidence is too low).",
                            probers[i].GetCharsetName());
@@ -151,8 +151,8 @@ namespace Ude.Core
 
         public override void Reset ()
         {
-            int activeNum = 0;
-            for (int i = 0; i < PROBERS_NUM; i++) {
+            var activeNum = 0;
+            for (var i = 0; i < PROBERS_NUM; i++) {
                 if (probers[i] != null) {
                     probers[i].Reset();
                     isActive[i] = true;
