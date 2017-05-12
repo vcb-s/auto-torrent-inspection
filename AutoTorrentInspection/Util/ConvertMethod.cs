@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -70,51 +69,44 @@ namespace AutoTorrentInspection.Util
             return Encoding.UTF8.GetString(buffer);
         }
 
-        public static IEnumerable<KeyValuePair<IEnumerable<string>, FileSize>> GetRawFolderFileListWithAttribute(string folderPath)
+        public static IEnumerable<(IEnumerable<string>, FileSize)> GetRawFolderFileListWithAttribute(string folderPath)
         {
             folderPath = Path.GetFullPath(folderPath).Trim('\\');
             foreach (var category in GetFileList(folderPath))
             {
                 foreach (var item in category.Value)
                 {
-                    yield return new KeyValuePair<IEnumerable<string>, FileSize>(item.FullPath.Split('\\'), new FileSize(item.Length));
+                    yield return (item.FullPath.Split('\\'), new FileSize(item.Length));
                 }
             }
         }
 
-        public static Dictionary<IEnumerable<string>, FileSize>[] GetTorrentSet(TorrentData torrent1, TorrentData torrent2)
-        {
-            var ret = new Dictionary<IEnumerable<string>, FileSize>[2];
-            ret[0] = torrent1.GetRawFileListWithAttribute().ToDictionary(item => item.Key, item => item.Value);
-            ret[1] = torrent2.GetRawFileListWithAttribute().ToDictionary(item => item.Key, item => item.Value);
-            return ret;
-        }
 
-        public static Dictionary<IEnumerable<string>, FileSize>[] GetDiff(TorrentData torrent1, TorrentData torrent2)
+        private class SetComparer : EqualityComparer<(IEnumerable<string>, FileSize)>
         {
-            var set = GetTorrentSet(torrent1, torrent2);
-            var ret = new Dictionary<IEnumerable<string>, FileSize>[2];
-            ret[0] = new Dictionary<IEnumerable<string>, FileSize>();
-            ret[1] = new Dictionary<IEnumerable<string>, FileSize>();
-
-            foreach (var item in set[0].Where(item =>
+            public override bool Equals((IEnumerable<string>, FileSize) x, (IEnumerable<string>, FileSize) y)
             {
-                var suspicious = set[1].Where(tmp => tmp.Key.SequenceEqual(item.Key)).ToArray();
-                if (!suspicious.Any()) return true;
-                var suspiciousItem = suspicious.First();
-                if (item.Value.Length != suspiciousItem.Value.Length) return true;
-                return false;
-            }))
-                ret[0].Add(item.Key, item.Value);//in torrent1, not in torrent2
-            foreach (var item in set[1].Where(item => !set[0].Any(tmp => tmp.Key.SequenceEqual(item.Key))))
-                ret[1].Add(item.Key, item.Value);
-            return ret;
+                return x.Item2.Length == y.Item2.Length && x.Item1.SequenceEqual(y.Item1);
+            }
+
+            public override int GetHashCode((IEnumerable<string>, FileSize) obj)
+            {
+                return obj.Item1.Aggregate(obj.Item2.Length.GetHashCode(), (current, i) => current ^ i.GetHashCode());
+            }
         }
 
-        public static KeyValuePair<Node, Node> GetDiffNode(TorrentData torrent1, TorrentData torrent2)
+        public static (Node inANotInB, Node inBNotInA) GetDiffNode(TorrentData torrent1, TorrentData torrent2)
         {
-            var ret = GetDiff(torrent1, torrent2);
-            return new KeyValuePair<Node, Node>(new Node(ret[0]), new Node(ret[1]));
+            var setComparer = new SetComparer();
+            var set1 = new HashSet<(IEnumerable<string>, FileSize)>(torrent1.GetRawFileListWithAttribute(), setComparer);
+            var set2 = new HashSet<(IEnumerable<string>, FileSize)>(torrent2.GetRawFileListWithAttribute(), setComparer);
+            var disq = new HashSet<(IEnumerable<string>, FileSize)>(torrent1.GetRawFileListWithAttribute(), setComparer);
+            disq.SymmetricExceptWith(set2);
+
+            return (
+                new Node(disq.Where(item => set1.Contains(item) && !set2.Contains(item))),
+                new Node(disq.Where(item => set2.Contains(item) && !set1.Contains(item)))
+                );
         }
 
         // Only call GetFileWithLongPath() if the path is too long

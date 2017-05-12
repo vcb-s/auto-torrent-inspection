@@ -39,7 +39,7 @@ namespace AutoTorrentInspection.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AutoTorrentInspection.Properties.Resources", typeof(Resources).Assembly);
+                    var temp = new global::System.Resources.ResourceManager("AutoTorrentInspection.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -65,7 +65,7 @@ namespace AutoTorrentInspection.Properties {
         /// </summary>
         internal static System.Drawing.Bitmap About {
             get {
-                object obj = ResourceManager.GetObject("About", resourceCulture);
+                var obj = ResourceManager.GetObject("About", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -79,7 +79,7 @@ namespace AutoTorrentInspection.Properties {
         ///
         ///--------------------------------------------------------------------------
         ///
-        ///Some of the pictures in this release are encoded in WebP format, which is a more advanced format than the traditional JPEG. It offers better qua [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        ///Some of the pictures in this release are encoded in WebP format, which is a more advanced format than the traditional JPEG. It offers better quali [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string ReadmeAboutWebP {
             get {

@@ -44,7 +44,7 @@ namespace AutoTorrentInspection.Util
 
         public static FlacInfo GetMetadataFromFlac(string flacPath)
         {
-            using (var fs = File.Open(flacPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var fs = File.OpenRead(flacPath))
             {
                 if (fs.Length < SizeThreshold) return new FlacInfo();
                 var info      = new FlacInfo();

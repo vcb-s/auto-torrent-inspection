@@ -168,8 +168,8 @@ namespace Ude.Core
         public void HandleData(byte[] buf, int offset, int len)
         {
 
-            int charLen = 0;
-            int max = offset + len;
+            var charLen = 0;
+            var max = offset + len;
 
             if (done)
                 return;
@@ -181,8 +181,8 @@ namespace Ude.Core
             // to record those bytes as well and analyse the character once it
             // is complete, but since a character will not make much difference,
             // skipping it will simplify our logic and improve performance.
-            for (int i = needToSkipCharNum+offset; i < max; ) {
-                int order = GetOrder(buf, i, out charLen);
+            for (var i = needToSkipCharNum+offset; i < max; ) {
+                var order = GetOrder(buf, i, out charLen);
                 i += charLen;
                 if (i > max) {
                     needToSkipCharNum = i - max;
@@ -209,7 +209,7 @@ namespace Ude.Core
                 return;
 
             // Only 2-bytes characters are of our interest
-            int order = (charLen == 2) ? GetOrder(buf, offset) : -1;
+            var order = (charLen == 2) ? GetOrder(buf, offset) : -1;
             if (order != -1 && lastCharOrder != -1) {
                 totalRel++;
                 // count this sequence to its category counter
@@ -221,7 +221,7 @@ namespace Ude.Core
         public void Reset()
         {
             totalRel = 0;
-            for (int i = 0; i < CATEGORIES_NUM; i++) {
+            for (var i = 0; i < CATEGORIES_NUM; i++) {
                 relSample[i] = 0;
                 needToSkipCharNum = 0;
                 lastCharOrder = -1;
@@ -255,7 +255,7 @@ namespace Ude.Core
 
             // return its order if it is hiragana
             if (buf[offset] == HIRAGANA_FIRST_BYTE) {
-                byte low = buf[offset+1];
+                var low = buf[offset+1];
                 if (low >= 0x9F && low <= 0xF1)
                     return low - 0x9F;
             }
@@ -266,7 +266,7 @@ namespace Ude.Core
         {
             // We are only interested in Hiragana
             if (buf[offset] == HIRAGANA_FIRST_BYTE) {
-                byte low = buf[offset+1];
+                var low = buf[offset+1];
                 if (low >= 0x9F && low <= 0xF1)
                     return low - 0x9F;
             }
@@ -281,7 +281,7 @@ namespace Ude.Core
 
         protected override int GetOrder(byte[] buf, int offset, out int charLen)
         {
-            byte high = buf[offset];
+            var high = buf[offset];
 
             //find out current char's byte length
             if (high == 0x8E || high >= 0xA1 && high <= 0xFE)
@@ -293,7 +293,7 @@ namespace Ude.Core
 
             // return its order if it is hiragana
             if (high == HIRAGANA_FIRST_BYTE) {
-                byte low = buf[offset+1];
+                var low = buf[offset+1];
                 if (low >= 0xA1 && low <= 0xF3)
                     return low - 0xA1;
             }
@@ -304,7 +304,7 @@ namespace Ude.Core
         {
             // We are only interested in Hiragana
             if (buf[offset] == HIRAGANA_FIRST_BYTE) {
-                byte low = buf[offset+1];
+                var low = buf[offset+1];
                 if (low >= 0xA1 && low <= 0xF3)
                     return low - 0xA1;
             }

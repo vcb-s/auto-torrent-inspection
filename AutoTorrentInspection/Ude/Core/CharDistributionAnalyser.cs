@@ -98,7 +98,7 @@ namespace Ude.Core
         public void HandleOneChar(byte[] buf, int offset, int charLen)
         {
             //we only care about 2-bytes character in our distribution analysis
-            int order = (charLen == 2) ? GetOrder(buf, offset) : -1;
+            var order = (charLen == 2) ? GetOrder(buf, offset) : -1;
             if (order >= 0) {
                 totalChars++;
                 if (order < tableSize) { // order is valid
@@ -127,7 +127,7 @@ namespace Ude.Core
             if (totalChars <= 0 || freqChars <= MINIMUM_DATA_THRESHOLD)
                 return SURE_NO;
             if (totalChars != freqChars) {
-                float r = freqChars / ((totalChars - freqChars) * typicalDistributionRatio);
+                var r = freqChars / ((totalChars - freqChars) * typicalDistributionRatio);
                 if (r < SURE_YES)
                     return r;
             }

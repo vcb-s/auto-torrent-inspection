@@ -26,6 +26,12 @@ namespace AutoTorrentInspection.Util
             GetFontsUsed(subtitlePath, ref _usedFonts);
         }
 
+        public void FeedSubtitle(IEnumerable<string> subtitlePaths)
+        {
+            foreach(var subtitlePath in subtitlePaths)
+                GetFontsUsed(subtitlePath, ref _usedFonts);
+        }
+
         public void FeedFont(string fontPath)
         {
             GetNameVia(fontPath, ref _existFonts);
@@ -55,7 +61,7 @@ namespace AutoTorrentInspection.Util
                     var ret = StyleRegex.Match(line);
                     if (ret.Success)
                     {
-                        string font = ret.Groups[1].Value.TrimStart('@');
+                        var font = ret.Groups[1].Value.TrimStart('@');
                         if (usedFonts.Contains(font))
                             continue;
                         usedFonts.Add(font);
@@ -65,7 +71,7 @@ namespace AutoTorrentInspection.Util
                         var rets = InlineFontRegex.Matches(line);
                         foreach (Match item in rets)
                         {
-                            string font = item.Groups[1].Value.TrimStart('@');
+                            var font = item.Groups[1].Value.TrimStart('@');
                             if (usedFonts.Contains(font))
                                 continue;
                             usedFonts.Add(font);
@@ -84,7 +90,7 @@ namespace AutoTorrentInspection.Util
 
         private static void GetNameVia(string fontPath, ref HashSet<string> existFonts)
         {
-            PrivateFontCollection fontCol = new PrivateFontCollection();
+            var fontCol = new PrivateFontCollection();
             fontCol.AddFontFile(fontPath);
             foreach (var item in fontCol.Families)
                 existFonts.Add(item.Name);
@@ -94,16 +100,16 @@ namespace AutoTorrentInspection.Util
         {
             var ret = new Dictionary<string, string>();
             var languageCode = new[] { 1033, 1028, 2052, 1041 };
-            foreach (FontFamily fontFamily in new InstalledFontCollection().Families)
+            foreach (var fontFamily in new InstalledFontCollection().Families)
             {
-                string key = fontFamily.Name.ToLower();
+                var key = fontFamily.Name.ToLower();
                 if (!ret.ContainsKey(key))
                 {
                     ret[key] = fontFamily.Name;
                 }
-                foreach (int language in languageCode)
+                foreach (var language in languageCode)
                 {
-                    string name = fontFamily.GetName(language);
+                    var name = fontFamily.GetName(language);
                     key = name.ToLower();
                     if (!ret.ContainsKey(key))
                     {

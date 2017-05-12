@@ -7,9 +7,10 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using AutoTorrentInspection.Util;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Text.RegularExpressions;
 using AutoTorrentInspection.Properties;
 
 
@@ -21,12 +22,14 @@ namespace AutoTorrentInspection
         {
             InitializeComponent();
             AddCommand();
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         }
 
         public Form1(string args)
         {
             InitializeComponent();
             AddCommand();
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             FilePath = args;
             try
             {
@@ -60,6 +63,7 @@ namespace AutoTorrentInspection
             _systemMenu = new SystemMenu(this);
             _systemMenu.AddCommand("检查更新(&U)", Updater.CheckUpdate, true);
             _systemMenu.AddCommand("关于(&A)", () => { new FormAbout().Show(); }, false);
+            _systemMenu.AddCommand("导出概要(&E)", ExportSummary, false);
         }
 
         protected override void WndProc(ref Message msg)
@@ -73,15 +77,13 @@ namespace AutoTorrentInspection
 
         private string FilePath
         {
-            get { return _paths[0]; }
-            set { _paths[0] = value; }
+            get => _paths[0];
+            set => _paths[0] = value;
         }
         private string[] _paths = new string[20];
         private TorrentData _torrent;
         private Dictionary<string, List<FileDescription>> _data;
-        private IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> _sizeData;
-        private HashSet<string> _fonts;
-        private AssFonts _assFonts;
+        private IEnumerable<(long, IEnumerable<FileDescription>)> _sizeData;
 
         private bool _isUrl;
 
@@ -107,17 +109,17 @@ namespace AutoTorrentInspection
         {
             if (_isUrl)
             {
-                string url = e.Data.GetData("Text") as string;
+                var url = e.Data.GetData("Text") as string;
                 Debug.WriteLine(url ?? "null");
                 if (string.IsNullOrEmpty(url) || !url.ToLower().EndsWith(".torrent"))
                 {
                     return;
                 }
-                using (System.Net.WebClient wc = new System.Net.WebClient())
+                using (var wc = new System.Net.WebClient())
                 {
                     try
                     {
-                        string filePath = Path.Combine(Path.GetTempPath(), Path.GetTempFileName()+".torrent");
+                        var filePath = Path.GetTempFileName()+".torrent";
                         wc.DownloadFileCompleted += LoadFile;
                         wc.DownloadFileAsync(new Uri(url), filePath);
                         FilePath = filePath;
@@ -159,9 +161,16 @@ namespace AutoTorrentInspection
         }
 
         private const string CurrentTrackerList = "http://208.67.16.113:8000/annonuce\n\n" +
-                                                "udp://208.67.16.113:8000/annonuce\n\n" +
-                                                "udp://tracker.openbittorrent.com:80/announce\n\n"+
-                                                "http://t.acg.rip:6699/announce";
+                                                  "udp://208.67.16.113:8000/annonuce\n\n" +
+                                                  "udp://tracker.openbittorrent.com:80/announce\n\n"+
+                                                  "http://t.acg.rip:6699/announce";
+
+        private IEnumerable<string> GetUsedFonts()
+        {
+            var assFonts = new AssFonts();
+            assFonts.FeedSubtitle(_data.Values.SelectMany(_ => _).Where(file => file.Extension == ".ass").Select(file => file.FullPath));
+            return assFonts.UsedFonts.OrderBy(i => i);
+        }
 
         private void btnAnnounceList_Click(object sender, EventArgs e)
         {
@@ -169,12 +178,7 @@ namespace AutoTorrentInspection
             {
                 new Thread(() =>
                 {
-                    _assFonts = new AssFonts();
-                    var ass = _data.SelectMany(item => item.Value).Where(file => file.Extension == ".ass");
-                    foreach (var file in ass) _assFonts.FeedSubtitle(file.FullPath);
-                    _fonts = _assFonts.UsedFonts;
-                    string context = string.Empty;
-                    foreach (var item in _fonts.ToList().OrderBy(i => i)) context += item + "\n";
+                    var context = string.Join("\n", GetUsedFonts());
                     if (string.IsNullOrEmpty(context)) return;
                     context.ShowWithTitle("Fonts used in subtitles");
                 }).Start();
@@ -182,8 +186,8 @@ namespace AutoTorrentInspection
             }
 
             var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd();
-            var currentRuler = trackerList == CurrentTrackerList;
-            trackerList.ShowWithTitle($@"Tracker List == {currentRuler}");
+            var currentRule = trackerList == CurrentTrackerList;
+            trackerList.ShowWithTitle($@"Tracker List == {currentRule}");
         }
 
         private void LoadFile(object sender, AsyncCompletedEventArgs e)
@@ -313,13 +317,36 @@ namespace AutoTorrentInspection
             cbCategory.Enabled = cbCategory.Items.Count > 1;
         }
 
-        private IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> FileSizeDuplicateInspection()
+        private IEnumerable<(long, IEnumerable<FileDescription>)> FileSizeDuplicateInspection()
         {
+            //拍扁并按体积分组
             foreach (var sizePair in _data.Values.SelectMany(i => i).GroupBy(i => i.Length))
             {
+                //再按后缀分组并跳过单个文件的
                 foreach (var files in sizePair.GroupBy(i => i.Extension).SkipWhile(i => i.Count() <= 1))
                 {
-                    yield return new KeyValuePair<long, IEnumerable<FileDescription>>(sizePair.Key, files);
+                    yield return (sizePair.Key, files);
+                }
+            }
+        }
+
+        private static readonly Regex FileOrderPattern = new Regex(@"^\[[^\[\]]*VCB\-S(?:tudio)*[^\[\]]*\] (?<name>[^\[\]]+)\[(?<type>[^\d]*)(?<ord>\d+)\]");
+
+        private IEnumerable<string> FileOrderMissingInspection()
+        {
+            var data = _data.Values.SelectMany(i => i).Select(file =>
+            {
+                var match = FileOrderPattern.Match(file.FileName);
+                var name = $"{file.ReletivePath}/{match.Groups["name"]}[{match.Groups["type"].Value}]{file.Extension}";
+                return match.Success ? (name, int.Parse(match.Groups["ord"].Value)) : ("", -1);
+            }).Where(file => file.Item2 != -1).GroupBy(file => file.Item1);
+            foreach (var group in data)
+            {
+                var arr = group.Select(file => file.Item2).OrderBy(i=>i).Distinct().ToList();
+                int begin = arr.First(), length = arr.Count;
+                if (begin > 1 || !arr.SequenceEqual(Enumerable.Range(begin, length)))
+                {
+                    yield return group.First().Item1;
                 }
             }
         }
@@ -341,21 +368,24 @@ namespace AutoTorrentInspection
             {
                 cbCategory.SelectedIndex = cbCategory.SelectedIndex == -1 ? 0 : cbCategory.SelectedIndex;
             }
-            DateTime time = DateTime.Now;
+            var time = DateTime.Now;
             try {
                 time = _torrent?.CreationDate ?? new DirectoryInfo(FilePath).LastWriteTime;
             } catch { /* ignored */ }
             Text = $@"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version} - " +
                    $@"{_torrent?.TorrentName ?? FilePath} - By [{_torrent?.CreatedBy ?? "Folder"}] - " +
                    $@"{_torrent?.Encoding ?? "UND"} - {time}";
+            var ret = FileOrderMissingInspection().ToList();
+            if (ret.Count != 0)
+                string.Join("\n", ret).ShowWithTitle("以下可能存在序号乱写的嫌疑");
         }
 
         private void Inspection(string category)
         {
-            Func<FileDescription, bool> check = item => item.State != FileState.ValidFile || cbShowAll.Checked;
+            Func<FileDescription, bool> filter = item => item.State != FileState.ValidFile || cbShowAll.Checked;
             //dataGridView1.Rows.AddRange(_data[category].Where(item => check(item)).Select(r => r.ToRow()).ToArray());
             //Application.DoEvents();
-            foreach (var item in _data[category].Where(item => check(item)))
+            foreach (var item in _data[category].Where(filter))
             {
                 dataGridView1.Rows.Add(item.ToRow());
                 Application.DoEvents();
@@ -366,7 +396,7 @@ namespace AutoTorrentInspection
 
         private void btnWebP_Click(object sender, EventArgs e)
         {
-            string txtpath = Path.Combine(FilePath, "readme about WebP.txt");
+            var txtpath = Path.Combine(FilePath, "readme about WebP.txt");
             if (MessageBox.Show(@"是否在根目录生成 readme about WebP.txt", @"ATI Tips", MessageBoxButtons.YesNo)
                 != DialogResult.Yes) return;
             try
@@ -441,7 +471,7 @@ namespace AutoTorrentInspection
         private void dataGridView1_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.RowIndex < 0) return;
-            FileDescription fileInfo = dataGridView1.Rows[e.RowIndex].Tag as FileDescription;
+            var fileInfo = dataGridView1.Rows[e.RowIndex].Tag as FileDescription;
             if (fileInfo == null)  return;
             var confindence = fileInfo.Confidence;
             toolStripStatusLabel_Encode.Text = $@"{fileInfo.Encode}({confindence:F2})";
@@ -481,7 +511,7 @@ namespace AutoTorrentInspection
             if (_fixing || dataGridView1.SelectedCells.Count != 1) return;
             Debug.WriteLine($"{e.KeyCode} - {dataGridView1.SelectedCells[0].RowIndex}");
             var rowIndex = dataGridView1.SelectedCells[0].RowIndex;
-            FileDescription fileInfo = dataGridView1.Rows[rowIndex].Tag as FileDescription;
+            var fileInfo = dataGridView1.Rows[rowIndex].Tag as FileDescription;
             if (fileInfo == null) return;
 
             var confindence = fileInfo.Confidence;
@@ -497,73 +527,6 @@ namespace AutoTorrentInspection
         private void btnCompare_Click(object sender, EventArgs e)
         {
             new FormFileDup(_sizeData).Show();
-            /*
-            if (openFileDialog1.ShowDialog() != DialogResult.OK) return;
-            var torrent = new TorrentData(openFileDialog1.FileName);
-
-            //var fileList = torrent.GetRawFileList();
-            var node = new Node(torrent.GetRawFileListWithAttribute());
-            var cmpResult = CheckConsistency(node, FilePath);
-
-            if (cmpResult.Result.ResultType == CheckResult.ResultTypeEnum.Normal)
-            {
-                int tsum = torrent.GetFileList().Values.Sum(item => item.Count);
-                int fsum = _data.Values.Sum(item => item.Count);
-                Notification.ShowInfo(tsum == fsum ? @"种子与文件夹内容完全一致" : $"文件夹中比种子内多 {fsum - tsum} 个文件");
-            }
-            else
-            {
-                Notification.ShowInfo($"First unmatched File: {cmpResult.Result.FileName}\nError Type: {cmpResult.Result.ResultType}");
-            }
-            */
-        }
-
-        private class CheckResult
-        {
-            public enum ResultTypeEnum
-            {
-                Normal,
-                Exists,
-                Size
-            }
-
-            public string FileName { get; set; }
-            public ResultTypeEnum ResultType { get; set; }
-
-        }
-
-        private static async Task<CheckResult> CheckConsistency(Node node, string baseDirectory)
-        {
-            foreach (var directory in node.GetDirectories())
-            {
-                var result = await CheckConsistency(directory, baseDirectory);
-                if (result.ResultType != CheckResult.ResultTypeEnum.Normal)
-                {
-                    return result;
-                }
-            }
-            var masterRet = new CheckResult { FileName = node.NodeName, ResultType = CheckResult.ResultTypeEnum.Normal };
-            foreach (var f in node.GetFiles().Select(file => new KeyValuePair<string, FileSize>(baseDirectory + file.FullPath, file.Attribute)))
-            {
-                var ret = new CheckResult { FileName = Path.GetFileName(f.Key), ResultType = CheckResult.ResultTypeEnum.Normal};
-                if (!File.Exists(f.Key))
-                {
-                    ret.ResultType = CheckResult.ResultTypeEnum.Exists;
-                }
-                else
-                {
-                    var length = new FileInfo(f.Key).Length;
-                    if (length != f.Value.Length)
-                    {
-                        ret.ResultType = CheckResult.ResultTypeEnum.Size;
-                    }
-                }
-                if (ret.ResultType != CheckResult.ResultTypeEnum.Normal)
-                {
-                    return ret;
-                }
-            }
-            return masterRet;
         }
 
         private void btnTreeView_Click(object sender, EventArgs e)
@@ -571,6 +534,67 @@ namespace AutoTorrentInspection
             if (_torrent == null) return;
             var frm = new TreeViewForm(_torrent);
             frm.Show();
+        }
+
+        private void ExportSummary()
+        {
+            if (string.IsNullOrEmpty(FilePath)) return;
+            using (var writer = new StreamWriter(File.OpenWrite(FilePath + ".md"), Encoding.UTF8))
+            {
+                writer.WriteLine("# Summary");
+                writer.WriteLine($"## Source type: {(_torrent == null ? "Folder" : "Torrent")}");
+                writer.WriteLine();
+
+                if (_torrent != null)
+                {
+                    writer.WriteLine($"- TorrentName:\t{_torrent.TorrentName}\n" +
+                                     $"- CreatedBy:\t{_torrent.CreatedBy}\n" +
+                                     $"- IsPrivate:\t{_torrent.IsPrivate}");
+                    writer.WriteLine();
+                    var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd();
+                    writer.WriteLine($"- TrackerList:\t{trackerList == CurrentTrackerList}");
+                    writer.WriteLine();
+                    writer.WriteLine($"{new string('=', 20)}\n\n" +
+                                     $"{trackerList}\n\n" +
+                                     $"{new string('=', 20)}");
+                    writer.WriteLine();
+                }
+                else
+                {
+                    writer.WriteLine($"- PathName:\t{FilePath}");
+                    writer.WriteLine();
+                    var fonts = string.Join("\n\t- ", GetUsedFonts());
+                    if (!string.IsNullOrEmpty(fonts))
+                    {
+                        writer.WriteLine("- Fonts:");
+                        writer.WriteLine("\t- " + fonts);
+                        writer.WriteLine();
+                    }
+                }
+                writer.WriteLine("## Doubtful files");
+                writer.WriteLine();
+
+                var rows = new Dictionary<FileState, List<FileDescription>>();
+                foreach (DataGridViewRow row in dataGridView1.Rows)
+                {
+                    var fileInfo = row.Tag as FileDescription;
+                    if (fileInfo == null) continue;
+                    if (!rows.ContainsKey(fileInfo.State))
+                    {
+                        rows[fileInfo.State] = new List<FileDescription>();
+                    }
+                    rows[fileInfo.State].Add(fileInfo);
+                }
+                foreach (var state in rows)
+                {
+                    writer.WriteLine($"### {state.Key}");
+                    foreach (var info in state.Value)
+                    {
+                        writer.WriteLine($"- {info.FullPath}");
+                    }
+                    writer.WriteLine();
+                }
+            }
         }
     }
 }

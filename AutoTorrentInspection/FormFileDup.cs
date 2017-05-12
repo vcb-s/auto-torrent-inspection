@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using AutoTorrentInspection.Util;
 using AutoTorrentInspection.Util.Crc32.NET;
@@ -21,25 +16,25 @@ namespace AutoTorrentInspection
             InitializeComponent();
         }
 
-        public FormFileDup(IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> sizeData)
+        public FormFileDup(IEnumerable<(long, IEnumerable<FileDescription>)> sizeData)
         {
             InitializeComponent();
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             GetCRCAsync(sizeData);
         }
 
-        private async void GetCRCAsync(IEnumerable<KeyValuePair<long, IEnumerable<FileDescription>>> sizeData)
+        private async void GetCRCAsync(IEnumerable<(long length, IEnumerable<FileDescription> files)> sizeData)
         {
             var ret = sizeData.Select(size => new
             {
-                filesize = size.Key,
-                files = size.Value.Select(item => new
+                filesize = size.length,
+                files = size.files.Select(item => new
                 {
                     crc  = Crc32Algorithm.FileCRC(item.FullPath),
                     info = item
                 })
             });
-            TreeNodeCollection treenode = treeView1.Nodes;
+            var treenode = treeView1.Nodes;
             try {
                 foreach (var size in ret)
                 {
@@ -48,7 +43,7 @@ namespace AutoTorrentInspection
                     var tmp = new List<uint>();
                     foreach (var file in size.files)
                     {
-                        uint crc = await file.crc;
+                        var crc = await file.crc;
                         tmp.Add(crc);
                         if (crc == 0) node.Nodes.Add(file.info.ReletivePath + file.info.FileName);
                         else
@@ -62,6 +57,8 @@ namespace AutoTorrentInspection
                 }
                 treeView1.Sort();
                 treeView1.ExpandAll();
+                if (treenode.Count == 0)
+                    Notification.ShowInfo(@"没有出现雷同的文件");
             }
             catch (Exception exception)
             {

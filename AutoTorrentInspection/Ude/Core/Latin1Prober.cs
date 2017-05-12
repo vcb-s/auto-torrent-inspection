@@ -127,15 +127,15 @@ namespace Ude.Core
         {
             state = ProbingState.Detecting;
             lastCharClass = OTH;
-            for (int i = 0; i < FREQ_CAT_NUM; i++)
+            for (var i = 0; i < FREQ_CAT_NUM; i++)
                 freqCounter[i] = 0;
         }
 
         public override ProbingState HandleData(byte[] buf, int offset, int len)
         {
-            byte[] newbuf = FilterWithEnglishLetters(buf, offset, len);
+            var newbuf = FilterWithEnglishLetters(buf, offset, len);
 
-            foreach (byte b in newbuf)
+            foreach (var b in newbuf)
             {
                 var charClass = Latin1_CharToClass[b];
                 var freq = Latin1ClassModel[lastCharClass * CLASS_NUM + charClass];
@@ -155,8 +155,8 @@ namespace Ude.Core
                 return 0.01f;
 
             float confidence;
-            int total = 0;
-            for (int i = 0; i < FREQ_CAT_NUM; i++) {
+            var total = 0;
+            for (var i = 0; i < FREQ_CAT_NUM; i++) {
                 total += freqCounter[i];
             }
 

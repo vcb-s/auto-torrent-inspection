@@ -34,7 +34,7 @@ namespace AutoTorrentInspection.Util
         /// <param name="directory">cue文件所在目录</param>
         public static string FixFilename(string original, string directory)
         {
-            string filename = CueFileNameRegex.Match(original).Groups["fileName"].ToString();
+            var filename = CueFileNameRegex.Match(original).Groups["fileName"].ToString();
             if (!directory.EndsWith("\\")) directory += "\\";
             try
             {
@@ -57,7 +57,7 @@ namespace AutoTorrentInspection.Util
             if (File.Exists(filename + ".bak")) return;
             try
             {
-                FileInfo fi = new FileInfo(filename);
+                var fi = new FileInfo(filename);
                 var bakPath = $"{fi.DirectoryName}\\{fi.Name}.bak";
                 if (!File.Exists(bakPath))
                 {

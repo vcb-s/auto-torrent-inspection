@@ -19,7 +19,7 @@ namespace AutoTorrentInspection.Util.Crc32.NET
         {
             for (uint i = 0; i < 256; i++)
             {
-                uint res = i;
+                var res = i;
                 for (uint t = 0; t < 16; t++)
                 {
                     for (uint k = 0; k < 8; k++) res = (res & 1) == 1 ? Poly ^ (res >> 1) : (res >> 1);
@@ -30,7 +30,7 @@ namespace AutoTorrentInspection.Util.Crc32.NET
 
         public static uint Append(uint crc, byte[] input, int offset, int length)
         {
-            uint crcLocal = uint.MaxValue ^ crc;
+            var crcLocal = uint.MaxValue ^ crc;
 
             var table = Table;
             while (length >= 16)

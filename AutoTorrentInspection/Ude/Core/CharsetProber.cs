@@ -107,15 +107,15 @@ namespace Ude.Core
         {
             byte[] result;
 
-            using (MemoryStream ms = new MemoryStream(buf.Length)) {
+            using (var ms = new MemoryStream(buf.Length)) {
 
-                bool meetMSB = false;
-                int max = offset + len;
-                int prev = offset;
-                int cur = offset;
+                var meetMSB = false;
+                var max = offset + len;
+                var prev = offset;
+                var cur = offset;
 
                 while (cur < max) {
-                    byte b = buf[cur];
+                    var b = buf[cur];
 
                     if ((b & 0x80) != 0) {
                         meetMSB = true;
@@ -149,16 +149,16 @@ namespace Ude.Core
         {
             byte[] result;
 
-            using (MemoryStream ms = new MemoryStream(buf.Length)) {
+            using (var ms = new MemoryStream(buf.Length)) {
 
-                bool inTag = false;
-                int max = offset + len;
-                int prev = offset;
-                int cur = offset;
+                var inTag = false;
+                var max = offset + len;
+                var prev = offset;
+                var cur = offset;
 
                 while (cur < max) {
 
-                    byte b = buf[cur];
+                    var b = buf[cur];
 
                     if (b == GREATER_THAN)
                         inTag = false;

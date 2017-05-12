@@ -69,7 +69,7 @@ namespace AutoTorrentInspection
                 return;
             }
             Text = _data.TorrentName;
-            TreeNode treenode = new TreeNode(_data.TorrentName);
+            var treenode = new TreeNode(_data.TorrentName);
             long length = 0;
             var task = new Task(() =>
             {
@@ -107,9 +107,10 @@ namespace AutoTorrentInspection
             {
                 treeView1.Nodes.Clear();
                 var tmp = _torrentQueue.ToArray();
+                //var ret = ConvertMethod.GetDiffNode(tmp[0], tmp[1]);
                 var ret = ConvertMethod.GetDiffNode(tmp[0], tmp[1]);
-                ret.Key.InsertTo(treeView1.Nodes, KnownColor.PowderBlue);
-                ret.Value.InsertTo(treeView1.Nodes, KnownColor.PaleVioletRed);
+                ret.inANotInB.InsertTo(treeView1.Nodes, KnownColor.PowderBlue);
+                ret.inBNotInA.InsertTo(treeView1.Nodes, KnownColor.PaleVioletRed);
             }
         }
 
@@ -119,7 +120,7 @@ namespace AutoTorrentInspection
 
         private void treeView1_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            string text = e.Node.Text;
+            var text = e.Node.Text;
             try { text = text.Substring(0, text.IndexOf('\ufeff')); }
             catch { /* ignored */ }
             Clipboard.SetText(text);
