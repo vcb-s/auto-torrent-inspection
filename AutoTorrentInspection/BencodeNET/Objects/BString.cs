@@ -112,10 +112,7 @@ namespace BencodeNET.Objects
         public override bool Equals(object other)
         {
             var bstring = other as BString;
-            if (bstring != null)
-                return Value.SequenceEqual(bstring.Value);
-
-            return false;
+            return bstring != null && Value.SequenceEqual(bstring.Value);
         }
 
         public bool Equals(BString bstring)
@@ -143,22 +140,22 @@ namespace BencodeNET.Objects
             if (other == null)
                 return 1;
 
-            var maxLength = Math.Max(this.Length, other.Length);
+            var maxLength = Math.Max(Length, other.Length);
 
             for (var i = 0; i < maxLength; i++)
             {
                 // This is shorter and thereby this is "less than" the other
-                if (i >= this.Length)
+                if (i >= Length)
                     return -1;
 
                 // The other is shorter and thereby this is "greater than" the other
                 if (i >= other.Length)
                     return 1;
 
-                if (this.Value[i] > other.Value[i])
+                if (Value[i] > other.Value[i])
                     return 1;
 
-                if (this.Value[i] < other.Value[i])
+                if (Value[i] < other.Value[i])
                     return -1;
             }
 

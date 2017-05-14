@@ -178,12 +178,8 @@ namespace BencodeNET.Objects
 
         public IBObject this[int index]
         {
-            get { return Value[index]; }
-            set
-            {
-                if (value == null) throw new ArgumentNullException(nameof(value));
-                Value[index] = value;
-            }
+            get => Value[index];
+            set => Value[index] = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         public void Add(IBObject item)
@@ -277,11 +273,7 @@ namespace BencodeNET.Objects
                 if (obj == null) throw new InvalidCastException($"The object at index {index} is not of type {typeof (T).FullName}");
                 return obj;
             }
-            set
-            {
-                if (value == null) throw new ArgumentNullException(nameof(value));
-                Value[index] = value;
-            }
+            set => Value[index] = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         public void Add(T item)
