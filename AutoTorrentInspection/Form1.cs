@@ -330,7 +330,7 @@ namespace AutoTorrentInspection
             }
         }
 
-        private static readonly Regex FileOrderPattern = new Regex(@"^\[[^\[\]]*VCB\-S(?:tudio)*[^\[\]]*\] (?<name>[^\[\]]+)\[(?<type>[^\d]*)(?<ord>\d+)\]");
+        private static readonly Regex FileOrderPattern = new Regex(@"^\[[^\[\]]*VCB\-S(?:tudio)*[^\[\]]*\] (?<name>[^\[\]]+)\[(?<type>[^\d]*)(?<ord>\d+)(?:v\d)?\]");
 
         private IEnumerable<string> FileOrderMissingInspection()
         {
