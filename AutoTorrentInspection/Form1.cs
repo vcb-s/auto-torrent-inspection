@@ -263,6 +263,15 @@ namespace AutoTorrentInspection
             }
         }
 
+        enum WebpState
+        {
+            Fine             = 0,
+            NotFound         = 1,
+            IncorrectContent = 2,
+            ReadFileFailed   = 4,
+            MultipleFiles    = 8,
+        }
+
         private void InspecteOperation()
         {
             if (_data.Any(catalog => catalog.Value.Any(item => item.Extension == ".ass")))
@@ -275,49 +284,62 @@ namespace AutoTorrentInspection
                     }
                 }
             }
+
+            var webpState = WebpState.Fine;
+            const string webpReadMe = "readme about WebP.txt";
+            Exception resultException = null;
             if (_data.Any(catalog => catalog.Value.Any(item => item.Extension == ".webp")))
             {
-                const string webpReadMe = "readme about WebP.txt";
-                if (_data.ContainsKey("root"))
+                if (_data.TryGetValue("root", out var rootFiles))
                 {
-                    var readme = _data["root"].Where(item => item.FileName == webpReadMe).ToList();
-                    var show = false;
-                    if (!readme.Any())//no readme found
-                    {
-                        Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现{webpReadMe}");
-                        show = _torrent == null;//create the txt
-                    }
-                    else if(_torrent == null)// found and in folder mode
-                    {
-                        try
-                        {
-                            var path = readme.First().FullPath;
-                            if (readme.First().Length != 1186 || File.ReadAllText(path) != Resources.ReadmeAboutWebP)
-                            {
-                                Notification.ShowInfo($"{webpReadMe}的内容在报道上出现了偏差");
-                                show = true;//rewrite the txt
-                            }
-                        }
-                        catch (Exception exception)
-                        {
-                            Notification.ShowError($"读取{webpReadMe}失败", exception);
-                        }
-                    }
+                    var readme = rootFiles.Where(item => item.FileName == webpReadMe).ToList();
+                    if      (readme.Count == 0) webpState = WebpState.NotFound;
+                    else if (readme.Count >  1) webpState = WebpState.MultipleFiles;
                     else
                     {
-                        if (readme.First().Length != 1186)
+                        var readmeFile = readme.First();
+                        if (readmeFile.Length != 1186) webpState = WebpState.IncorrectContent;
+                        try
                         {
-                            Notification.ShowInfo($"{webpReadMe}的内容在报道上出现了偏差");
+                            if (_torrent == null && webpState != WebpState.IncorrectContent &&
+                                File.ReadAllText(readmeFile.FullPath) != Resources.ReadmeAboutWebP)
+                            {
+                                webpState = WebpState.IncorrectContent;
+                            }
+                        }
+                        catch(Exception exception)
+                        {
+                            resultException = exception;
+                            webpState = WebpState.ReadFileFailed;
                         }
                     }
-                    btnWebP.Visible = btnWebP.Enabled = show;
+                }
+                else webpState = WebpState.NotFound;
+                switch (webpState)
+                {
+                    case WebpState.Fine:
+                        break;
+                    case WebpState.NotFound:
+                        Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现{webpReadMe}");
+                        break;
+                    case WebpState.IncorrectContent:
+                        Notification.ShowInfo($"{webpReadMe}的内容在报道上出现了偏差");
+                        break;
+                    case WebpState.ReadFileFailed:
+                        Notification.ShowError($"读取{webpReadMe}失败", resultException);
+                        break;
+                    case WebpState.MultipleFiles:
+                        Notification.ShowInfo($"发现复数个{webpReadMe}");
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
             ThroughInspection();
             cbCategory.Enabled = cbCategory.Items.Count > 1;
         }
 
-        private IEnumerable<(long, IEnumerable<FileDescription>)> FileSizeDuplicateInspection()
+        private IEnumerable<(long length, IEnumerable<FileDescription> files)> FileSizeDuplicateInspection()
         {
             //拍扁并按体积分组
             foreach (var sizePair in _data.Values.SelectMany(i => i).GroupBy(i => i.Length))
