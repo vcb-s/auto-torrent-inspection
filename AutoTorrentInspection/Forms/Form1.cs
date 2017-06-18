@@ -187,7 +187,7 @@ namespace AutoTorrentInspection.Forms
 
             var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd();
             var currentRule = trackerList == CurrentTrackerList;
-            trackerList.ShowWithTitle($@"Tracker List == {currentRule}");
+            ConvertMethod.GetDiff(trackerList, CurrentTrackerList).ShowWithTitle($@"Tracker List == {currentRule}");
         }
 
         private void LoadFile(object sender, AsyncCompletedEventArgs e)
