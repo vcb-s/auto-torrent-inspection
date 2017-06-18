@@ -39,8 +39,8 @@ namespace BencodeNET.Objects
         /// <exception cref="ArgumentNullException"></exception>
         public Encoding Encoding
         {
-            get { return _encoding; }
-            set { _encoding = value ?? DefaultEncoding; }
+            get => _encoding;
+            set => _encoding = value ?? DefaultEncoding;
         }
         private Encoding _encoding;
 
