@@ -81,6 +81,13 @@ namespace AutoTorrentInspection.Util
             }
         }
 
+        private static int _(this int[,] mat, int i, int j)
+        {
+            if (i < 0) return 0;
+            if (j < 0) return 0;
+            return mat[i, j];
+        }
+
         public static string GetDiff(string lhs, string rhs)
         {
             var lList = lhs.Split('\n');
@@ -98,18 +105,11 @@ namespace AutoTorrentInspection.Util
                 for (var j = 0; j < y.Length; ++j)
                 {
                     if (x[i] == y[j])
-                        c[i, j] = Get(i - 1, j - 1) + 1;
+                        c[i, j] = c._(i - 1, j - 1) + 1;
                     else
-                        c[i, j] = Math.Max(Get(i, j - 1), Get(i - 1, j));
+                        c[i, j] = Math.Max(c._(i, j - 1), c._(i - 1, j));
                 }
                 return c;
-
-                int Get(int i, int j)
-                {
-                    if (i < 0) return 0;
-                    if (j < 0) return 0;
-                    return c[i, j];
-                }
             }
 
             void PrintDiff(int[,] c, string[] x, string[] y, int i, int j)
@@ -119,12 +119,12 @@ namespace AutoTorrentInspection.Util
                     PrintDiff(c, x, y, i - 1, j - 1);
                     answer.AppendLine($"  {x[i]}");
                 }
-                else if (j >= 0 && (i < 0 || Get(i, j - 1) >= Get(i - 1, j)))
+                else if (j >= 0 && (i < 0 || c._(i, j - 1) >= c._(i - 1, j)))
                 {
                     PrintDiff(c, x, y, i, j - 1);
                     answer.AppendLine($"+ {y[j]}");
                 }
-                else if (i >= 0 && (j < 0 || Get(i, j - 1) < Get(i - 1, j)))
+                else if (i >= 0 && (j < 0 || c._(i, j - 1) < c._(i - 1, j)))
                 {
                     PrintDiff(c, x, y, i - 1, j);
                     answer.AppendLine($"- {x[i]}");
@@ -132,13 +132,6 @@ namespace AutoTorrentInspection.Util
                 else
                 {
                     answer.AppendLine();
-                }
-
-                int Get(int _i, int _j)
-                {
-                    if (_i < 0) return 0;
-                    if (_j < 0) return 0;
-                    return c[_i, _j];
                 }
             }
         }
