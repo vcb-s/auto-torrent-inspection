@@ -81,6 +81,60 @@ namespace AutoTorrentInspection.Util
             }
         }
 
+        private static int _(this int[,] mat, int i, int j)
+        {
+            if (i < 0) return 0;
+            if (j < 0) return 0;
+            return mat[i, j];
+        }
+
+        public static string GetDiff(string lhs, string rhs)
+        {
+            var lList = lhs.Split('\n');
+            var rList = rhs.Split('\n');
+            var answer = new StringBuilder();
+
+            var mat = Lcs(lList, rList);
+            PrintDiff(mat, lList, rList, lList.Length - 1, rList.Length - 1);
+            return answer.ToString();
+
+            int[,] Lcs(string[] x, string[] y)
+            {
+                var c = new int[x.Length, y.Length];
+                for (var i = 0; i < x.Length; ++i)
+                for (var j = 0; j < y.Length; ++j)
+                {
+                    if (x[i] == y[j])
+                        c[i, j] = c._(i - 1, j - 1) + 1;
+                    else
+                        c[i, j] = Math.Max(c._(i, j - 1), c._(i - 1, j));
+                }
+                return c;
+            }
+
+            void PrintDiff(int[,] c, string[] x, string[] y, int i, int j)
+            {
+                if (i >= 0 && j >= 0 && x[i] == y[j])
+                {
+                    PrintDiff(c, x, y, i - 1, j - 1);
+                    answer.AppendLine($"  {x[i]}");
+                }
+                else if (j >= 0 && (i < 0 || c._(i, j - 1) >= c._(i - 1, j)))
+                {
+                    PrintDiff(c, x, y, i, j - 1);
+                    answer.AppendLine($"+ {y[j]}");
+                }
+                else if (i >= 0 && (j < 0 || c._(i, j - 1) < c._(i - 1, j)))
+                {
+                    PrintDiff(c, x, y, i - 1, j);
+                    answer.AppendLine($"- {x[i]}");
+                }
+                else
+                {
+                    answer.AppendLine();
+                }
+            }
+        }
 
         private class SetComparer : EqualityComparer<(IEnumerable<string>, FileSize)>
         {

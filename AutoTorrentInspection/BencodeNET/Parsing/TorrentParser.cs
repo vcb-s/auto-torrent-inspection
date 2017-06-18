@@ -21,9 +21,7 @@ namespace BencodeNET.Parsing
         /// <param name="bencodeParser">The parser used for parsing the torrent <see cref="BDictionary"/>.</param>
         public TorrentParser(IBencodeParser bencodeParser)
         {
-            if (bencodeParser == null) throw new ArgumentNullException(nameof(bencodeParser));
-
-            BencodeParser = bencodeParser;
+            BencodeParser = bencodeParser ?? throw new ArgumentNullException(nameof(bencodeParser));
         }
 
         /// <summary>
@@ -259,22 +257,17 @@ namespace BencodeNET.Parsing
         // TODO: Unit tests
         private void FixEncoding(IBObject bobject, Encoding encoding)
         {
-            var dictionary = bobject as BDictionary;
-            if (dictionary != null)
+            switch (bobject)
             {
-                FixEncodingInDictionary(dictionary, encoding);
-            }
-
-            var list = bobject as BList;
-            if (list != null)
-            {
-                FixEncodingInList(list, encoding);
-            }
-
-            var value = bobject as BString;
-            if (value != null)
-            {
-                value.Encoding = encoding;
+                case BDictionary dictionary:
+                    FixEncodingInDictionary(dictionary, encoding);
+                    break;
+                case BList list:
+                    FixEncodingInList(list, encoding);
+                    break;
+                case BString value:
+                    value.Encoding = encoding;
+                    break;
             }
         }
 

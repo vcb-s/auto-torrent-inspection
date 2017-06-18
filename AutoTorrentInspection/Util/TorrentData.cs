@@ -65,6 +65,8 @@ namespace AutoTorrentInspection.Util
 
         public string MagnetLink => _torrent.GetMagnetLink();
 
+        public long PieceSize => _torrent.PieceSize;
+
         public IEnumerable<IEnumerable<string>> GetRawFileList()
         {
             return GetRawFileListWithAttribute().Select(item => item.path);

@@ -83,28 +83,34 @@
     <Compile Include="BencodeNET\Torrents\TorrentFileMode.cs" />
     <Compile Include="BencodeNET\Torrents\TorrentUtil.cs" />
     <Compile Include="BencodeNET\UtilityExtensions.cs" />
-    <Compile Include="FormAbout.cs">
+    <Compile Include="Forms\Form1.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormAbout.Designer.cs">
+    <Compile Include="Forms\Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormAbout.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormAbout.Designer.cs">
       <DependentUpon>FormAbout.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormFileDup.cs">
+    <Compile Include="Forms\FormFileDup.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormFileDup.Designer.cs">
+    <Compile Include="Forms\FormFileDup.Designer.cs">
       <DependentUpon>FormFileDup.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormUpdater.cs">
+    <Compile Include="Forms\FormUpdater.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormUpdater.designer.cs">
+    <Compile Include="Forms\FormUpdater.Designer.cs">
       <DependentUpon>FormUpdater.cs</DependentUpon>
     </Compile>
-    <Compile Include="TreeViewForm.cs">
+    <Compile Include="Forms\TreeViewForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TreeViewForm.Designer.cs">
+    <Compile Include="Forms\TreeViewForm.Designer.cs">
       <DependentUpon>TreeViewForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Ude\CharsetDetector.cs" />
@@ -145,15 +151,10 @@
     <Compile Include="Util\Crc32.NET\Crc32Algorithm.cs" />
     <Compile Include="Util\Crc32.NET\SafeProxy.cs" />
     <Compile Include="Util\CueCurer.cs" />
+    <Compile Include="Util\AESEncryptDecrypt.cs" />
     <Compile Include="Util\EncodingConverter.cs" />
     <Compile Include="Util\EncodingDetector.cs" />
     <Compile Include="Util\FileDescription.cs" />
-    <Compile Include="Form1.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\AssFonts.cs" />
@@ -164,16 +165,16 @@
     <Compile Include="Util\TorrentData.cs" />
     <Compile Include="Util\TreeViewNode.cs" />
     <Compile Include="Util\Updater.cs" />
-    <EmbeddedResource Include="Form1.resx">
+    <EmbeddedResource Include="Forms\Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormAbout.resx">
+    <EmbeddedResource Include="Forms\FormAbout.resx">
       <DependentUpon>FormAbout.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormFileDup.resx">
+    <EmbeddedResource Include="Forms\FormFileDup.resx">
       <DependentUpon>FormFileDup.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormUpdater.resx">
+    <EmbeddedResource Include="Forms\FormUpdater.resx">
       <DependentUpon>FormUpdater.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -186,7 +187,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="TreeViewForm.resx">
+    <EmbeddedResource Include="Forms\TreeViewForm.resx">
       <DependentUpon>TreeViewForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="BencodeNET\project.json" />

@@ -106,31 +106,29 @@ namespace BencodeNET.Objects
                     continue;
                 }
 
-                // Append list to existing list or replace other types
-                var newList = field.Value as BList;
-                if (newList != null)
-                {
-                    var existingList = Get<BList>(field.Key);
-                    if (existingList == null || existingKeyAction == ExistingKeyAction.Replace)
-                    {
-                        this[field.Key] = field.Value;
-                        continue;
-                    }
-                    existingList.AddRange(newList);
-                    continue;
-                }
 
-                // Merge dictionary with existing or replace other types
-                var newDictionary = field.Value as BDictionary;
-                if (newDictionary != null)
+                switch (field.Value)
                 {
-                    var existingDictionary = Get<BDictionary>(field.Key);
-                    if (existingDictionary == null || existingKeyAction == ExistingKeyAction.Replace)
-                    {
-                        this[field.Key] = field.Value;
-                        continue;
-                    }
-                    existingDictionary.MergeWith(newDictionary);
+                    case BList newList:
+                        // Append list to existing list or replace other types
+                        var existingList = Get<BList>(field.Key);
+                        if (existingList == null || existingKeyAction == ExistingKeyAction.Replace)
+                        {
+                            this[field.Key] = field.Value;
+                            continue;
+                        }
+                        existingList.AddRange(newList);
+                        break;
+                    case BDictionary newDictionary:
+                        // Merge dictionary with existing or replace other types
+                        var existingDictionary = Get<BDictionary>(field.Key);
+                        if (existingDictionary == null || existingKeyAction == ExistingKeyAction.Replace)
+                        {
+                            this[field.Key] = field.Value;
+                            continue;
+                        }
+                        existingDictionary.MergeWith(newDictionary);
+                        break;
                 }
             }
         }
@@ -162,13 +160,8 @@ namespace BencodeNET.Objects
         /// </summary>
         public IBObject this[BString key]
         {
-            get { return ContainsKey(key) ? Value[key] : null; }
-            set
-            {
-                if (value == null)
-                    throw new ArgumentNullException(nameof(value), "A null value cannot be added to a BDictionary");
-                Value[key] = value;
-            }
+            get => ContainsKey(key) ? Value[key] : null;
+            set => Value[key] = value ?? throw new ArgumentNullException(nameof(value), "A null value cannot be added to a BDictionary");
         }
 
         public void Add(KeyValuePair<BString, IBObject> item)

@@ -29,9 +29,7 @@ namespace BencodeNET.Parsing
         /// <param name="encoding"></param>
         public BStringParser(Encoding encoding)
         {
-            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
-
-            Encoding = encoding;
+            Encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
         /// <summary>
@@ -70,8 +68,7 @@ namespace BencodeNET.Parsing
                 lengthString.Append(c);
             }
 
-            long stringLength;
-            if (!ParseUtil.TryParseLongFast(lengthString.ToString(), out stringLength))
+            if (!ParseUtil.TryParseLongFast(lengthString.ToString(), out long stringLength))
                 throw InvalidException($"Invalid length '{lengthString}' of string.", startPosition);
 
             // Int32.MaxValue is ~2GB and is the absolute maximum that can be handled in memory

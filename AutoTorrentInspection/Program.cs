@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using AutoTorrentInspection.Forms;
 using Microsoft.Win32;
 
 namespace AutoTorrentInspection
