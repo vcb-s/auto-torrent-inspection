@@ -391,13 +391,24 @@ namespace AutoTorrentInspection
             {
                 cbCategory.SelectedIndex = cbCategory.SelectedIndex == -1 ? 0 : cbCategory.SelectedIndex;
             }
+
             var time = DateTime.Now;
-            try {
+            try
+            {
                 time = _torrent?.CreationDate ?? new DirectoryInfo(FilePath).LastWriteTime;
-            } catch { /* ignored */ }
-            Text = $@"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version} - " +
-                   $@"{_torrent?.TorrentName ?? FilePath} - By [{_torrent?.CreatedBy ?? "Folder"}] - " +
-                   $@"{_torrent?.Encoding ?? "UND"} - {time}";
+            }
+            catch { /* ignored */ }
+            var title = new List<string>
+            {
+                $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version}",
+                $"{_torrent?.TorrentName ?? FilePath}",
+                _torrent?.CreatedBy,
+                _torrent?.Encoding,
+                time.ToString(System.Globalization.CultureInfo.CurrentCulture),
+                (_torrent?.PieceSize ?? 0) != 0 ? $"PieceSize: {_torrent?.PieceSize / 1024}KiB" : null
+            }.Where(item => item != null);
+            Text = string.Join(" - ", title);
+
             var ret = FileOrderMissingInspection().ToList();
             if (ret.Count != 0)
                 string.Join("\n", ret).ShowWithTitle("以下可能存在序号乱写的嫌疑");
