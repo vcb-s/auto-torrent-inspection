@@ -1,4 +1,4 @@
-﻿namespace AutoTorrentInspection
+﻿namespace AutoTorrentInspection.Forms
 {
     partial class Form1
     {

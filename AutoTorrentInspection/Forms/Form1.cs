@@ -1,20 +1,19 @@
 ﻿using System;
-using System.IO;
-using System.Text;
-using System.Linq;
-using System.Threading;
-using System.Reflection;
-using System.Diagnostics;
-using System.Windows.Forms;
-using System.ComponentModel;
-using AutoTorrentInspection.Util;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Windows.Forms;
 using AutoTorrentInspection.Properties;
+using AutoTorrentInspection.Util;
 
-
-namespace AutoTorrentInspection
+namespace AutoTorrentInspection.Forms
 {
     public partial class Form1 : Form
     {

@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using AutoTorrentInspection.Forms;
 
 namespace AutoTorrentInspection.Util
 {

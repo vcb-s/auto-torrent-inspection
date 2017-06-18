@@ -7,7 +7,7 @@ using System.Windows.Forms;
 using AutoTorrentInspection.Util;
 using AutoTorrentInspection.Util.Crc32.NET;
 
-namespace AutoTorrentInspection
+namespace AutoTorrentInspection.Forms
 {
     public partial class FormFileDup: Form
     {

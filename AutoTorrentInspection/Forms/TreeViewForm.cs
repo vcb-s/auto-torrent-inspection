@@ -1,14 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
-using System.Reflection;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using AutoTorrentInspection.Util;
 
-namespace AutoTorrentInspection
+namespace AutoTorrentInspection.Forms
 {
     public partial class TreeViewForm : Form
     {

@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace AutoTorrentInspection
+namespace AutoTorrentInspection.Forms
 {
     public partial class FormAbout : Form
     {

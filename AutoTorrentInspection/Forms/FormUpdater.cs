@@ -1,12 +1,11 @@
 using System;
+using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Net;
-using System.Drawing;
-using System.Reflection;
 using System.Windows.Forms;
-using System.ComponentModel;
 
-namespace AutoTorrentInspection
+namespace AutoTorrentInspection.Forms
 {
     public partial class FormUpdater : Form
     {
