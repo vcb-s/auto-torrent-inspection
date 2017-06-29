@@ -187,7 +187,16 @@ namespace AutoTorrentInspection.Forms
 
             var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd();
             var currentRule = trackerList == CurrentTrackerList;
-            ConvertMethod.GetDiff(trackerList, CurrentTrackerList).ShowWithTitle($@"Tracker List == {currentRule}");
+            var opeMap = new Dictionary<int, string>
+            {
+                [-1] = "- ",
+                [ 0] = "  ",
+                [ 1] = "+ "
+            };
+            //var ret = ConvertMethod.GetDiff(trackerList, CurrentTrackerList).ToList();
+            ConvertMethod.GetDiff(trackerList, CurrentTrackerList)
+                .Aggregate(string.Empty, (current, item) => current += $"{opeMap[item.ope]}{item.text}\n")
+                .ShowWithTitle($@"Tracker List == {currentRule}");
         }
 
         private void LoadFile(object sender, AsyncCompletedEventArgs e)
