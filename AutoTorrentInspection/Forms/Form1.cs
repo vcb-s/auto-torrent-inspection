@@ -318,6 +318,20 @@ namespace AutoTorrentInspection.Forms
                 switch (webpState)
                 {
                     case WebpState.Fine:
+                    case WebpState.MultipleFiles:
+                        btnWebP.Visible = btnWebP.Enabled = false;
+                        break;
+                    case WebpState.NotFound:
+                    case WebpState.IncorrectContent:
+                    case WebpState.ReadFileFailed:
+                        btnWebP.Visible = btnWebP.Enabled = true;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+                switch (webpState)
+                {
+                    case WebpState.Fine:
                         break;
                     case WebpState.NotFound:
                         Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现{webpReadMe}");
