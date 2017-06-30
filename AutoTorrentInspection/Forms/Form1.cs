@@ -185,7 +185,7 @@ namespace AutoTorrentInspection.Forms
                 return;
             }
 
-            var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd();
+            var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd().EncodeControlCharacters();
             var currentRule = trackerList == CurrentTrackerList;
             var opeMap = new Dictionary<int, string>
             {

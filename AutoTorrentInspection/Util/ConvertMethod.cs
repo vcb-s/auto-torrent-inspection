@@ -81,6 +81,19 @@ namespace AutoTorrentInspection.Util
             }
         }
 
+        public static string EncodeControlCharacters(this string value)
+        {
+            var sb = new StringBuilder();
+            foreach (var c in value)
+            {
+                if ((c <= 0x1F || c >= 0x7F && c <= 0x9F) && c != 0x0A)
+                    sb.Append($"\\u{(int)c:x4}");
+                else
+                    sb.Append(c);
+            }
+            return sb.ToString();
+        }
+
         private static int _(this int[,] mat, int i, int j)
         {
             if (i < 0) return 0;
