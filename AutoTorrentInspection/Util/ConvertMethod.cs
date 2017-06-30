@@ -81,6 +81,19 @@ namespace AutoTorrentInspection.Util
             }
         }
 
+        public static string EncodeControlCharacters(this string value)
+        {
+            var sb = new StringBuilder();
+            foreach (var c in value)
+            {
+                if ((c <= 0x1F || c >= 0x7F && c <= 0x9F) && c != 0x0A)
+                    sb.Append($"\\u{(int)c:x4}");
+                else
+                    sb.Append(c);
+            }
+            return sb.ToString();
+        }
+
         private static int _(this int[,] mat, int i, int j)
         {
             if (i < 0) return 0;
@@ -88,15 +101,14 @@ namespace AutoTorrentInspection.Util
             return mat[i, j];
         }
 
-        public static string GetDiff(string lhs, string rhs)
+        public static IEnumerable<(int ope, string text)> GetDiff(string lhs, string rhs, char separator = '\n')
         {
-            var lList = lhs.Split('\n');
-            var rList = rhs.Split('\n');
-            var answer = new StringBuilder();
+            var lList = lhs.Split(separator);
+            var rList = rhs.Split(separator);
+            //var answer = new StringBuilder();
 
             var mat = Lcs(lList, rList);
-            PrintDiff(mat, lList, rList, lList.Length - 1, rList.Length - 1);
-            return answer.ToString();
+            return PrintDiff(mat, lList, rList, lList.Length - 1, rList.Length - 1);
 
             int[,] Lcs(string[] x, string[] y)
             {
@@ -112,27 +124,34 @@ namespace AutoTorrentInspection.Util
                 return c;
             }
 
-            void PrintDiff(int[,] c, string[] x, string[] y, int i, int j)
+            IEnumerable<(int ope, string text)> PrintDiff(int[,] c, string[] x, string[] y, int i, int j)
             {
+                IEnumerable<(int ope, string text)> inner = null;
+                (int ope, string text) ret;
                 if (i >= 0 && j >= 0 && x[i] == y[j])
                 {
-                    PrintDiff(c, x, y, i - 1, j - 1);
-                    answer.AppendLine($"  {x[i]}");
+                    inner = PrintDiff(c, x, y, i - 1, j - 1);
+                    ret = (0, x[i]);
                 }
                 else if (j >= 0 && (i < 0 || c._(i, j - 1) >= c._(i - 1, j)))
                 {
-                    PrintDiff(c, x, y, i, j - 1);
-                    answer.AppendLine($"+ {y[j]}");
+                    inner = PrintDiff(c, x, y, i, j - 1);
+                    ret = (1, y[j]);
                 }
                 else if (i >= 0 && (j < 0 || c._(i, j - 1) < c._(i - 1, j)))
                 {
-                    PrintDiff(c, x, y, i - 1, j);
-                    answer.AppendLine($"- {x[i]}");
+                    inner = PrintDiff(c, x, y, i - 1, j);
+                    ret = (-1, x[i]);
                 }
                 else
                 {
-                    answer.AppendLine();
+                    ret = (0, "");
                 }
+                if (inner != null) foreach (var item in inner)
+                {
+                    yield return item;
+                }
+                yield return ret;
             }
         }
 

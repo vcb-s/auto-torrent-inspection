@@ -159,11 +159,11 @@ namespace AutoTorrentInspection.Forms
             dataGridView1.SuspendDrawing(() => Inspection(cbCategory.Text));
         }
 
-        private const string CurrentTrackerList = "http://nyaa.tracker.wf:7777/announce\n\n" +
-                                                  "http://208.67.16.113:8000/annonuce\n\n" +
+        private const string CurrentTrackerList = "http://208.67.16.113:8000/annonuce\n\n" +
                                                   "udp://208.67.16.113:8000/annonuce\n\n" +
                                                   "udp://tracker.openbittorrent.com:80/announce\n\n"+
-                                                  "http://t.acg.rip:6699/announce";
+                                                  "http://t.acg.rip:6699/announce\n\n" +
+                                                  "http://nyaa.tracker.wf:7777/announce";
 
         private IEnumerable<string> GetUsedFonts()
         {
@@ -185,9 +185,18 @@ namespace AutoTorrentInspection.Forms
                 return;
             }
 
-            var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd();
+            var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd().EncodeControlCharacters();
             var currentRule = trackerList == CurrentTrackerList;
-            ConvertMethod.GetDiff(trackerList, CurrentTrackerList).ShowWithTitle($@"Tracker List == {currentRule}");
+            var opeMap = new Dictionary<int, string>
+            {
+                [-1] = "- ",
+                [ 0] = "  ",
+                [ 1] = "+ "
+            };
+            //var ret = ConvertMethod.GetDiff(trackerList, CurrentTrackerList).ToList();
+            ConvertMethod.GetDiff(trackerList, CurrentTrackerList)
+                .Aggregate(string.Empty, (current, item) => current += $"{opeMap[item.ope]}{item.text}\n")
+                .ShowWithTitle($@"Tracker List == {currentRule}");
         }
 
         private void LoadFile(object sender, AsyncCompletedEventArgs e)
@@ -315,6 +324,20 @@ namespace AutoTorrentInspection.Forms
                     }
                 }
                 else webpState = WebpState.NotFound;
+                switch (webpState)
+                {
+                    case WebpState.Fine:
+                    case WebpState.MultipleFiles:
+                        btnWebP.Visible = btnWebP.Enabled = false;
+                        break;
+                    case WebpState.NotFound:
+                    case WebpState.IncorrectContent:
+                    case WebpState.ReadFileFailed:
+                        btnWebP.Visible = btnWebP.Enabled = true;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
                 switch (webpState)
                 {
                     case WebpState.Fine:

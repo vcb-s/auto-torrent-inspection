@@ -17,16 +17,21 @@ namespace AutoTorrentInspection.Util
         Torrent
     }
 
-    public enum FileState
+    [Flags]
+    public enum FileState : long
     {
-        ValidFile,
-        InValidPathLength,
-        InValidFile,
-        InValidCue,
-        InValidEncode,
-        InValidFlacLevel,
-        NonUTF8WBOM
-    }
+        //universal
+        ValidFile         = 0,
+        InValidPathLength = 1,
+        InValidFile       = 1 << 1,
+        //cue
+        InValidCue        = 1 << 11,
+        InValidEncode     = 1 << 12,
+        NonUTF8WBOM       = 1 << 13,
+        //flac
+        InValidFlacLevel  = 1 << 21,
+        HiResAudio        = 1 << 22,
+    };
 
     public class FileDescription
     {
@@ -34,6 +39,7 @@ namespace AutoTorrentInspection.Util
         public string ReletivePath       { get; }//载入文件夹到文件中间的相对路径
         private string BasePath          { get; }//所载入的文件夹的路径
         public string FullPath           { get; }//完整路径，Torrent下为手动拼接
+        public List<string> ParentFolder { get; }
         public string Extension          { get; }
         public long Length               { get; }
         public FlacInfo Flac             { get; private set; }
@@ -81,6 +87,7 @@ namespace AutoTorrentInspection.Util
             ReletivePath  = file.Path.Take(file.Path.Count - 1).Aggregate("", (current, item) => current += $"{item}\\").TrimEnd('\\');
             FileName      = file.FileName;
             FullPath      = Path.Combine(BasePath, ReletivePath, FileName);
+            ParentFolder = FullPath.Split('\\', '/').Reverse().Skip(1).ToList();
             Extension     = Path.GetExtension(FileName).ToLower();
 
             Length        = file.FileSize;
@@ -94,6 +101,7 @@ namespace AutoTorrentInspection.Util
             ReletivePath = "";
             FileName     = file.FileName;
             FullPath     = Path.Combine(BasePath, ReletivePath, FileName);
+            ParentFolder = FullPath.Split('\\', '/').Reverse().Skip(1).ToList();
             Extension    = Path.GetExtension(FileName).ToLower();
 
             Length       = file.FileSize;
@@ -148,8 +156,13 @@ namespace AutoTorrentInspection.Util
             if (Extension == ".flac")
             {
                 Flac = FlacData.GetMetadataFromFlac(FullPath);
-                _confindece = (float)Flac.CompressRate;
+                _confindece = (float)Flac.
+                    CompressRate;
                 FileName += $"[{Flac.CompressRate * 100:00.00}%]";
+                if (Flac.IsHiRes)
+                {
+                    FileName += "[HR]";
+                }
                 if (Flac.HasCover) FileName += "[图]";
                 Encode = Flac.Encoder;
                 if (Flac.CompressRate > 0.9) //Maybe a level 0 file

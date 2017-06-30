@@ -14,6 +14,9 @@ namespace AutoTorrentInspection.Util
         public long TrueLength                          { get; set; }
         public double CompressRate => TrueLength / (double)RawLength;
         public bool HasCover                            { get; set; }
+        public long SampleRate                          { get; set; }
+        public long BitPerSample                        { get; set; }
+        public bool IsHiRes => SampleRate > 44100 && BitPerSample > 16;
         public string Encoder                           { get; set; }
         public Dictionary<string, string> VorbisComment { get; }
 
@@ -110,6 +113,9 @@ namespace AutoTorrentInspection.Util
             var totalSample   = br.GetBits(36);
             var md5           = fs.ReadBytes(16);
             info.RawLength    = channelCount * bitPerSample / 8 * totalSample;
+
+            info.SampleRate = sampleRate;
+            info.BitPerSample = bitPerSample;
             OnLog?.Invoke($" | minimum block size: {minBlockSize}, maximum block size: {maxBlockSize}");
             OnLog?.Invoke($" | minimum frame size: {minFrameSize}, maximum frame size: {maxFrameSize}");
             OnLog?.Invoke($" | Sample rate: {sampleRate}Hz, bits per sample: {bitPerSample}-bit");
