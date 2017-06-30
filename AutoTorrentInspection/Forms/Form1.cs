@@ -159,11 +159,11 @@ namespace AutoTorrentInspection.Forms
             dataGridView1.SuspendDrawing(() => Inspection(cbCategory.Text));
         }
 
-        private const string CurrentTrackerList = "http://nyaa.tracker.wf:7777/announce\n\n" +
-                                                  "http://208.67.16.113:8000/annonuce\n\n" +
+        private const string CurrentTrackerList = "http://208.67.16.113:8000/annonuce\n\n" +
                                                   "udp://208.67.16.113:8000/annonuce\n\n" +
                                                   "udp://tracker.openbittorrent.com:80/announce\n\n"+
-                                                  "http://t.acg.rip:6699/announce";
+                                                  "http://t.acg.rip:6699/announce\n\n" +
+                                                  "http://nyaa.tracker.wf:7777/announce";
 
         private IEnumerable<string> GetUsedFonts()
         {
