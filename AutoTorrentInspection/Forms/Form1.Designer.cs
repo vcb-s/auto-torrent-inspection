@@ -51,6 +51,7 @@
             this.btnWebP = new System.Windows.Forms.Button();
             this.btnCompare = new System.Windows.Forms.Button();
             this.btnTreeView = new System.Windows.Forms.Button();
+            this.DeleteFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.contextMenuOpenFolder.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -180,9 +181,10 @@
             this.contextMenuOpenFolder.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.OpenFolderToolStripMenuItem,
             this.toolStripSeparator1,
-            this.OpenFileToolStripMenuItem});
+            this.OpenFileToolStripMenuItem,
+            this.DeleteFileToolStripMenuItem});
             this.contextMenuOpenFolder.Name = "contextMenuOpenFolder";
-            this.contextMenuOpenFolder.Size = new System.Drawing.Size(161, 54);
+            this.contextMenuOpenFolder.Size = new System.Drawing.Size(161, 98);
             // 
             // OpenFolderToolStripMenuItem
             // 
@@ -284,6 +286,13 @@
             this.btnTreeView.Visible = false;
             this.btnTreeView.Click += new System.EventHandler(this.btnTreeView_Click);
             // 
+            // DeleteFileToolStripMenuItem
+            // 
+            this.DeleteFileToolStripMenuItem.Name = "DeleteFileToolStripMenuItem";
+            this.DeleteFileToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.DeleteFileToolStripMenuItem.Text = "删除选中文件";
+            this.DeleteFileToolStripMenuItem.Click += new System.EventHandler(this.DeleteFileToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AllowDrop = true;
@@ -342,6 +351,7 @@
         private System.Windows.Forms.Button btnWebP;
         private System.Windows.Forms.Button btnCompare;
         private System.Windows.Forms.Button btnTreeView;
+        private System.Windows.Forms.ToolStripMenuItem DeleteFileToolStripMenuItem;
     }
 }
 

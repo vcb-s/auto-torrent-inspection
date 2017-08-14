@@ -187,15 +187,9 @@ namespace AutoTorrentInspection.Forms
 
             var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd().EncodeControlCharacters();
             var currentRule = trackerList == CurrentTrackerList;
-            var opeMap = new Dictionary<int, string>
-            {
-                [-1] = "- ",
-                [ 0] = "  ",
-                [ 1] = "+ "
-            };
-            //var ret = ConvertMethod.GetDiff(trackerList, CurrentTrackerList).ToList();
+            var opeMap = new[] {"- ", "  ", "+ "};
             ConvertMethod.GetDiff(trackerList, CurrentTrackerList)
-                .Aggregate(string.Empty, (current, item) => current += $"{opeMap[item.ope]}{item.text}\n")
+                .Aggregate(string.Empty, (current, item) => current + $"{opeMap[item.ope + 1]}{item.text}\n")
                 .ShowWithTitle($@"Tracker List == {currentRule}");
         }
 
@@ -383,15 +377,16 @@ namespace AutoTorrentInspection.Forms
             {
                 var match = FileOrderPattern.Match(file.FileName);
                 var name = $"{file.ReletivePath}/{match.Groups["name"]}[{match.Groups["type"].Value}]{file.Extension}";
-                return match.Success ? (name, int.Parse(match.Groups["ord"].Value)) : ("", -1);
-            }).Where(file => file.Item2 != -1).GroupBy(file => file.Item1);
+                (string name, int ord) tuple =  match.Success ? (name, int.Parse(match.Groups["ord"].Value)) : ("", -1);
+                return tuple;
+            }).Where(file => file.ord != -1).GroupBy(file => file.name);
             foreach (var group in data)
             {
-                var arr = group.Select(file => file.Item2).OrderBy(i=>i).Distinct().ToList();
+                var arr = group.Select(file => file.ord).OrderBy(i=>i).Distinct().ToList();
                 int begin = arr.First(), length = arr.Count;
                 if (begin > 1 || !arr.SequenceEqual(Enumerable.Range(begin, length)))
                 {
-                    yield return group.First().Item1;
+                    yield return group.First().name;
                 }
             }
         }
@@ -522,12 +517,15 @@ namespace AutoTorrentInspection.Forms
             }
         }
 
-        private string _filePosition = string.Empty;
+        private DataGridViewRow _rowUnderMouse;
+
+        private FileDescription _fileInfo => _rowUnderMouse?.Tag as FileDescription;
 
         private void dataGridView1_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.RowIndex < 0) return;
-            var fileInfo = dataGridView1.Rows[e.RowIndex].Tag as FileDescription;
+            _rowUnderMouse = dataGridView1.Rows[e.RowIndex];
+            var fileInfo = _rowUnderMouse.Tag as FileDescription;
             if (fileInfo == null)  return;
             var confindence = fileInfo.Confidence;
             toolStripStatusLabel_Encode.Text = $@"{fileInfo.Encode}({confindence:F2})";
@@ -543,23 +541,33 @@ namespace AutoTorrentInspection.Forms
                 case MouseButtons.Right:
                     if (fileInfo.SourceType != SourceTypeEnum.RealFile) return;
                     contextMenuOpenFolder.Show(MousePosition);
-                    _filePosition = fileInfo.FullPath;
                     break;
             }
         }
 
         private void OpenFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(_filePosition)) return;
-            Process.Start("Explorer.exe", $"/select,\"{_filePosition}\"");
-            _filePosition = string.Empty;
+            if (_fileInfo == null) return;
+            Process.Start("Explorer.exe", $"/select,\"{_fileInfo.FullPath}\"");
+            _rowUnderMouse = null;
         }
 
         private void OpenFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(_filePosition)) return;
-            Process.Start($"\"{_filePosition}\"");
-            _filePosition = string.Empty;
+            if (_fileInfo == null) return;
+            Process.Start($"\"{_fileInfo.FullPath}\"");
+            _rowUnderMouse = null;
+        }
+
+        private void DeleteFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_fileInfo == null) return;
+            var category = cbCategory.Text == "root" ? _data.First(list => list.Value.Contains(_fileInfo)).Key : "root";
+            File.Delete(_fileInfo.FullPath);
+            _data[category].Remove(_fileInfo);
+            dataGridView1.Rows.Remove(_rowUnderMouse);
+            Application.DoEvents();
+            _rowUnderMouse = null;
         }
 
         private void dataGridView1_KeyUp(object sender, KeyEventArgs e)
