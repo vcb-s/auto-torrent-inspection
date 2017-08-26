@@ -119,6 +119,7 @@ namespace AutoTorrentInspection.Forms
                     try
                     {
                         var filePath = Path.GetTempFileName()+".torrent";
+                        FilePath = filePath;
                         wc.DownloadFileCompleted += LoadFile;
                         wc.DownloadFileAsync(new Uri(url), filePath);
                         FilePath = filePath;
@@ -266,13 +267,17 @@ namespace AutoTorrentInspection.Forms
             }
         }
 
+        [Flags]
         enum WebpState
         {
-            Fine             = 0,
-            NotFound         = 1,
-            IncorrectContent = 2,
-            ReadFileFailed   = 4,
-            MultipleFiles    = 8,
+            Default          = -1,
+            Zero             = 0,
+            One              = 1,
+            TwoOrMore        = 2,
+            NotInRoot        = 4,
+            IncorrectContent = 8,
+            ReadFileFailed   = 16,
+            EmptyInRoot      = 32
         }
 
         private void InspecteOperation()
@@ -288,68 +293,94 @@ namespace AutoTorrentInspection.Forms
                 }
             }
 
-            var webpState = WebpState.Fine;
+            var webpState = WebpState.Default;
             const string webpReadMe = "readme about WebP.txt";
             Exception resultException = null;
             if (_data.Any(catalog => catalog.Value.Any(item => item.Extension == ".webp")))
             {
+                var readmeCount = _data.SelectMany(pair => pair.Value).Count(item => item.FileName == webpReadMe);
+                if (readmeCount == 0)
+                {
+                    webpState = WebpState.Zero;
+                    goto EXIT_WEBP;
+                }
+                if (readmeCount == 1)     webpState = WebpState.One;
+                else if (readmeCount > 1) webpState = WebpState.TwoOrMore;
                 if (_data.TryGetValue("root", out var rootFiles))
                 {
-                    var readme = rootFiles.Where(item => item.FileName == webpReadMe).ToList();
-                    if      (readme.Count == 0) webpState = WebpState.NotFound;
-                    else if (readme.Count >  1) webpState = WebpState.MultipleFiles;
+                    var readmeInRoot = rootFiles.Where(item => item.FileName == webpReadMe).ToList();
+                    if (readmeInRoot.Count == 0)
+                    {
+                        webpState |= WebpState.NotInRoot;
+                        //possible state:
+                        //1. exists   but not in root
+                        //2. multiple but not in root
+                    }
                     else
                     {
-                        var readmeFile = readme.First();
-                        if (readmeFile.Length != 1186) webpState = WebpState.IncorrectContent;
+                        Debug.Assert(readmeInRoot.Count == 1);
+                        var readmeFile = readmeInRoot.First();
                         try
                         {
-                            if (_torrent == null && webpState != WebpState.IncorrectContent &&
+                            if (readmeFile.Length != 1186 || _torrent == null &&
                                 File.ReadAllText(readmeFile.FullPath) != Resources.ReadmeAboutWebP)
                             {
-                                webpState = WebpState.IncorrectContent;
+                                webpState |= WebpState.IncorrectContent;
+                                //possible state:
+                                //1. one | incorrect
+                                //2. two | incorrect
                             }
                         }
-                        catch(Exception exception)
+                        catch (Exception exception)
                         {
                             resultException = exception;
-                            webpState = WebpState.ReadFileFailed;
+                            webpState |= WebpState.ReadFileFailed;
                         }
                     }
                 }
-                else webpState = WebpState.NotFound;
-                switch (webpState)
+                else
                 {
-                    case WebpState.Fine:
-                    case WebpState.MultipleFiles:
-                        btnWebP.Visible = btnWebP.Enabled = false;
-                        break;
-                    case WebpState.NotFound:
-                    case WebpState.IncorrectContent:
-                    case WebpState.ReadFileFailed:
-                        btnWebP.Visible = btnWebP.Enabled = true;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                    webpState |= WebpState.EmptyInRoot;
+                    //todo: only folders in root path, check each of these
                 }
+                EXIT_WEBP:
+                btnWebP.Visible = btnWebP.Enabled = webpState == WebpState.Zero;
                 switch (webpState)
                 {
-                    case WebpState.Fine:
-                        break;
-                    case WebpState.NotFound:
+                    case WebpState.Zero:
                         Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现{webpReadMe}");
                         break;
-                    case WebpState.IncorrectContent:
+                    case WebpState.One:
+                        break;
+                    case WebpState.TwoOrMore:
+                        Notification.ShowInfo($"存在复数个{webpReadMe}，但根目录下的报道没有偏差");
+                        break;
+                    case WebpState.One | WebpState.IncorrectContent:
                         Notification.ShowInfo($"{webpReadMe}的内容在报道上出现了偏差");
                         break;
-                    case WebpState.ReadFileFailed:
+                    case WebpState.TwoOrMore | WebpState.IncorrectContent:
+                        Notification.ShowInfo($"存在复数个{webpReadMe}，并且根目录下的报道还出现了偏差\n现时请手工检查");
+                        break;
+                    case WebpState.One | WebpState.ReadFileFailed:
                         Notification.ShowError($"读取{webpReadMe}失败", resultException);
                         break;
-                    case WebpState.MultipleFiles:
-                        Notification.ShowInfo($"发现复数个{webpReadMe}");
+                    case WebpState.TwoOrMore | WebpState.ReadFileFailed:
+                        Notification.ShowError($"存在复数个{webpReadMe}，并且根目录下的读取失败\n请根据给定的异常进行排查", resultException);
+                        break;
+                    case WebpState.NotInRoot | WebpState.One:
+                        Notification.ShowInfo($"{webpReadMe}处于非根目录\n似乎不大对路，现时请手工递归检查");
+                        break;
+                    case WebpState.NotInRoot | WebpState.TwoOrMore:
+                        Notification.ShowInfo($"存在非根目录复数个{webpReadMe}\n似乎不大对路，现时请手工递归检查");
+                        break;
+                    case WebpState.EmptyInRoot | WebpState.One:
+                        Notification.ShowInfo($"根目录为空并且{webpReadMe}处于非根目录\n似乎不大对路，现时请手工递归检查");
+                        break;
+                    case WebpState.EmptyInRoot | WebpState.TwoOrMore:
+                        Notification.ShowInfo($"根目录为空并且存在复数个{webpReadMe}处于非根目录\n现时请手工递归检查");
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new Exception($"webp state: \"{webpState}\", unknow combination");
                 }
             }
             ThroughInspection();
@@ -588,10 +619,7 @@ namespace AutoTorrentInspection.Forms
             }
         }
 
-        private void btnCompare_Click(object sender, EventArgs e)
-        {
-            new FormFileDup(_sizeData).Show();
-        }
+        private void btnCompare_Click(object sender, EventArgs e) => new FormFileDup(_sizeData).Show();
 
         private void btnTreeView_Click(object sender, EventArgs e)
         {
