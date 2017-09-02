@@ -1,6 +1,5 @@
 using Ude;
 using System.IO;
-using System.Diagnostics;
 
 namespace AutoTorrentInspection.Util
 {
@@ -16,11 +15,11 @@ namespace AutoTorrentInspection.Util
                 cdet.DataEnd();
                 if (cdet.Charset != null)
                 {
-                    Debug.WriteLine($"Charset: {cdet.Charset}, confidence: {cdet.Confidence}");
+                    Logger.Log($"Charset: {cdet.Charset}, confidence: {cdet.Confidence}");
                     confindece = cdet.Confidence;
                     return cdet.Charset;
                 }
-                Debug.WriteLine($"Detection failed.\n{filename}");
+                Logger.Log($"{filename}: Detection failed.");
                 return "UTF-8";
             }
         }

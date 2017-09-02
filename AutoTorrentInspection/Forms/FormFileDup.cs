@@ -38,7 +38,7 @@ namespace AutoTorrentInspection.Forms
             try {
                 foreach (var size in ret)
                 {
-                    Debug.WriteLine(size.filesize + ":");
+                    Logger.Log($"{size.filesize}:");
                     var node = new TreeNode(FileSize.FileSizeToString(size.filesize));
                     var tmp = new List<uint>();
                     foreach (var file in size.files)
@@ -48,8 +48,8 @@ namespace AutoTorrentInspection.Forms
                         if (crc == 0) node.Nodes.Add(file.info.ReletivePath + file.info.FileName);
                         else
                         {
-                            node.Nodes.Add($"[{crc:X}] " + file.info.FullPath);
-                            Debug.WriteLine($"{file.info.FileName} ||| crc: {crc:X}");
+                            node.Nodes.Add($"[{crc:X}] {file.info.FullPath}");
+                            Logger.Log($"{file.info.FileName} ||| crc: {crc:X}");
                         }
                     }
                     var valid = tmp.Distinct().Count() != tmp.Count;
@@ -62,6 +62,7 @@ namespace AutoTorrentInspection.Forms
             }
             catch (Exception exception)
             {
+                Logger.Log(exception);
                 Notification.ShowError("Exception catched in GetCRCAsync", exception);
                 Close();
             }

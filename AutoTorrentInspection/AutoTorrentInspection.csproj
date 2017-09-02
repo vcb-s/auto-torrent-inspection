@@ -101,6 +101,12 @@
     <Compile Include="Forms\FormFileDup.Designer.cs">
       <DependentUpon>FormFileDup.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\FormLog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormLog.designer.cs">
+      <DependentUpon>FormLog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\FormUpdater.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -113,6 +119,18 @@
     <Compile Include="Forms\TreeViewForm.Designer.cs">
       <DependentUpon>TreeViewForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Logger.cs" />
+    <Compile Include="Logging\DebugLogger.cs" />
+    <Compile Include="Logging\Formatters\DefaultLoggerFormatter.cs" />
+    <Compile Include="Logging\Formatters\ILoggerFormatter.cs" />
+    <Compile Include="Logging\Handlers\ConsoleLoggerHandler.cs" />
+    <Compile Include="Logging\Handlers\DebugConsoleLoggerHandler.cs" />
+    <Compile Include="Logging\Handlers\FileLoggerHandler.cs" />
+    <Compile Include="Logging\Handlers\StringBuilderLoggerHandler.cs" />
+    <Compile Include="Logging\ILoggerHandler.cs" />
+    <Compile Include="Logging\ILoggerHandlerManager.cs" />
+    <Compile Include="Logging\LogMessage.cs" />
+    <Compile Include="Logging\LogPublisher.cs" />
     <Compile Include="Ude\CharsetDetector.cs" />
     <Compile Include="Ude\Core\Big5Prober.cs" />
     <Compile Include="Ude\Core\BitPackage.cs" />
@@ -173,6 +191,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormFileDup.resx">
       <DependentUpon>FormFileDup.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormLog.resx">
+      <DependentUpon>FormLog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormUpdater.resx">
       <DependentUpon>FormUpdater.cs</DependentUpon>

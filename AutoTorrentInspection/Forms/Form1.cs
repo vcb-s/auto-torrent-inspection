@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
+using AutoTorrentInspection.Logging.Handlers;
 using AutoTorrentInspection.Properties;
 using AutoTorrentInspection.Util;
 
@@ -41,6 +42,7 @@ namespace AutoTorrentInspection.Forms
             }
             catch (Exception exception)
             {
+                Logger.Log(exception);
                 Notification.ShowError(@"Exception catched in Form constructor", exception);
                 Environment.Exit(0);
             }
@@ -55,6 +57,20 @@ namespace AutoTorrentInspection.Forms
             Updater.CheckUpdateWeekly("AutoTorrentInspection");
         }
 
+        private void InitLogger()
+        {
+            FormLog formLog = null;
+            var logBuilder = new StringBuilder();
+            Logger.LoggerHandlerManager
+                .AddHandler(new StringBuilderLoggerHandler(logBuilder))
+                .AddHandler(new ConsoleLoggerHandler());
+            _systemMenu.AddCommand("显示日志(&L)", () =>
+            {
+                if (formLog == null) formLog = new FormLog(logBuilder);
+                formLog.Show();
+            }, true);
+        }
+
         private SystemMenu _systemMenu;
 
         private void AddCommand()
@@ -63,6 +79,7 @@ namespace AutoTorrentInspection.Forms
             _systemMenu.AddCommand("检查更新(&U)", Updater.CheckUpdate, true);
             _systemMenu.AddCommand("关于(&A)", () => { new FormAbout().Show(); }, false);
             _systemMenu.AddCommand("导出概要(&E)", ExportSummary, false);
+            InitLogger();
         }
 
         protected override void WndProc(ref Message msg)
@@ -109,7 +126,7 @@ namespace AutoTorrentInspection.Forms
             if (_isUrl)
             {
                 var url = e.Data.GetData("Text") as string;
-                Debug.WriteLine(url ?? "null");
+                Logger.Log(Logger.Level.Debug, $"url: {url}");
                 if (string.IsNullOrEmpty(url) || !url.ToLower().EndsWith(".torrent"))
                 {
                     return;
@@ -127,6 +144,7 @@ namespace AutoTorrentInspection.Forms
                     }
                     catch(Exception exception)
                     {
+                        Logger.Log(exception);
                         Notification.ShowError(@"种子文件下载失败", exception);
                         FilePath = string.Empty;
                         return;
@@ -179,9 +197,10 @@ namespace AutoTorrentInspection.Forms
             {
                 new Thread(() =>
                 {
-                    var context = string.Join("\n", GetUsedFonts());
-                    if (string.IsNullOrEmpty(context)) return;
-                    context.ShowWithTitle("Fonts used in subtitles");
+                    var fonts = GetUsedFonts().ToList();
+                    if (fonts.Count == 0) return;
+                    Logger.Log($"Fonts used in subtitles: {string.Join(", ", fonts)}");
+                    string.Join(Environment.NewLine, fonts).ShowWithTitle("Fonts used in subtitles");
                 }).Start();
                 return;
             }
@@ -189,9 +208,10 @@ namespace AutoTorrentInspection.Forms
             var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd().EncodeControlCharacters();
             var currentRule = trackerList == CurrentTrackerList;
             var opeMap = new[] {"- ", "  ", "+ "};
-            ConvertMethod.GetDiff(trackerList, CurrentTrackerList)
-                .Aggregate(string.Empty, (current, item) => current + $"{opeMap[item.ope + 1]}{item.text}\n")
-                .ShowWithTitle($@"Tracker List == {currentRule}");
+            var content = ConvertMethod.GetDiff(trackerList, CurrentTrackerList)
+                .Aggregate(string.Empty, (current, item) => current + $"{opeMap[item.ope + 1]}{item.text}{Environment.NewLine}");
+            Logger.Log(content);
+            content.ShowWithTitle($@"Tracker List == {currentRule}");
         }
 
         private void LoadFile(object sender, AsyncCompletedEventArgs e)
@@ -217,6 +237,7 @@ namespace AutoTorrentInspection.Forms
 
         private void LoadFile(string filepath)
         {
+            Logger.Log($"{new string('=', 10)}Begin{new string('=', 10)}");
             btnWebP.Visible = btnWebP.Enabled = false;
             btnCompare.Visible = btnCompare.Enabled = false;
             _sizeData = null;
@@ -229,6 +250,7 @@ namespace AutoTorrentInspection.Forms
                 Application.DoEvents();
                 if (Directory.Exists(filepath))
                 {
+                    Logger.Log("Fetch file info");
                     _data = ConvertMethod.GetFileList(filepath);
                     btnAnnounceList.Enabled = true;
                     btnAnnounceList.Text = "Fonts";
@@ -239,6 +261,7 @@ namespace AutoTorrentInspection.Forms
                     InspecteOperation();
                     return;
                 }
+                Logger.Log("Fetch torrent info");
                 _torrent = new TorrentData(filepath);
                 _data    = _torrent.GetFileList();
                 btnAnnounceList.Enabled = true;
@@ -262,6 +285,7 @@ namespace AutoTorrentInspection.Forms
             }
             catch (Exception exception)
             {
+                Logger.Log(exception);
                 Notification.ShowError("Exception catched in LoadFile", exception);
                 toolStripStatusLabel_Status.Text = exception.Message;
             }
@@ -333,6 +357,7 @@ namespace AutoTorrentInspection.Forms
                         }
                         catch (Exception exception)
                         {
+                            Logger.Log(exception);
                             resultException = exception;
                             webpState |= WebpState.ReadFileFailed;
                         }
@@ -383,6 +408,7 @@ namespace AutoTorrentInspection.Forms
                         throw new Exception($"webp state: \"{webpState}\", unknow combination");
                 }
             }
+
             ThroughInspection();
             cbCategory.Enabled = cbCategory.Items.Count > 1;
         }
@@ -431,6 +457,7 @@ namespace AutoTorrentInspection.Forms
             {
                 foreach (var item in _data.Keys)
                 {
+                    Logger.Log($"Inspection for {item}");
                     cbCategory.Items.Add(item);
                     Inspection(item);
                 }
@@ -459,7 +486,10 @@ namespace AutoTorrentInspection.Forms
 
             var ret = FileOrderMissingInspection().ToList();
             if (ret.Count != 0)
-                string.Join("\n", ret).ShowWithTitle("以下可能存在序号乱写的嫌疑");
+            {
+                Logger.Log($"index missing: {string.Join(", ", ret)}");
+                string.Join(Environment.NewLine, ret).ShowWithTitle("以下可能存在序号乱写的嫌疑");
+            }
         }
 
         private void Inspection(string category)
@@ -488,6 +518,7 @@ namespace AutoTorrentInspection.Forms
             }
             catch (Exception exception)
             {
+                Logger.Log(exception);
                 Notification.ShowError(@"生成失败", exception);
             }
         }

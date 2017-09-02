@@ -23,6 +23,7 @@ namespace AutoTorrentInspection.Util
             {
                 var audioFile = Path.Combine(rootPath ?? "", audioName.Groups["fileName"].Value);
                 result &= File.Exists(audioFile);
+                Logger.Log($"{audioFile} {(result ? "exists" : "not found")}");
                 if (!result) return false;
             }
             return true;
@@ -63,7 +64,7 @@ namespace AutoTorrentInspection.Util
             }
             catch (IOException exception)
             {
-                Debug.WriteLine(exception.Message);
+                Logger.Log(exception);
             }
         }
     }

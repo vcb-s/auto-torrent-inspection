@@ -84,7 +84,7 @@ namespace AutoTorrentInspection.Util
         public FileDescription(MultiFileInfo file, string torrentName)
         {
             BasePath      = torrentName;
-            ReletivePath  = file.Path.Take(file.Path.Count - 1).Aggregate("", (current, item) => current += $"{item}\\").TrimEnd('\\');
+            ReletivePath  = file.Path.Take(file.Path.Count - 1).Aggregate("", (current, item) => current + item + "\\").TrimEnd('\\');
             FileName      = file.FileName;
             FullPath      = Path.Combine(BasePath, ReletivePath, FileName);
             ParentFolder = FullPath.Split('\\', '/').Reverse().Skip(1).ToList();
@@ -153,29 +153,33 @@ namespace AutoTorrentInspection.Util
         private void FileValidation()
         {
             if (BaseValidation() || State == FileState.InValidFile) return;
-            if (Extension == ".flac")
+            switch (Extension)
             {
-                Flac = FlacData.GetMetadataFromFlac(FullPath);
-                _confindece = (float)Flac.CompressRate;
-                FileName += $"[{Flac.CompressRate * 100:00.00}%]";
-                if (Flac.IsHiRes)
+                case ".flac":
                 {
-                    FileName += "[HR]";
+                    Flac = FlacData.GetMetadataFromFlac(FullPath);
+                    _confindece = (float)Flac.CompressRate;
+                    FileName += $"[{Flac.CompressRate * 100:00.00}%]";
+                    if (Flac.IsHiRes)
+                    {
+                        FileName += "[HR]";
+                    }
+                    if (Flac.HasCover) FileName += "[图]";
+                    Encode = Flac.Encoder;
+                    if (Flac.CompressRate > 0.9) //Maybe a level 0 file
+                    {
+                        State = FileState.InValidFlacLevel;
+                    }
                 }
-                if (Flac.HasCover) FileName += "[图]";
-                Encode = Flac.Encoder;
-                if (Flac.CompressRate > 0.9) //Maybe a level 0 file
-                {
-                    State = FileState.InValidFlacLevel;
-                }
+                    break;
+                case ".cue":
+                    CheckCUE();
+                    break;
             }
-            if (Extension != ".cue") return;
-            CheckCUE();
         }
 
         public void CueFileRevalidation(DataGridViewRow row)
         {
-            Debug.WriteLine(@"----ReCheck--Begin----");
             CheckCUE();
             var rowColor = StateColor[State];
             foreach (DataGridViewCell cell in row.Cells)
@@ -183,7 +187,6 @@ namespace AutoTorrentInspection.Util
                 cell.Style.BackColor = rowColor;
             }
             Application.DoEvents();
-            Debug.WriteLine(@"----ReCheck--End----");
         }
 
 
