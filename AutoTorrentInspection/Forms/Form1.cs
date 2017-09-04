@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using AutoTorrentInspection.Logging.Handlers;
 using AutoTorrentInspection.Properties;
@@ -63,7 +63,7 @@ namespace AutoTorrentInspection.Forms
             var logBuilder = new StringBuilder();
             Logger.LoggerHandlerManager
                 .AddHandler(new StringBuilderLoggerHandler(logBuilder))
-                .AddHandler(new ConsoleLoggerHandler());
+                .AddHandler(new DebugConsoleLoggerHandler());
             _systemMenu.AddCommand("显示日志(&L)", () =>
             {
                 if (formLog == null) formLog = new FormLog(logBuilder);
@@ -176,6 +176,7 @@ namespace AutoTorrentInspection.Forms
             dataGridView1.Rows.Clear();
             Application.DoEvents();
             dataGridView1.SuspendDrawing(() => Inspection(cbCategory.Text));
+            Logger.Log($"Refreshed, switch to '{cbCategory.Text}'");
         }
 
         private const string CurrentTrackerList = "http://208.67.16.113:8000/annonuce\n\n" +
@@ -195,7 +196,7 @@ namespace AutoTorrentInspection.Forms
         {
             if (_torrent == null)
             {
-                new Thread(() =>
+                new Task(() =>
                 {
                     var fonts = GetUsedFonts().ToList();
                     if (fonts.Count == 0) return;
@@ -312,7 +313,7 @@ namespace AutoTorrentInspection.Forms
                 {
                     if (!_data["root"].Any(item => item.FileName.ToLower().Contains("font")))
                     {
-                        Notification.ShowInfo($"发现ass格式字幕\n但未在根目录发现字体包");
+                        Notification.ShowInfo("发现ass格式字幕\n但未在根目录发现字体包");
                     }
                 }
             }
@@ -564,7 +565,7 @@ namespace AutoTorrentInspection.Forms
                 case FileState.InValidCue:
                 {
                     var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.YesNo,
-                        text: $"该cue内文件名与实际文件不相符, 是否尝试修复?\n注: 非常规编码可能无法正确修复, 此时请检查备份。");
+                        text: "该cue内文件名与实际文件不相符, 是否尝试修复?\n注: 非常规编码可能无法正确修复, 此时请检查备份。");
                     if (dResult == DialogResult.Yes)
                     {
                         CueCurer.MakeBackup(fileInfo.FullPath);
@@ -624,9 +625,9 @@ namespace AutoTorrentInspection.Forms
         private void DeleteFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_fileInfo == null) return;
-            var category = cbCategory.Text == "root" ? _data.First(list => list.Value.Contains(_fileInfo)).Key : "root";
+            var category = cbCategory.Text == "root" ? _data.First(list => list.Value.Contains(_fileInfo)).Key : null;
             File.Delete(_fileInfo.FullPath);
-            _data[category].Remove(_fileInfo);
+            if (category != null) _data[category].Remove(_fileInfo);
             dataGridView1.Rows.Remove(_rowUnderMouse);
             Application.DoEvents();
             _rowUnderMouse = null;
