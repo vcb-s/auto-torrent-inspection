@@ -179,11 +179,7 @@ namespace AutoTorrentInspection.Forms
             Logger.Log($"Refreshed, switch to '{cbCategory.Text}'");
         }
 
-        private const string CurrentTrackerList = "http://208.67.16.113:8000/annonuce\n\n" +
-                                                  "udp://208.67.16.113:8000/annonuce\n\n" +
-                                                  "udp://tracker.openbittorrent.com:80/announce\n\n"+
-                                                  "http://t.acg.rip:6699/announce\n\n" +
-                                                  "http://nyaa.tracker.wf:7777/announce";
+        private readonly string _currentTrackerList = string.Join("\n\n", GlobalConfiguration.Instance().TrackerList);
 
         private IEnumerable<string> GetUsedFonts()
         {
@@ -207,9 +203,9 @@ namespace AutoTorrentInspection.Forms
             }
 
             var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd().EncodeControlCharacters();
-            var currentRule = trackerList == CurrentTrackerList;
+            var currentRule = trackerList == _currentTrackerList;
             var opeMap = new[] {"- ", "  ", "+ "};
-            var content = ConvertMethod.GetDiff(trackerList, CurrentTrackerList)
+            var content = ConvertMethod.GetDiff(trackerList, _currentTrackerList)
                 .Aggregate(string.Empty, (current, item) => current + $"{opeMap[item.ope + 1]}{item.text}{Environment.NewLine}");
             Logger.Log(content);
             content.ShowWithTitle($@"Tracker List == {currentRule}");
@@ -676,7 +672,7 @@ namespace AutoTorrentInspection.Forms
                                      $"- IsPrivate:\t{_torrent.IsPrivate}");
                     writer.WriteLine();
                     var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd();
-                    writer.WriteLine($"- TrackerList:\t{trackerList == CurrentTrackerList}");
+                    writer.WriteLine($"- TrackerList:\t{trackerList == _currentTrackerList}");
                     writer.WriteLine();
                     writer.WriteLine($"{new string('=', 20)}\n\n" +
                                      $"{trackerList}\n\n" +

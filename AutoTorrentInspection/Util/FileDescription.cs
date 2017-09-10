@@ -53,20 +53,21 @@ namespace AutoTorrentInspection.Util
 
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
 
-        private static readonly Regex AnimePattern   = new Regex(@"^\[[^\[\]]*VCB\-S(?:tudio)?[^\[\]]*\] [^\[\]]+ (?:\[[^\[\]]*\d*\])?\[(?:(?:(?:(?:Hi10p|Hi444pp)_(?:2160|1080|720|576|480)p\]\[x264)|(?:(?:Ma10p_(?:2160|1080|720|576|480)p\]\[x265)))(?:_\d*(?:flac|aac|ac3|dts))+\](?:\.(?:mkv|mka|flac))?|(?:(?:1080|720|576)p\]\[(?:x264|x265)_(?:aac|ac3|dts)\](?:\.mp4)?))(?:(?<!(?:mkv|mka|mp4))(?:\.(?:[SsTt]c|[Cc]h(?:s|t)|[Jj](?:pn|ap)|[Cc]h(?:s|t)&[Jj](?:pn|ap)))?\.ass)?$"); //implement without Balancing group
-        private static readonly Regex MenuPngPattern = new Regex(@"^\[[^\[\]]*VCB\-S(?:tudio)*[^\[\]]*\] [^\[\]]+ \[[^\[\]]*\]\.png$");
-        private static readonly Regex MusicPattern   = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2|webp)$", RegexOptions.IgnoreCase);
-        private static readonly Regex ExceptPattern  = new Regex(@"\.(rar|7z|zip)$", RegexOptions.IgnoreCase);
-        private static readonly Regex FchPattern     = new Regex(@"^(?:\[(?:[^\[\]])*philosophy\-raws(?:[^\[\]])*\])\[[^\[\]]+\]\[(?:(?:[^\[\]]+\]\[(?:BDRIP|DVDRIP|BDRemux))|(?:(?:BDRIP|DVDRIP|BDRemux)(?:\]\[[^\[\]]+)?))\]\[(?:(?:(?:HEVC )?Main10P)|(?:(?:AVC )?Hi10P)|Hi444PP|H264) \d*(?:FLAC|AC3)\]\[(?:(?:(?:1920|1440)[Xx]1080)|(?:1280[Xx]720)|(?:1024[Xx]576)|(?:720[Xx]480))\](?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$");
-        private static readonly Regex MaWenPattern   = new Regex(@"^[^\[\]]+ \[(?:BD|BluRay|BD\-Remux|SPDVD|DVD) (?:1920x1080p?|1280x720p?|720x480p?|1080p|720p|480p)(?: (?:23\.976|24|25|29\.970|59\.940)fps)?(?: vfr)? (?:(?:(?:AVC|HEVC)\-(?:Lossless-)?(?:yuv420p10|yuv420p8|yuv444p10))|(?:x264(?:-Hi(?:10|444P)P)?|x265-Ma10P))(?: (?:FLAC|AAC|AC3)(?:x\d)?)+(?: (?:Chap|Ordered\-Chap))?\](?: v\d)? - (?:[^\.&]+ ?& ?)*mawen1250(?: ?& ?[^\.&]+)*(?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$");
+        private static readonly Regex AnimePattern        = new Regex(GlobalConfiguration.Instance().Naming.Pattern.VCBS);
+        private static readonly Regex MenuPngPattern      = new Regex(GlobalConfiguration.Instance().Naming.Pattern.MENU);
+        private static readonly Regex FchPattern          = new Regex(GlobalConfiguration.Instance().Naming.Pattern.FCH);
+        private static readonly Regex MaWenPattern        = new Regex(GlobalConfiguration.Instance().Naming.Pattern.MAWEN);
+        private static readonly Regex AudioExtension      = GlobalConfiguration.Instance().Naming.Extension.AudioExtension;
+        private static readonly Regex ImageExtension      = GlobalConfiguration.Instance().Naming.Extension.ImageExtension;
+        private static readonly Regex ExceptExtension     = GlobalConfiguration.Instance().Naming.Extension.ExceptExtension;
 
-        private static readonly Color INVALID_FILE        = Color.FromArgb(251, 153, 102);
-        private static readonly Color VALID_FILE          = Color.FromArgb(146, 170, 243);
-        private static readonly Color INVALID_CUE         = Color.FromArgb(255, 101, 056);
-        private static readonly Color INVALID_ENCODE      = Color.FromArgb(078, 079, 151);
-        private static readonly Color INVALID_PATH_LENGTH = Color.FromArgb(255, 010, 050);
-        private static readonly Color INVALID_FLAC_LEVEL  = Color.FromArgb(207, 216, 220);
-        private static readonly Color NON_UTF_8_W_BOM     = Color.FromArgb(251, 188, 005);
+        private static readonly Color INVALID_FILE        = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE       , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color VALID_FILE          = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.VALID_FILE         , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color INVALID_CUE         = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_CUE        , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color INVALID_ENCODE      = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_ENCODE     , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color INVALID_PATH_LENGTH = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_PATH_LENGTH, System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color INVALID_FLAC_LEVEL  = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FLAC_LEVEL , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color NON_UTF_8_W_BOM     = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.NON_UTF_8_W_BOM    , System.Globalization.NumberStyles.HexNumber));
 
         private static readonly Dictionary<FileState, Color> StateColor = new Dictionary<FileState, Color>
         {
@@ -122,6 +123,11 @@ namespace AutoTorrentInspection.Util
             FileValidation();
         }
 
+        private static bool RegexesMatch(string value, params Regex[] regexes)
+        {
+            return regexes.Any(regex => regex.IsMatch(value));
+        }
+
         /// <summary>
         ///
         /// </summary>
@@ -141,8 +147,8 @@ namespace AutoTorrentInspection.Util
             }
 
             State = FileState.InValidFile;
-            if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) ||
-                MenuPngPattern.IsMatch(FileName) || FchPattern.IsMatch(FileName)   || MaWenPattern.IsMatch(FileName))
+            if (RegexesMatch(Extension, ExceptExtension, ImageExtension, AudioExtension) ||
+                RegexesMatch(FileName, AnimePattern, MenuPngPattern, FchPattern, MaWenPattern))
             {
                 State = FileState.ValidFile;
             }
