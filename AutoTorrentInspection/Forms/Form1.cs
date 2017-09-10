@@ -57,20 +57,6 @@ namespace AutoTorrentInspection.Forms
             Updater.CheckUpdateWeekly("AutoTorrentInspection");
         }
 
-        private void InitLogger()
-        {
-            FormLog formLog = null;
-            var logBuilder = new StringBuilder();
-            Logger.LoggerHandlerManager
-                .AddHandler(new StringBuilderLoggerHandler(logBuilder))
-                .AddHandler(new DebugConsoleLoggerHandler());
-            _systemMenu.AddCommand("显示日志(&L)", () =>
-            {
-                if (formLog == null) formLog = new FormLog(logBuilder);
-                formLog.Show();
-            }, true);
-        }
-
         private SystemMenu _systemMenu;
 
         private void AddCommand()
@@ -79,7 +65,12 @@ namespace AutoTorrentInspection.Forms
             _systemMenu.AddCommand("检查更新(&U)", Updater.CheckUpdate, true);
             _systemMenu.AddCommand("关于(&A)", () => { new FormAbout().Show(); }, false);
             _systemMenu.AddCommand("导出概要(&E)", ExportSummary, false);
-            InitLogger();
+            FormLog formLog = null;
+            _systemMenu.AddCommand("显示日志(&L)", () =>
+            {
+                if (formLog == null) formLog = new FormLog();
+                formLog.Show();
+            }, true);
         }
 
         protected override void WndProc(ref Message msg)

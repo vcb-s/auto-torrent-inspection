@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Drawing;
 using System.Reflection;
-using System.Text;
 using System.Windows.Forms;
 
 namespace AutoTorrentInspection.Forms
 {
     public partial class FormLog : Form
     {
-        private readonly StringBuilder _builder;
-
-        public FormLog(StringBuilder builder)
+        public FormLog()
         {
-            _builder = builder;
             InitializeComponent();
             InitForm();
         }
@@ -25,7 +21,7 @@ namespace AutoTorrentInspection.Forms
 
         private void frmLog_Activated(object sender, EventArgs e)
         {
-            txtLog.Text = _builder.ToString();
+            txtLog.Text = string.Join(Environment.NewLine, Logger.Messages);
         }
 
         private void txtLog_TextChanged(object sender, EventArgs e)
@@ -65,7 +61,7 @@ namespace AutoTorrentInspection.Forms
         {
             try
             {
-                txtLog.Text = _builder.ToString();
+                txtLog.Text = string.Join(Environment.NewLine, Logger.Messages);
             }
             catch (Exception exception)
             {

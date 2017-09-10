@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using AutoTorrentInspection.Forms;
+using AutoTorrentInspection.Logging.Handlers;
 using Microsoft.Win32;
 
 namespace AutoTorrentInspection
@@ -22,6 +23,9 @@ namespace AutoTorrentInspection
                 System.Diagnostics.Process.Start("http://dotnetsocial.cloudapp.net/GetDotnet?tfm=.NETFramework,Version=v4.7");
                 if (ret == DialogResult.Yes) Util.RegistryStorage.Save("False", name: "DoVersionCheck");
             }
+
+            Logger.StoreLogMessages = true;
+            Logger.LoggerHandlerManager.AddHandler(new DebugConsoleLoggerHandler());
 
             if (args.Length == 0)
             {
