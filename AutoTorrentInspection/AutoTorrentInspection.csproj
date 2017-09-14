@@ -189,6 +189,7 @@
     <Compile Include="Util\SystemMenu.cs" />
     <Compile Include="Util\TorrentData.cs" />
     <Compile Include="Util\TreeViewNode.cs" />
+    <Compile Include="Util\Unzip.cs" />
     <Compile Include="Util\Updater.cs" />
     <EmbeddedResource Include="Forms\Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
