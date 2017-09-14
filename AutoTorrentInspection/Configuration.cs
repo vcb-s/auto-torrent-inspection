@@ -68,11 +68,7 @@ namespace AutoTorrentInspection
 
         public override string ToString()
         {
-            using (var output = new StringWriter())
-            {
-                JSON.Serialize(this, output, new Options(true));
-                return output.ToString();
-            }
+            return JSON.Serialize(this, new Options(true));
         }
     }
 
