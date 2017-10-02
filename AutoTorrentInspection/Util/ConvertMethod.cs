@@ -17,9 +17,8 @@ namespace AutoTorrentInspection.Util
         /// <returns>均为相对路径</returns>
         private static IEnumerable<string> EnumerateFolder(string folderPath)
         {
-            Func<string[], IEnumerable<string>> splitFunc =
-                array => array.Select(item => item.Substring(folderPath.Length + 1));
-            foreach (var file in splitFunc(Directory.GetFiles(folderPath)))
+            IEnumerable<string> SplitFunc(IEnumerable<string> array) => array.Select(item => item.Substring(folderPath.Length + 1));
+            foreach (var file in SplitFunc(Directory.GetFiles(folderPath)))
             {
                 yield return file;
             }
@@ -28,7 +27,7 @@ namespace AutoTorrentInspection.Util
             while (folderQueue.Count > 0)
             {
                 var currentFolder = folderQueue.Dequeue();
-                foreach (var file in splitFunc(Directory.GetFiles(currentFolder)))
+                foreach (var file in SplitFunc(Directory.GetFiles(currentFolder)))
                 {
                     yield return file;
                 }

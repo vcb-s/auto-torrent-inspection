@@ -10,7 +10,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using AutoTorrentInspection.Logging.Handlers;
 using AutoTorrentInspection.Properties;
 using AutoTorrentInspection.Util;
 
@@ -575,8 +574,7 @@ namespace AutoTorrentInspection.Forms
         {
             if (e.RowIndex < 0) return;
             _rowUnderMouse = dataGridView1.Rows[e.RowIndex];
-            var fileInfo = _rowUnderMouse.Tag as FileDescription;
-            if (fileInfo == null)  return;
+            if (!(_rowUnderMouse.Tag is FileDescription fileInfo)) return;
             var confindence = fileInfo.Confidence;
             toolStripStatusLabel_Encode.Text = $@"{fileInfo.Encode}({confindence:F2})";
             Application.DoEvents();
@@ -625,8 +623,7 @@ namespace AutoTorrentInspection.Forms
             if (_fixing || dataGridView1.SelectedCells.Count != 1) return;
             Debug.WriteLine($"{e.KeyCode} - {dataGridView1.SelectedCells[0].RowIndex}");
             var rowIndex = dataGridView1.SelectedCells[0].RowIndex;
-            var fileInfo = dataGridView1.Rows[rowIndex].Tag as FileDescription;
-            if (fileInfo == null) return;
+            if (!(dataGridView1.Rows[rowIndex].Tag is FileDescription fileInfo)) return;
 
             var confindence = fileInfo.Confidence;
             toolStripStatusLabel_Encode.Text = $@"{fileInfo.Encode}({confindence:F2})";

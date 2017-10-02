@@ -55,7 +55,7 @@ namespace AutoTorrentInspection.Util
             /// <summary>
             /// Gets a value indicating whether this <see cref="Entry" /> is a directory.
             /// </summary>
-            public bool IsDirectory { get { return Name.EndsWith("/"); } }
+            public bool IsDirectory => Name.EndsWith("/");
 
             /// <summary>
             /// Gets or sets the timestamp.
@@ -65,7 +65,7 @@ namespace AutoTorrentInspection.Util
             /// <summary>
             /// Gets a value indicating whether this <see cref="Entry" /> is a file.
             /// </summary>
-            public bool IsFile { get { return !IsDirectory; } }
+            public bool IsFile => !IsDirectory;
 
             [EditorBrowsable(EditorBrowsableState.Never)]
             public int HeaderOffset { get; set; }
@@ -79,6 +79,8 @@ namespace AutoTorrentInspection.Util
         /// </summary>
         public class Crc32Calculator
         {
+            private const uint Poly = 0xedb88320u;
+
             private static readonly uint[] Crc32Table =
             {
                 0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
@@ -117,7 +119,7 @@ namespace AutoTorrentInspection.Util
 
             private uint crcValue = 0xffffffff;
 
-            public uint Crc32 { get { return crcValue ^ 0xffffffff; } }
+            public uint Crc32 => crcValue ^ 0xffffffff;
 
             public void UpdateWithBlock(byte[] buffer, int numberOfBytes)
             {
@@ -133,8 +135,9 @@ namespace AutoTorrentInspection.Util
         /// </summary>
         public class FileProgressEventArgs : ProgressChangedEventArgs
         {
+            /// <inheritdoc />
             /// <summary>
-            /// Initializes a new instance of the <see cref="FileProgressEventArgs"/> class.
+            /// Initializes a new instance of the <see cref="T:AutoTorrentInspection.Util.Unzip.FileProgressEventArgs" /> class.
             /// </summary>
             /// <param name="currentFile">The current file.</param>
             /// <param name="totalFiles">The total files.</param>
@@ -150,17 +153,17 @@ namespace AutoTorrentInspection.Util
             /// <summary>
             /// Gets the current file.
             /// </summary>
-            public int CurrentFile { get; private set; }
+            public int CurrentFile { get; }
 
             /// <summary>
             /// Gets the total files.
             /// </summary>
-            public int TotalFiles { get; private set; }
+            public int TotalFiles { get; }
 
             /// <summary>
             /// Gets the name of the file.
             /// </summary>
-            public string FileName { get; private set; }
+            public string FileName { get; }
         }
 
         private const int EntrySignature = 0x02014B50;
@@ -173,8 +176,9 @@ namespace AutoTorrentInspection.Util
         /// </summary>
         public event EventHandler<FileProgressEventArgs> ExtractProgress;
 
+        /// <inheritdoc />
         /// <summary>
-        /// Initializes a new instance of the <see cref="Unzip" /> class.
+        /// Initializes a new instance of the <see cref="T:AutoTorrentInspection.Util.Unzip" /> class.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         public Unzip(string fileName)
@@ -196,6 +200,7 @@ namespace AutoTorrentInspection.Util
 
         private BinaryReader Reader { get; set; }
 
+        /// <inheritdoc />
         /// <summary>
         /// Performs application-defined tasks associated with
         /// freeing, releasing, or resetting unmanaged resources.
@@ -221,13 +226,13 @@ namespace AutoTorrentInspection.Util
         /// <param name="directoryName">Name of the directory.</param>
         public void ExtractToDirectory(string directoryName)
         {
-            for (int index = 0; index < Entries.Length; index++)
+            for (var index = 0; index < Entries.Length; index++)
             {
                 var entry = Entries[index];
 
                 // create target directory for the file
                 var fileName = Path.Combine(directoryName, entry.Name);
-                var dirName = Path.GetDirectoryName(fileName);
+                var dirName = Path.GetDirectoryName(fileName) ?? "";
                 Directory.CreateDirectory(dirName);
 
                 // save file if it is not only a directory
@@ -236,11 +241,7 @@ namespace AutoTorrentInspection.Util
                     Extract(entry.Name, fileName);
                 }
 
-                var extractProgress = ExtractProgress;
-                if (extractProgress != null)
-                {
-                    extractProgress(this, new FileProgressEventArgs(index + 1, Entries.Length, entry.Name));
-                }
+                ExtractProgress?.Invoke(this, new FileProgressEventArgs(index + 1, Entries.Length, entry.Name));
             }
         }
 
@@ -261,9 +262,8 @@ namespace AutoTorrentInspection.Util
             var fileInfo = new FileInfo(outputFileName);
             if (fileInfo.Length != entry.OriginalSize)
             {
-                throw new InvalidDataException(string.Format(
-                    "Corrupted archive: {0} has an uncompressed size {1} which does not match its expected size {2}",
-                    outputFileName, fileInfo.Length, entry.OriginalSize));
+                throw new InvalidDataException(
+                    $"Corrupted archive: {outputFileName} has an uncompressed size {fileInfo.Length} which does not match its expected size {entry.OriginalSize}");
             }
 
             File.SetLastWriteTime(outputFileName, entry.Timestamp);
@@ -339,9 +339,8 @@ namespace AutoTorrentInspection.Util
 
             if (crc32Calculator.Crc32 != entry.Crc32)
             {
-                throw new InvalidDataException(string.Format(
-                    "Corrupted archive: CRC32 doesn't match on file {0}: expected {1:x8}, got {2:x8}.",
-                    entry.Name, entry.Crc32, crc32Calculator.Crc32));
+                throw new InvalidDataException(
+                    $"Corrupted archive: CRC32 doesn't match on file {entry.Name}: expected {entry.Crc32:x8}, got {crc32Calculator.Crc32:x8}.");
             }
         }
 
@@ -356,23 +355,12 @@ namespace AutoTorrentInspection.Util
             }
         }
 
-        private Entry[] entries;
+        private Entry[] _entries;
 
         /// <summary>
         /// Gets zip file entries.
         /// </summary>
-        public Entry[] Entries
-        {
-            get
-            {
-                if (entries == null)
-                {
-                    entries = ReadZipEntries().ToArray();
-                }
-
-                return entries;
-            }
-        }
+        public Entry[] Entries => _entries ?? (_entries = ReadZipEntries().ToArray());
 
         private IEnumerable<Entry> ReadZipEntries()
         {
@@ -403,7 +391,7 @@ namespace AutoTorrentInspection.Util
             Stream.Seek(dirOffset, SeekOrigin.Begin);
 
             // read directory entries
-            for (int i = 0; i < entries; i++)
+            for (var i = 0; i < entries; i++)
             {
                 if (Reader.ReadInt32() != EntrySignature)
                 {
@@ -413,36 +401,36 @@ namespace AutoTorrentInspection.Util
                 // read file properties
                 // TODO: Replace with a proper class to make this method a lot shorter.
                 Reader.ReadInt32();
-                bool utf8 = (Reader.ReadInt16() & 0x0800) != 0;
-                short method = Reader.ReadInt16();
-                int timestamp = Reader.ReadInt32();
-                uint crc32 = Reader.ReadUInt32();
-                int compressedSize = Reader.ReadInt32();
-                int fileSize = Reader.ReadInt32();
-                short fileNameSize = Reader.ReadInt16();
-                short extraSize = Reader.ReadInt16();
-                short commentSize = Reader.ReadInt16();
-                int headerOffset = Reader.ReadInt32();
+                var utf8             = (Reader.ReadInt16() & 0x0800) != 0;
+                var method           = Reader.ReadInt16();
+                var timestamp        = Reader.ReadInt32();
+                var crc32            = Reader.ReadUInt32();
+                var compressedSize   = Reader.ReadInt32();
+                var fileSize         = Reader.ReadInt32();
+                var fileNameSize     = Reader.ReadInt16();
+                var extraSize        = Reader.ReadInt16();
+                var commentSize      = Reader.ReadInt16();
+                var headerOffset     = Reader.ReadInt32();
                 Reader.ReadInt32();
-                int fileHeaderOffset = Reader.ReadInt32();
-                var fileNameBytes = Reader.ReadBytes(fileNameSize);
+                var fileHeaderOffset = Reader.ReadInt32();
+                var fileNameBytes    = Reader.ReadBytes(fileNameSize);
                 Stream.Seek(extraSize, SeekOrigin.Current);
                 var fileCommentBytes = Reader.ReadBytes(commentSize);
-                var fileDataOffset = CalculateFileDataOffset(fileHeaderOffset);
+                var fileDataOffset   = CalculateFileDataOffset(fileHeaderOffset);
 
                 // decode zip file entry
                 var encoder = utf8 ? Encoding.UTF8 : Encoding.Default;
                 yield return new Entry
                 {
-                    Name = encoder.GetString(fileNameBytes),
-                    Comment = encoder.GetString(fileCommentBytes),
-                    Crc32 = crc32,
+                    Name           = encoder.GetString(fileNameBytes),
+                    Comment        = encoder.GetString(fileCommentBytes),
+                    Crc32          = crc32,
                     CompressedSize = compressedSize,
-                    OriginalSize = fileSize,
-                    HeaderOffset = fileHeaderOffset,
-                    DataOffset = fileDataOffset,
-                    Deflated = method == 8,
-                    Timestamp = ConvertToDateTime(timestamp)
+                    OriginalSize   = fileSize,
+                    HeaderOffset   = fileHeaderOffset,
+                    DataOffset     = fileDataOffset,
+                    Deflated       = method == 8,
+                    Timestamp      = ConvertToDateTime(timestamp)
                 };
             }
         }

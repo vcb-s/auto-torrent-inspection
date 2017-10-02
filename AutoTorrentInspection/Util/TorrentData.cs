@@ -43,8 +43,7 @@ namespace AutoTorrentInspection.Util
         {
             get
             {
-                var extra = _torrent.ExtraFields["info"] as BDictionary;
-                if (extra == null) return "";
+                if (!(_torrent.ExtraFields["info"] is BDictionary extra)) return "";
                 if (extra.ContainsKey("source"))
                 {
                     return (extra["source"] as BString)?.ToString() ?? "";
