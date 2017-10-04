@@ -23,6 +23,7 @@ namespace AutoTorrentInspection.Util
         ValidFile         = 0,
         InValidPathLength = 1,
         InValidFile       = 1 << 1,
+        InValidFileSignature = 1 << 2,
         //cue
         InValidCue        = 1 << 11,
         InValidEncode     = 1 << 12,
@@ -60,23 +61,25 @@ namespace AutoTorrentInspection.Util
         private static readonly Regex ImageExtension      = GlobalConfiguration.Instance().Naming.Extension.ImageExtension;
         private static readonly Regex ExceptExtension     = GlobalConfiguration.Instance().Naming.Extension.ExceptExtension;
 
-        private static readonly Color INVALID_FILE        = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE       , System.Globalization.NumberStyles.HexNumber));
-        private static readonly Color VALID_FILE          = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.VALID_FILE         , System.Globalization.NumberStyles.HexNumber));
-        private static readonly Color INVALID_CUE         = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_CUE        , System.Globalization.NumberStyles.HexNumber));
-        private static readonly Color INVALID_ENCODE      = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_ENCODE     , System.Globalization.NumberStyles.HexNumber));
-        private static readonly Color INVALID_PATH_LENGTH = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_PATH_LENGTH, System.Globalization.NumberStyles.HexNumber));
-        private static readonly Color INVALID_FLAC_LEVEL  = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FLAC_LEVEL , System.Globalization.NumberStyles.HexNumber));
-        private static readonly Color NON_UTF_8_W_BOM     = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.NON_UTF_8_W_BOM    , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color INVALID_FILE          = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE         , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color VALID_FILE            = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.VALID_FILE           , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color INVALID_CUE           = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_CUE          , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color INVALID_ENCODE        = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_ENCODE       , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color INVALID_PATH_LENGTH   = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_PATH_LENGTH  , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color INVALID_FLAC_LEVEL    = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FLAC_LEVEL   , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color NON_UTF_8_W_BOM       = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.NON_UTF_8_W_BOM      , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color INVALID_FILE_SIGNATUR = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE_SIGNATUR, System.Globalization.NumberStyles.HexNumber));
 
         private static readonly Dictionary<FileState, Color> StateColor = new Dictionary<FileState, Color>
         {
-            [FileState.ValidFile]         = VALID_FILE,
-            [FileState.InValidPathLength] = INVALID_PATH_LENGTH,
-            [FileState.InValidFile]       = INVALID_FILE,
-            [FileState.InValidCue]        = INVALID_CUE,
-            [FileState.InValidEncode]     = INVALID_ENCODE,
-            [FileState.InValidFlacLevel]  = INVALID_FLAC_LEVEL,
-            [FileState.NonUTF8WBOM]       = NON_UTF_8_W_BOM
+            [FileState.ValidFile]            = VALID_FILE,
+            [FileState.InValidPathLength]    = INVALID_PATH_LENGTH,
+            [FileState.InValidFile]          = INVALID_FILE,
+            [FileState.InValidCue]           = INVALID_CUE,
+            [FileState.InValidEncode]        = INVALID_ENCODE,
+            [FileState.InValidFlacLevel]     = INVALID_FLAC_LEVEL,
+            [FileState.NonUTF8WBOM]          = NON_UTF_8_W_BOM,
+            [FileState.InValidFileSignature] = INVALID_FILE_SIGNATUR
         };
 
         private const long MaxFilePathLength = 240;
@@ -157,7 +160,7 @@ namespace AutoTorrentInspection.Util
 
         private void FileValidation()
         {
-            if (BaseValidation() || State == FileState.InValidFile) return;
+            if (BaseValidation()/* || State == FileState.InValidFile*/) return;
             switch (Extension)
             {
                 case ".flac":
@@ -179,6 +182,12 @@ namespace AutoTorrentInspection.Util
                     break;
                 case ".cue":
                     CheckCUE();
+                    break;
+                default:
+                    if (!FileHeader.Check(FullPath))
+                    {
+                        State = FileState.InValidFileSignature;
+                    }
                     break;
             }
         }
