@@ -13,8 +13,8 @@ namespace AutoTorrentInspection.Util
         {
             [".mp3"]  = new[] { (new byte[] { 0x49, 0x44, 0x33 }, 0) },
             [".flac"] = new[] { (new byte[] { 0x66, 0x4C, 0x61, 0x43 }, 0) },
-            [".aac"]  = new[] { (new byte[] { 0x66, 0x74, 0x79, 0x70, 0x4D, 0x34, 0x41, 0x20 }, 4) },//alac
-            //[".aac"]  = new[] { (new byte[] { 0xFF, 0xF1 }, 0) },//aac
+            [".m4a"]  = new[] { (new byte[] { 0x66, 0x74, 0x79, 0x70, 0x4D, 0x34, 0x41, 0x20 }, 4) },
+            [".aac"]  = new[] { (new byte[] { 0xFF, 0xF1 }, 0) },
             [".tak"]  = new[] { (new byte[] { 0x74, 0x42, 0x61, 0x4B }, 0) },
 
             [".txt"]  = new[] { (new byte[] { 0xEF, 0xBB, 0xBF }, 0) },
