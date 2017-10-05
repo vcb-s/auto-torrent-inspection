@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using AutoTorrentInspection.Forms;
 using AutoTorrentInspection.Logging.Handlers;
+using AutoTorrentInspection.Properties;
 using Microsoft.Win32;
 using AutoTorrentInspection.Util;
 
@@ -29,10 +32,14 @@ namespace AutoTorrentInspection
             Logger.StoreLogMessages = true;
             Logger.LoggerHandlerManager.AddHandler(new DebugConsoleLoggerHandler());
 
-            if (!CheckDependencies())
+            if (CheckDependencies().Count() != 0)
             {
-                //todo: download the dependencies automatically
-                return;
+                using (var stream = new MemoryStream(Resources.Jil_2_15_4_0))
+                using (var zip = new Unzip(stream))
+                {
+                    Logger.Log("Extract dependences to current directory");
+                    zip.ExtractToCurrentDirectory();
+                }
             }
             if (args.Length == 0)
             {
@@ -50,7 +57,7 @@ namespace AutoTorrentInspection
         {
             //https://msdn.microsoft.com/en-us/library/hh925568
             const int minSupportedRelease = 460798;
-            if (Util.RegistryStorage.Load(name: "DoVersionCheck") == "False") return true;
+            if (RegistryStorage.Load(name: "DoVersionCheck") == "False") return true;
             using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full"))
             {
                 if (key?.GetValue("Release") != null)
@@ -63,9 +70,8 @@ namespace AutoTorrentInspection
         }
 
 
-        private static bool CheckDependencies()
+        private static IEnumerable<(string name, string version)> CheckDependencies()
         {
-            var ret = true;
             var basePath = Path.GetDirectoryName(Application.ExecutablePath) ?? "";
             var requires = new[]
             {
@@ -76,10 +82,8 @@ namespace AutoTorrentInspection
             {
                 var dllPath = Path.Combine(basePath, require.Item1 + ".dll");
                 if (File.Exists(dllPath)) continue;
-                Notification.ShowInfo($"缺少{require.Item1} {require.Item3}");
-                ret = false;
+                yield return (require.Item1, require.Item3);
             }
-            return ret;
         }
     }
 }

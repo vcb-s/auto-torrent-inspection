@@ -246,6 +246,26 @@ namespace AutoTorrentInspection.Util
         }
 
         /// <summary>
+        /// Extracts the contents of the zip file to the working directory.
+        /// </summary>
+        public void ExtractToCurrentDirectory()
+        {
+            for (var index = 0; index < Entries.Length; index++)
+            {
+                var entry = Entries[index];
+
+                var fileName = Path.Combine(Directory.GetCurrentDirectory(), entry.Name);
+                // save file if it is not only a directory
+                if (!entry.IsDirectory)
+                {
+                    Extract(entry.Name, fileName);
+                }
+
+                ExtractProgress?.Invoke(this, new FileProgressEventArgs(index + 1, Entries.Length, entry.Name));
+            }
+        }
+
+        /// <summary>
         /// Extracts the specified file to the specified name.
         /// </summary>
         /// <param name="fileName">Name of the file in zip archive.</param>
