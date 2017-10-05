@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -36,6 +37,19 @@ namespace AutoTorrentInspection.Util
             [".j2c"]  = new[] { (new byte[] { 0xFF, 0x4F, 0xFF, 0x51, 0x00, 0x2F, 0x00, 0x00 }, 0) },
         };
 
+        private static readonly int MaxLength;
+
+        static FileHeader()
+        {
+            foreach (var tuplese in Header)
+            {
+                foreach (var tuple in tuplese.Value)
+                {
+                    MaxLength = Math.Max(MaxLength, tuple.offset + tuple.signature.Length);
+                }
+            }
+        }
+
         public static bool Check(string path)
         {
             var ext = Path.GetExtension(path)?.ToLower() ?? "";
@@ -44,6 +58,7 @@ namespace AutoTorrentInspection.Util
             var headers = Header[ext];
             using (var stream = File.OpenRead(path))
             {
+                if (stream.Length == 0) return true;//empty file is accepted
                 var ret = true;
                 foreach (var header in headers)
                 {
@@ -56,7 +71,8 @@ namespace AutoTorrentInspection.Util
                     var bytes = stream.ReadBytes(header.signature.Length);
                     ret &= bytes.SequenceEqual(header.signature);
                     if (ret) continue;
-                    Logger.Log(Logger.Level.Error, $"{path}: Expected signature->[{header.signature.ToHex()}]({header.offset}), acture signature->[{bytes.ToHex()}]({header.offset})");
+                    Logger.Log(Logger.Level.Error, $"{path}: Expected signature->[{header.signature.ToHex()}]({header.offset}), actual signature->[{bytes.ToHex()}]({header.offset})");
+                    Logger.Log(Logger.Level.Error, $"{path}: Actual extension should be: {stream.MatchSignature() ?? "unknow"}");
                     break;
                 }
                 return ret;
@@ -66,6 +82,25 @@ namespace AutoTorrentInspection.Util
         public static string ToHex(this byte[] bytes)
         {
             return bytes.Aggregate("", (current, item) => current + $"{item:X2} ").TrimEnd();
+        }
+
+        public static string MatchSignature(this Stream stream)
+        {
+            stream.Seek(0, SeekOrigin.Begin);
+            if (stream.Length < MaxLength) return null;
+            var bytes = stream.ReadBytes(MaxLength);
+            foreach (var tuplese in Header)
+            {
+                var valid = true;
+                foreach (var tuple in tuplese.Value)
+                {
+                    var sub = new byte[tuple.signature.Length];
+                    Array.Copy(bytes, tuple.offset, sub, 0, tuple.signature.Length);
+                    valid &= sub.SequenceEqual(tuple.signature);
+                }
+                if (valid) return tuplese.Key;
+            }
+            return null;
         }
     }
 }
