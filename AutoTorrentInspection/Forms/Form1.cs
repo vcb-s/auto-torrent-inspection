@@ -203,7 +203,7 @@ namespace AutoTorrentInspection.Forms
 
         private void LoadFile(object sender, AsyncCompletedEventArgs e)
         {
-            LoadFile(FilePath);
+            Task.Factory.StartNew(() => LoadFile(FilePath));
         }
 
         private readonly string[] _loadingText = {
