@@ -17,9 +17,8 @@ namespace AutoTorrentInspection.Util
         /// <returns>均为相对路径</returns>
         private static IEnumerable<string> EnumerateFolder(string folderPath)
         {
-            Func<string[], IEnumerable<string>> splitFunc =
-                array => array.Select(item => item.Substring(folderPath.Length + 1));
-            foreach (var file in splitFunc(Directory.GetFiles(folderPath)))
+            IEnumerable<string> SplitFunc(IEnumerable<string> array) => array.Select(item => item.Substring(folderPath.Length + 1));
+            foreach (var file in SplitFunc(Directory.GetFiles(folderPath)))
             {
                 yield return file;
             }
@@ -28,7 +27,7 @@ namespace AutoTorrentInspection.Util
             while (folderQueue.Count > 0)
             {
                 var currentFolder = folderQueue.Dequeue();
-                foreach (var file in splitFunc(Directory.GetFiles(currentFolder)))
+                foreach (var file in SplitFunc(Directory.GetFiles(currentFolder)))
                 {
                     yield return file;
                 }
@@ -52,6 +51,7 @@ namespace AutoTorrentInspection.Util
                 var relativePath  = Path.GetDirectoryName(file);
                 fileDic.TryAdd(category, new List<FileDescription>());
                 fileDic[category].Add(new FileDescription(Path.GetFileName(file), relativePath, folderPath));
+                Application.DoEvents();
             }
             return fileDic;
         }
@@ -101,16 +101,17 @@ namespace AutoTorrentInspection.Util
             return mat[i, j];
         }
 
+        //https://en.wikipedia.org/wiki/Longest_common_subsequence_problem
         public static IEnumerable<(int ope, string text)> GetDiff(string lhs, string rhs, char separator = '\n')
         {
             var lList = lhs.Split(separator);
             var rList = rhs.Split(separator);
             //var answer = new StringBuilder();
 
-            var mat = Lcs(lList, rList);
+            var mat = LCS(lList, rList);
             return PrintDiff(mat, lList, rList, lList.Length - 1, rList.Length - 1);
 
-            int[,] Lcs(string[] x, string[] y)
+            int[,] LCS(string[] x, string[] y)
             {
                 var c = new int[x.Length, y.Length];
                 for (var i = 0; i < x.Length; ++i)
@@ -133,12 +134,12 @@ namespace AutoTorrentInspection.Util
                     inner = PrintDiff(c, x, y, i - 1, j - 1);
                     ret = (0, x[i]);
                 }
-                else if (j >= 0 && (i < 0 || c._(i, j - 1) >= c._(i - 1, j)))
+                else if (j >= 0 && (i == -1 || c._(i, j - 1) >= c._(i - 1, j)))
                 {
                     inner = PrintDiff(c, x, y, i, j - 1);
                     ret = (1, y[j]);
                 }
-                else if (i >= 0 && (j < 0 || c._(i, j - 1) < c._(i - 1, j)))
+                else if (i >= 0 && (j == -1 || c._(i, j - 1) < c._(i - 1, j)))
                 {
                     inner = PrintDiff(c, x, y, i - 1, j);
                     ret = (-1, x[i]);

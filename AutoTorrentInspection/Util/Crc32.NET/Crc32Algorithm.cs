@@ -128,12 +128,12 @@ namespace AutoTorrentInspection.Util.Crc32.NET
             var buffer = new byte[capacity];
             using (var file = File.OpenRead(filePath))
             {
-                while (true)
+                int cbSize;
+                do
                 {
-                    var num = await file.ReadAsync(buffer, 0, capacity).ConfigureAwait(false);
-                    if (num > 0) hash.HashCore(buffer, 0, num);
-                    else break;
-                }
+                    cbSize = await file.ReadAsync(buffer, 0, capacity).ConfigureAwait(false);
+                    if (cbSize > 0) hash.HashCore(buffer, 0, cbSize);
+                } while (cbSize > 0);
                 return hash._currentCrc;
             }
         }

@@ -50,6 +50,7 @@
             this.Controls.Add(this.treeView1);
             this.Name = "FormFileDup";
             this.Text = "Duplicate Inspection";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormFileDup_FormClosing);
             this.ResumeLayout(false);
 
         }

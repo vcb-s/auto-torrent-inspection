@@ -29,10 +29,6 @@ namespace AutoTorrentInspection.Util
     //https://xiph.org/flac/format.html
     public static class FlacData
     {
-        private const long SizeThreshold = 1 << 20;
-
-        public static event Action<string> OnLog;
-
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         private enum BlockType
         {
@@ -47,9 +43,9 @@ namespace AutoTorrentInspection.Util
 
         public static FlacInfo GetMetadataFromFlac(string flacPath)
         {
+            Logger.Log(flacPath);
             using (var fs = File.OpenRead(flacPath))
             {
-                if (fs.Length < SizeThreshold) return new FlacInfo();
                 var info      = new FlacInfo();
                 var header    = Encoding.ASCII.GetString(fs.ReadBytes(4), 0, 4);
                 if (header != "fLaC")
@@ -68,7 +64,7 @@ namespace AutoTorrentInspection.Util
                     var length            = blockHeader & 0xffffff;
                     var prePos            = fs.Position;
                     metaLength           += length + 4/*length of METADATA_BLOCK_HEADER*/;
-                    OnLog?.Invoke($"|+{blockType} with Length: {length}");
+                    Logger.Log($"|+{blockType} with Length: {length}");
                     switch (blockType)
                     {
                     case BlockType.STREAMINFO:
@@ -88,7 +84,7 @@ namespace AutoTorrentInspection.Util
                         fs.Seek(length, SeekOrigin.Current);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException($"Invalid BLOCK_TYPE: 0x{blockType:X2}");
+                        throw new ArgumentOutOfRangeException($"Invalid BLOCK_TYPE: 0x{blockType:X}");
                     }
                     Debug.Assert(fs.Position - prePos == length);
                     if (lastMetadataBlock) break;
@@ -116,12 +112,12 @@ namespace AutoTorrentInspection.Util
 
             info.SampleRate = sampleRate;
             info.BitPerSample = bitPerSample;
-            OnLog?.Invoke($" | minimum block size: {minBlockSize}, maximum block size: {maxBlockSize}");
-            OnLog?.Invoke($" | minimum frame size: {minFrameSize}, maximum frame size: {maxFrameSize}");
-            OnLog?.Invoke($" | Sample rate: {sampleRate}Hz, bits per sample: {bitPerSample}-bit");
-            OnLog?.Invoke($" | Channel count: {channelCount}");
+            Logger.Log($" | minimum block size: {minBlockSize}, maximum block size: {maxBlockSize}");
+            Logger.Log($" | minimum frame size: {minFrameSize}, maximum frame size: {maxFrameSize}");
+            Logger.Log($" | Sample rate: {sampleRate}Hz, bits per sample: {bitPerSample}-bit");
+            Logger.Log($" | Channel count: {channelCount}");
             var md5String     = md5.Aggregate("", (current, item) => current + $"{item:X2}");
-            OnLog?.Invoke($" | MD5: {md5String}");
+            Logger.Log($" | MD5: {md5String}");
         }
 
         private static void ParseVorbisComment(Stream fs, ref FlacInfo info)
@@ -131,7 +127,7 @@ namespace AutoTorrentInspection.Util
             var vendorRawStringData = fs.ReadBytes(vendorLength);
             var vendor              = Encoding.UTF8.GetString(vendorRawStringData, 0, vendorLength);
             info.Encoder            = vendor;
-            OnLog?.Invoke($" | Vendor: {vendor}");
+            Logger.Log($" | Vendor: {vendor}");
             var userCommentListLength = fs.LEInt32();
             for (var i = 0; i < userCommentListLength; ++i)
             {
@@ -143,7 +139,7 @@ namespace AutoTorrentInspection.Util
                 var value                = comment.Substring(spilterIndex + 1, comment.Length - 1 - spilterIndex);
                 info.VorbisComment[key]  = value;
                 var summary              = value.Length > 25 ? value.Substring(0, 25) + "..." : value;
-                OnLog?.Invoke($" | [{key}] = '{summary.Replace('\n', ' ')}'");
+                Logger.Log($" | [{key}] = '{summary.Replace('\n', ' ')}'");
             }
         }
 
@@ -174,13 +170,13 @@ namespace AutoTorrentInspection.Util
             fs.Seek(pictureDataLength, SeekOrigin.Current);
             info.HasCover         = true;
             if (pictureType > 20) pictureType = 21;
-            OnLog?.Invoke($" | picture type: {PictureTypeName[pictureType]}");
-            OnLog?.Invoke($" | picture format type: {mimeType}");
+            Logger.Log($" | picture type: {PictureTypeName[pictureType]}");
+            Logger.Log($" | picture format type: {mimeType}");
             if (descriptionLength > 0)
-                OnLog?.Invoke($" | description: {description}");
-            OnLog?.Invoke($" | attribute: {pictureWidth}px*{pictureHeight}px@{colorDepth}-bit");
+                Logger.Log($" | description: {description}");
+            Logger.Log($" | attribute: {pictureWidth}px*{pictureHeight}px@{colorDepth}-bit");
             if (indexedColorCount != 0)
-                OnLog?.Invoke($" | indexed-color color: {indexedColorCount}");
+                Logger.Log($" | indexed-color color: {indexedColorCount}");
         }
     }
 

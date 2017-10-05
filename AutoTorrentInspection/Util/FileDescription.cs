@@ -1,7 +1,6 @@
 ﻿using BencodeNET.Torrents;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -24,6 +23,7 @@ namespace AutoTorrentInspection.Util
         ValidFile         = 0,
         InValidPathLength = 1,
         InValidFile       = 1 << 1,
+        InValidFileSignature = 1 << 2,
         //cue
         InValidCue        = 1 << 11,
         InValidEncode     = 1 << 12,
@@ -53,30 +53,33 @@ namespace AutoTorrentInspection.Util
 
         public override string ToString() => $"{FileName}, length: {(double)Length / 1024:F3}KB";
 
-        private static readonly Regex AnimePattern   = new Regex(@"^\[[^\[\]]*VCB\-S(?:tudio)?[^\[\]]*\] [^\[\]]+ (?:\[[^\[\]]*\d*\])?\[(?:(?:(?:(?:Hi10p|Hi444pp)_(?:2160|1080|720|576|480)p\]\[x264)|(?:(?:Ma10p_(?:2160|1080|720|576|480)p\]\[x265)))(?:_\d*(?:flac|aac|ac3|dts))+\](?:\.(?:mkv|mka|flac))?|(?:(?:1080|720|576)p\]\[(?:x264|x265)_(?:aac|ac3|dts)\](?:\.mp4)?))(?:(?<!(?:mkv|mka|mp4))(?:\.(?:[SsTt]c|[Cc]h(?:s|t)|[Jj](?:pn|ap)|[Cc]h(?:s|t)&[Jj](?:pn|ap)))?\.ass)?$"); //implement without Balancing group
-        private static readonly Regex MenuPngPattern = new Regex(@"^\[[^\[\]]*VCB\-S(?:tudio)*[^\[\]]*\] [^\[\]]+ \[[^\[\]]*\]\.png$");
-        private static readonly Regex MusicPattern   = new Regex(@"\.(flac|tak|m4a|cue|log|jpg|jpeg|jp2|webp)$", RegexOptions.IgnoreCase);
-        private static readonly Regex ExceptPattern  = new Regex(@"\.(rar|7z|zip)$", RegexOptions.IgnoreCase);
-        private static readonly Regex FchPattern     = new Regex(@"^(?:\[(?:[^\[\]])*philosophy\-raws(?:[^\[\]])*\])\[[^\[\]]+\]\[(?:(?:[^\[\]]+\]\[(?:BDRIP|DVDRIP|BDRemux))|(?:(?:BDRIP|DVDRIP|BDRemux)(?:\]\[[^\[\]]+)?))\]\[(?:(?:(?:HEVC )?Main10P)|(?:(?:AVC )?Hi10P)|Hi444PP|H264) \d*(?:FLAC|AC3)\]\[(?:(?:(?:1920|1440)[Xx]1080)|(?:1280[Xx]720)|(?:1024[Xx]576)|(?:720[Xx]480))\](?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$");
-        private static readonly Regex MaWenPattern   = new Regex(@"^[^\[\]]+ \[(?:BD|BluRay|BD\-Remux|SPDVD|DVD) (?:1920x1080p?|1280x720p?|720x480p?|1080p|720p|480p)(?: (?:23\.976|24|25|29\.970|59\.940)fps)?(?: vfr)? (?:(?:(?:AVC|HEVC)\-(?:Lossless-)?(?:yuv420p10|yuv420p8|yuv444p10))|(?:x264(?:-Hi(?:10|444P)P)?|x265-Ma10P))(?: (?:FLAC|AAC|AC3)(?:x\d)?)+(?: (?:Chap|Ordered\-Chap))?\](?: v\d)? - (?:[^\.&]+ ?& ?)*mawen1250(?: ?& ?[^\.&]+)*(?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$");
+        private static readonly Regex AnimePattern        = new Regex(GlobalConfiguration.Instance().Naming.Pattern.VCBS);
+        private static readonly Regex MenuPngPattern      = new Regex(GlobalConfiguration.Instance().Naming.Pattern.MENU);
+        private static readonly Regex FchPattern          = new Regex(GlobalConfiguration.Instance().Naming.Pattern.FCH);
+        private static readonly Regex MaWenPattern        = new Regex(GlobalConfiguration.Instance().Naming.Pattern.MAWEN);
+        private static readonly Regex AudioExtension      = GlobalConfiguration.Instance().Naming.Extension.AudioExtension;
+        private static readonly Regex ImageExtension      = GlobalConfiguration.Instance().Naming.Extension.ImageExtension;
+        private static readonly Regex ExceptExtension     = GlobalConfiguration.Instance().Naming.Extension.ExceptExtension;
 
-        private static readonly Color INVALID_FILE        = Color.FromArgb(251, 153, 102);
-        private static readonly Color VALID_FILE          = Color.FromArgb(146, 170, 243);
-        private static readonly Color INVALID_CUE         = Color.FromArgb(255, 101, 056);
-        private static readonly Color INVALID_ENCODE      = Color.FromArgb(078, 079, 151);
-        private static readonly Color INVALID_PATH_LENGTH = Color.FromArgb(255, 010, 050);
-        private static readonly Color INVALID_FLAC_LEVEL  = Color.FromArgb(207, 216, 220);
-        private static readonly Color NON_UTF_8_W_BOM     = Color.FromArgb(251, 188, 005);
+        private static readonly Color INVALID_FILE          = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE         , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color VALID_FILE            = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.VALID_FILE           , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color INVALID_CUE           = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_CUE          , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color INVALID_ENCODE        = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_ENCODE       , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color INVALID_PATH_LENGTH   = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_PATH_LENGTH  , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color INVALID_FLAC_LEVEL    = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FLAC_LEVEL   , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color NON_UTF_8_W_BOM       = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.NON_UTF_8_W_BOM      , System.Globalization.NumberStyles.HexNumber));
+        private static readonly Color INVALID_FILE_SIGNATUR = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE_SIGNATUR, System.Globalization.NumberStyles.HexNumber));
 
         private static readonly Dictionary<FileState, Color> StateColor = new Dictionary<FileState, Color>
         {
-            [FileState.ValidFile]         = VALID_FILE,
-            [FileState.InValidPathLength] = INVALID_PATH_LENGTH,
-            [FileState.InValidFile]       = INVALID_FILE,
-            [FileState.InValidCue]        = INVALID_CUE,
-            [FileState.InValidEncode]     = INVALID_ENCODE,
-            [FileState.InValidFlacLevel]  = INVALID_FLAC_LEVEL,
-            [FileState.NonUTF8WBOM]       = NON_UTF_8_W_BOM
+            [FileState.ValidFile]            = VALID_FILE,
+            [FileState.InValidPathLength]    = INVALID_PATH_LENGTH,
+            [FileState.InValidFile]          = INVALID_FILE,
+            [FileState.InValidCue]           = INVALID_CUE,
+            [FileState.InValidEncode]        = INVALID_ENCODE,
+            [FileState.InValidFlacLevel]     = INVALID_FLAC_LEVEL,
+            [FileState.NonUTF8WBOM]          = NON_UTF_8_W_BOM,
+            [FileState.InValidFileSignature] = INVALID_FILE_SIGNATUR
         };
 
         private const long MaxFilePathLength = 240;
@@ -84,7 +87,7 @@ namespace AutoTorrentInspection.Util
         public FileDescription(MultiFileInfo file, string torrentName)
         {
             BasePath      = torrentName;
-            ReletivePath  = file.Path.Take(file.Path.Count - 1).Aggregate("", (current, item) => current += $"{item}\\").TrimEnd('\\');
+            ReletivePath  = file.Path.Take(file.Path.Count - 1).Aggregate("", (current, item) => current + item + "\\").TrimEnd('\\');
             FileName      = file.FileName;
             FullPath      = Path.Combine(BasePath, ReletivePath, FileName);
             ParentFolder = FullPath.Split('\\', '/').Reverse().Skip(1).ToList();
@@ -122,6 +125,11 @@ namespace AutoTorrentInspection.Util
             FileValidation();
         }
 
+        private static bool RegexesMatch(string value, params Regex[] regexes)
+        {
+            return regexes.Any(regex => regex.IsMatch(value));
+        }
+
         /// <summary>
         ///
         /// </summary>
@@ -141,8 +149,8 @@ namespace AutoTorrentInspection.Util
             }
 
             State = FileState.InValidFile;
-            if (ExceptPattern.IsMatch(Extension) || MusicPattern.IsMatch(FileName) || AnimePattern.IsMatch(FileName) ||
-                MenuPngPattern.IsMatch(FileName) || FchPattern.IsMatch(FileName)   || MaWenPattern.IsMatch(FileName))
+            if (RegexesMatch(Extension, ExceptExtension, ImageExtension, AudioExtension) ||
+                RegexesMatch(FileName, AnimePattern, MenuPngPattern, FchPattern, MaWenPattern))
             {
                 State = FileState.ValidFile;
             }
@@ -152,31 +160,40 @@ namespace AutoTorrentInspection.Util
 
         private void FileValidation()
         {
-            if (BaseValidation() || State == FileState.InValidFile) return;
-            if (Extension == ".flac")
+            if (BaseValidation()/* || State == FileState.InValidFile*/) return;
+            switch (Extension)
             {
-                Flac = FlacData.GetMetadataFromFlac(FullPath);
-                _confindece = (float)Flac.
-                    CompressRate;
-                FileName += $"[{Flac.CompressRate * 100:00.00}%]";
-                if (Flac.IsHiRes)
+                case ".flac":
                 {
-                    FileName += "[HR]";
+                    Flac = FlacData.GetMetadataFromFlac(FullPath);
+                    _confindece = (float)Flac.CompressRate;
+                    FileName += $"[{Flac.CompressRate * 100:00.00}%]";
+                    if (Flac.IsHiRes)
+                    {
+                        FileName += "[HR]";
+                    }
+                    if (Flac.HasCover) FileName += "[图]";
+                    Encode = Flac.Encoder;
+                    if (Flac.CompressRate > 0.9) //Maybe a level 0 file
+                    {
+                        State = FileState.InValidFlacLevel;
+                    }
                 }
-                if (Flac.HasCover) FileName += "[图]";
-                Encode = Flac.Encoder;
-                if (Flac.CompressRate > 0.9) //Maybe a level 0 file
-                {
-                    State = FileState.InValidFlacLevel;
-                }
+                    break;
+                case ".cue":
+                    CheckCUE();
+                    break;
+                default:
+                    if (!FileHeader.Check(FullPath))
+                    {
+                        State = FileState.InValidFileSignature;
+                    }
+                    break;
             }
-            if (Extension != ".cue") return;
-            CheckCUE();
         }
 
         public void CueFileRevalidation(DataGridViewRow row)
         {
-            Debug.WriteLine(@"----ReCheck--Begin----");
             CheckCUE();
             var rowColor = StateColor[State];
             foreach (DataGridViewCell cell in row.Cells)
@@ -184,7 +201,6 @@ namespace AutoTorrentInspection.Util
                 cell.Style.BackColor = rowColor;
             }
             Application.DoEvents();
-            Debug.WriteLine(@"----ReCheck--End----");
         }
 
 

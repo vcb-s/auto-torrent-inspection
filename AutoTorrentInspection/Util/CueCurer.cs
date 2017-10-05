@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace AutoTorrentInspection.Util
@@ -21,10 +19,12 @@ namespace AutoTorrentInspection.Util
             var result = true;
             foreach (Match audioName in CueFileNameRegex.Matches(cueContext))
             {
-                var audioFile = $"{rootPath}\\{audioName.Groups["fileName"].Value}";
+                var audioFile = Path.Combine(rootPath ?? "", audioName.Groups["fileName"].Value);
                 result &= File.Exists(audioFile);
+                Logger.Log($"{audioFile} {(result ? "exists" : "not found")}");
+                if (!result) return false;
             }
-            return result;
+            return true;
         }
 
         /// <summary>
@@ -34,20 +34,16 @@ namespace AutoTorrentInspection.Util
         /// <param name="directory">cue文件所在目录</param>
         public static string FixFilename(string original, string directory)
         {
-            var filename = CueFileNameRegex.Match(original).Groups["fileName"].ToString();
-            if (!directory.EndsWith("\\")) directory += "\\";
-            try
+            var result = original;
+            foreach (Match audioName in CueFileNameRegex.Matches(original))
             {
                 //找到目录里的所有主文件名相同的文件
+                var filename = audioName.Groups["fileName"].Value;
                 var files = Directory.GetFiles(directory, filename.Substring(0, filename.LastIndexOf('.')) + ".*", SearchOption.TopDirectoryOnly);
                 var matchedFile = files.Select(file => new FileInfo(file)).First(fi => RAudioExt.IsMatch(fi.Extension));
-                original        = original.Replace(filename, matchedFile.Name);
+                result = result.Replace(filename, matchedFile.Name);
             }
-            catch(Exception exception)
-            {
-                Debug.WriteLine(exception.Message + '\n' + directory);
-            }
-            return original;
+            return result;
         }
 
         private static readonly Regex RAudioExt = new Regex(@"\.(flac|m4a|tak|ape|tta|wav|mp3|bin|img)");
@@ -66,7 +62,7 @@ namespace AutoTorrentInspection.Util
             }
             catch (IOException exception)
             {
-                Debug.WriteLine(exception.Message);
+                Logger.Log(exception);
             }
         }
     }
