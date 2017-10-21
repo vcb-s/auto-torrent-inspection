@@ -165,6 +165,7 @@ namespace AutoTorrentInspection.Util
             {
                 case ".flac":
                 {
+                    if (!GlobalConfiguration.Instance().InspectionOptions.FLACCompressRate) goto SKIP_FLAC_COMRESS_RATE;
                     Flac = FlacData.GetMetadataFromFlac(FullPath);
                     _confindece = (float)Flac.CompressRate;
                     FileName += $"[{Flac.CompressRate * 100:00.00}%]";
@@ -179,15 +180,20 @@ namespace AutoTorrentInspection.Util
                         State = FileState.InValidFlacLevel;
                     }
                 }
+                    SKIP_FLAC_COMRESS_RATE:
                     break;
                 case ".cue":
+                    if (!GlobalConfiguration.Instance().InspectionOptions.CUEEncoding) goto SKIP_CUE_ENCODING;
                     CheckCUE();
+                    SKIP_CUE_ENCODING:
                     break;
                 default:
+                    if (!GlobalConfiguration.Instance().InspectionOptions.FileHeader) goto SKIP_FILE_HEADER;
                     if (!FileHeader.Check(FullPath))
                     {
                         State = FileState.InValidFileSignature;
                     }
+                    SKIP_FILE_HEADER:
                     break;
             }
         }

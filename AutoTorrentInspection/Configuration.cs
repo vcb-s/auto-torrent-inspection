@@ -55,9 +55,10 @@ namespace AutoTorrentInspection
 
     public class Configuration
     {
-        public int Version = 1;
+        public int Version = 2;
         public Naming Naming = new Naming();
         public RowColor RowColor = new RowColor();
+        public InspectionOptions InspectionOptions = new InspectionOptions();
         public string[] TrackerList = {
             "http://208.67.16.113:8000/annonuce",
             "udp://208.67.16.113:8000/annonuce",
@@ -115,5 +116,14 @@ namespace AutoTorrentInspection
         public string NON_UTF_8_W_BOM       = "fffbbc05";
         public string INVALID_FILE_SIGNATUR = "ff009933";
         public string INVALID_CD_FOLDER     = "ff0559ae";
+    }
+
+    public class InspectionOptions
+    {
+        public bool WebPPosition = true;
+        public bool CDNaming = true;
+        public bool FileHeader = true;
+        public bool FLACCompressRate = true;
+        public bool CUEEncoding = true;
     }
 }

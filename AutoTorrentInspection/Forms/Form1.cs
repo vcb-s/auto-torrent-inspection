@@ -310,6 +310,7 @@ namespace AutoTorrentInspection.Forms
                 }
             }
 
+            if (!GlobalConfiguration.Instance().InspectionOptions.WebPPosition) goto SKIP_WEBP;
             var webpState = WebpState.Default;
             const string webpReadMe = "readme about WebP.txt";
             Exception resultException = null;
@@ -402,8 +403,11 @@ namespace AutoTorrentInspection.Forms
                 }
             }
 
+            SKIP_WEBP:
             ThroughInspection();
+            if (!GlobalConfiguration.Instance().InspectionOptions.CDNaming) goto SKIP_CD;
             CDInspection();
+            SKIP_CD:
             cbCategory.Enabled = cbCategory.Items.Count > 1;
         }
 
