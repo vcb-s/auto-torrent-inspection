@@ -8,6 +8,7 @@ using AutoTorrentInspection.Logging.Handlers;
 using AutoTorrentInspection.Properties;
 using Microsoft.Win32;
 using AutoTorrentInspection.Util;
+using Jil;
 
 namespace AutoTorrentInspection
 {
@@ -21,6 +22,8 @@ namespace AutoTorrentInspection
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            Logger.StoreLogMessages = true;
+            Logger.LoggerHandlerManager.AddHandler(new DebugConsoleLoggerHandler());
 
             if (!IsSupportedRuntimeVersion())
             {
@@ -28,9 +31,6 @@ namespace AutoTorrentInspection
                 System.Diagnostics.Process.Start("http://dotnetsocial.cloudapp.net/GetDotnet?tfm=.NETFramework,Version=v4.7");
                 if (ret == DialogResult.Yes) RegistryStorage.Save("False", name: "DoVersionCheck");
             }
-
-            Logger.StoreLogMessages = true;
-            Logger.LoggerHandlerManager.AddHandler(new DebugConsoleLoggerHandler());
 
             if (CheckDependencies().Count() != 0)
             {
@@ -46,13 +46,23 @@ namespace AutoTorrentInspection
                 Logger.Log("Extract default config file to current directory");
                 File.WriteAllText("config.json", new Configuration().ToString());
             }
-#if DEBUG
             else
             {
-                Logger.Log("Config file is now up to date");
+                using (var input = new StreamReader("config.json"))
+                {
+                    var config = JSON.Deserialize<Configuration>(input);
+                    var defaultConfig = new Configuration();
+                    if (defaultConfig.Version > config.Version)
+                    {
+                        Logger.Log($"Update the config file version from {config.Version}->{defaultConfig.Version}");
+                        File.WriteAllText("config.json", config.ToString());
+                    }
+                }
+#if DEBUG
                 File.WriteAllText("config.json", new Configuration().ToString());
-            }
+                Logger.Log("Config file is now up to date");
 #endif
+            }
             if (args.Length == 0)
             {
                 Application.Run(new Form1());
