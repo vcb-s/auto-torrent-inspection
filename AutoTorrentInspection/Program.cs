@@ -44,13 +44,13 @@ namespace AutoTorrentInspection
             if (!File.Exists("config.json"))
             {
                 Logger.Log("Extract default config file to current directory");
-                File.WriteAllText("config.json", GlobalConfiguration.Instance().ToString());
+                File.WriteAllText("config.json", new Configuration().ToString());
             }
 #if DEBUG
             else
             {
                 Logger.Log("Config file is now up to date");
-                File.WriteAllText("config.json", GlobalConfiguration.Instance().ToString());
+                File.WriteAllText("config.json", new Configuration().ToString());
             }
 #endif
             if (args.Length == 0)
