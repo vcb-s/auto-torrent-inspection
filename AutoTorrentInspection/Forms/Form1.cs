@@ -207,6 +207,7 @@ namespace AutoTorrentInspection.Forms
         }
 
         private readonly string[] _loadingText = {
+            "正在...更加用力地深思熟虑",
             "正在重新校正什么来着",
             "正在打蜡、除蜡",
             "正在树立威望",
@@ -220,7 +221,12 @@ namespace AutoTorrentInspection.Forms
             "正在挑拨离间",
             "正在推向极限",
             "耐心就是美德",
+            "正在理清头绪",
+            "正在除旧布新",
+            "正在准备发射",
         };
+
+        private readonly Random _random = new Random();
 
         private void LoadFile(string filepath)
         {
@@ -233,7 +239,7 @@ namespace AutoTorrentInspection.Forms
 
             try
             {
-                toolStripStatusLabel_Status.Text = _loadingText[new Random().Next() % _loadingText.Length];
+                toolStripStatusLabel_Status.Text = _loadingText[_random.Next(0, _loadingText.Length - 1)];
                 Application.DoEvents();
                 if (Directory.Exists(filepath))
                 {
@@ -397,6 +403,7 @@ namespace AutoTorrentInspection.Forms
             }
 
             ThroughInspection();
+            CDInspection();
             cbCategory.Enabled = cbCategory.Items.Count > 1;
         }
 
@@ -491,6 +498,43 @@ namespace AutoTorrentInspection.Forms
             }
             toolStripStatusLabel_Status.Text = dataGridView1.Rows.Count == 0 ? "状态正常, All Green"
                 : $"发现 {dataGridView1.Rows.Count} 个世界的扭曲点{(cbShowAll.Checked ? "(并不是)" : "")}";
+        }
+
+        private void CDInspection()
+        {
+            if (!_data.ContainsKey("CDs"))
+            {
+                Logger.Log("No 'CDs' found under root folder");
+                return;
+            }
+            var INVALID_CD_FOLDER = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_CD_FOLDER, System.Globalization.NumberStyles.HexNumber));
+            var pat = new Regex(GlobalConfiguration.Instance().Naming.Pattern.CD);
+
+            dataGridView1.Rows.AddRange(_data["CDs"].Select(Split).Distinct().Where(NotMatchPattern).Select(ToRow).ToArray());
+
+            string Split(FileDescription file)
+            {
+                var path = file.ReletivePath;
+                var beginIndex = path.IndexOf('\\') + 1;
+                var endIndex = path.IndexOf('\\', beginIndex);
+                if (endIndex == -1)
+                    return path.Substring(beginIndex);
+                return path.Substring(beginIndex, endIndex - beginIndex);
+            }
+
+            bool NotMatchPattern(string folder)
+            {
+                Logger.Log($"Progress: '{folder}'");
+                return !pat.IsMatch(folder);
+            }
+
+            DataGridViewRow ToRow(string folder)
+            {
+                var row = new DataGridViewRow();
+                row.Cells.AddRange(new DataGridViewTextBoxCell {Value = folder});
+                row.DefaultCellStyle.BackColor = INVALID_CD_FOLDER;
+                return row;
+            }
         }
 
         private void btnWebP_Click(object sender, EventArgs e)

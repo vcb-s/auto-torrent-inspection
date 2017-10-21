@@ -221,9 +221,6 @@
       <DependentUpon>TreeViewForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="BencodeNET\project.json" />
-    <None Include="config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
