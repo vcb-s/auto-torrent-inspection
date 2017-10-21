@@ -267,7 +267,7 @@ namespace AutoTorrentInspection.Forms
 
                 if (_torrent.IsPrivate)
                 {
-                    Notification.ShowInfo(@"This torrent has been set as a private torrent");
+                    new Task(() => Notification.ShowInfo(@"This torrent has been set as a private torrent")).Start();
                 }
                 if (!string.IsNullOrEmpty(_torrent.Comment) || !string.IsNullOrEmpty(_torrent.Source))
                 {
@@ -305,12 +305,13 @@ namespace AutoTorrentInspection.Forms
                 {
                     if (!_data["root"].Any(item => item.FileName.ToLower().Contains("font")))
                     {
-                        Notification.ShowInfo("发现ass格式字幕\n但未在根目录发现字体包");
+                        new Task(() => Notification.ShowInfo("发现ass格式字幕\n但未在根目录发现字体包")).Start();
                     }
                 }
             }
 
             if (!GlobalConfiguration.Instance().InspectionOptions.WebPPosition) goto SKIP_WEBP;
+
             var webpState = WebpState.Default;
             const string webpReadMe = "readme about WebP.txt";
             Exception resultException = null;
@@ -364,43 +365,46 @@ namespace AutoTorrentInspection.Forms
                 }
                 EXIT_WEBP:
                 btnWebP.Visible = btnWebP.Enabled = webpState == WebpState.Zero;
-                switch (webpState)
+                new Task(() =>
                 {
-                    case WebpState.Zero:
-                        Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现{webpReadMe}");
-                        break;
-                    case WebpState.One:
-                        break;
-                    case WebpState.TwoOrMore:
-                        Notification.ShowInfo($"存在复数个{webpReadMe}，但根目录下的报道没有偏差");
-                        break;
-                    case WebpState.One | WebpState.IncorrectContent:
-                        Notification.ShowInfo($"{webpReadMe}的内容在报道上出现了偏差");
-                        break;
-                    case WebpState.TwoOrMore | WebpState.IncorrectContent:
-                        Notification.ShowInfo($"存在复数个{webpReadMe}，并且根目录下的报道还出现了偏差\n现时请手工检查");
-                        break;
-                    case WebpState.One | WebpState.ReadFileFailed:
-                        Notification.ShowError($"读取{webpReadMe}失败", resultException);
-                        break;
-                    case WebpState.TwoOrMore | WebpState.ReadFileFailed:
-                        Notification.ShowError($"存在复数个{webpReadMe}，并且根目录下的读取失败\n请根据给定的异常进行排查", resultException);
-                        break;
-                    case WebpState.NotInRoot | WebpState.One:
-                        Notification.ShowInfo($"{webpReadMe}处于非根目录\n似乎不大对路，现时请手工递归检查");
-                        break;
-                    case WebpState.NotInRoot | WebpState.TwoOrMore:
-                        Notification.ShowInfo($"存在非根目录复数个{webpReadMe}\n似乎不大对路，现时请手工递归检查");
-                        break;
-                    case WebpState.EmptyInRoot | WebpState.One:
-                        Notification.ShowInfo($"根目录为空并且{webpReadMe}处于非根目录\n似乎不大对路，现时请手工递归检查");
-                        break;
-                    case WebpState.EmptyInRoot | WebpState.TwoOrMore:
-                        Notification.ShowInfo($"根目录为空并且存在复数个{webpReadMe}处于非根目录\n现时请手工递归检查");
-                        break;
-                    default:
-                        throw new Exception($"webp state: \"{webpState}\", unknow combination");
-                }
+                    switch (webpState)
+                    {
+                        case WebpState.Zero:
+                            Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现{webpReadMe}");
+                            break;
+                        case WebpState.One:
+                            break;
+                        case WebpState.TwoOrMore:
+                            Notification.ShowInfo($"存在复数个{webpReadMe}，但根目录下的报道没有偏差");
+                            break;
+                        case WebpState.One | WebpState.IncorrectContent:
+                            Notification.ShowInfo($"{webpReadMe}的内容在报道上出现了偏差");
+                            break;
+                        case WebpState.TwoOrMore | WebpState.IncorrectContent:
+                            Notification.ShowInfo($"存在复数个{webpReadMe}，并且根目录下的报道还出现了偏差\n现时请手工检查");
+                            break;
+                        case WebpState.One | WebpState.ReadFileFailed:
+                            Notification.ShowError($"读取{webpReadMe}失败", resultException);
+                            break;
+                        case WebpState.TwoOrMore | WebpState.ReadFileFailed:
+                            Notification.ShowError($"存在复数个{webpReadMe}，并且根目录下的读取失败\n请根据给定的异常进行排查", resultException);
+                            break;
+                        case WebpState.NotInRoot | WebpState.One:
+                            Notification.ShowInfo($"{webpReadMe}处于非根目录\n似乎不大对路，现时请手工递归检查");
+                            break;
+                        case WebpState.NotInRoot | WebpState.TwoOrMore:
+                            Notification.ShowInfo($"存在非根目录复数个{webpReadMe}\n似乎不大对路，现时请手工递归检查");
+                            break;
+                        case WebpState.EmptyInRoot | WebpState.One:
+                            Notification.ShowInfo($"根目录为空并且{webpReadMe}处于非根目录\n似乎不大对路，现时请手工递归检查");
+                            break;
+                        case WebpState.EmptyInRoot | WebpState.TwoOrMore:
+                            Notification.ShowInfo($"根目录为空并且存在复数个{webpReadMe}处于非根目录\n现时请手工递归检查");
+                            break;
+                        default:
+                            throw new Exception($"webp state: \"{webpState}\", unknow combination");
+                    }
+                }).Start();
             }
 
             SKIP_WEBP:
