@@ -48,15 +48,29 @@ namespace AutoTorrentInspection
             }
             else
             {
-                using (var input = new StreamReader("config.json"))
+                try
                 {
-                    var config = JSON.Deserialize<Configuration>(input);
-                    var defaultConfig = new Configuration();
-                    if (defaultConfig.Version > config.Version)
+                    var updateConfigFile = false;
+                    Configuration config, defaultConfig;
+                    using (var input = new StreamReader("config.json"))
                     {
-                        Logger.Log($"Update the config file version from {config.Version}->{defaultConfig.Version}");
-                        File.WriteAllText("config.json", config.ToString());
+                        config = JSON.Deserialize<Configuration>(input);
+                        defaultConfig = new Configuration();
+                        if (defaultConfig.Version > config.Version)
+                        {
+                            updateConfigFile = true;
+                        }
                     }
+                    if (updateConfigFile)
+                    {
+                        File.WriteAllText("config.json", config.ToString());
+                        Logger.Log($"Update the config file version from {config.Version}->{defaultConfig.Version}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(e);
+                    Notification.ShowError("无法读取配置文件", e);
                 }
 #if DEBUG
                 File.WriteAllText("config.json", new Configuration().ToString());
