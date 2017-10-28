@@ -106,19 +106,19 @@ namespace AutoTorrentInspection
         }
 
 
-        private static IEnumerable<(string name, string version)> CheckDependencies()
+        private static IEnumerable<(string name, string URL, string version)> CheckDependencies()
         {
             var basePath = Path.GetDirectoryName(Application.ExecutablePath) ?? "";
-            var requires = new[]
+            var requires = new (string name, string URL, string version)[]
             {
                 ("Jil", "https://www.nuget.org/api/v2/package/Jil/", "2.15.4"),
                 ("Sigil", "https://www.nuget.org/api/v2/package/Sigil/", "4.7.0")
             };
             foreach (var require in requires)
             {
-                var dllPath = Path.Combine(basePath, require.Item1 + ".dll");
+                var dllPath = Path.Combine(basePath, require.name + ".dll");
                 if (File.Exists(dllPath)) continue;
-                yield return (require.Item1, require.Item3);
+                yield return require;
             }
         }
     }

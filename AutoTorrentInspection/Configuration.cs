@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Jil;
@@ -81,9 +80,9 @@ namespace AutoTorrentInspection
 
     public class Pattern
     {
-        public string VCBS  = @"^\[[^\[\]]*VCB\-S(?:tudio)?[^\[\]]*\] [^\[\]]+ (?:\[[^\[\]]*\d*\])?\[(?:(?:(?:(?:Hi10p|Hi444pp)_(?:2160|1080|720|576|480)p\]\[x264)|(?:(?:Ma10p_(?:2160|1080|720|576|480)p\]\[x265)))(?:_\d*(?:flac|aac|ac3|dts))+\](?:\.(?:mkv|mka|flac))?|(?:(?:1080|720|576)p\]\[(?:x264|x265)_(?:aac|ac3|dts)\](?:\.mp4)?))(?:(?<!(?:mkv|mka|mp4))(?:\.(?:[SsTt]c|[Cc]h(?:s|t)|[Jj](?:pn|ap)|[Cc]h(?:s|t)&[Jj](?:pn|ap)))?\.ass)?$";
+        public string VCBS  = @"^\[[^\[\]]*VCB\-S(?:tudio)?[^\[\]]*\] [^\[\]]+ (?:\[[^\[\]]*\d*\])?\[(?:(?:(?:(?:Hi10p|Hi444pp)_(?:2160|1080|816|720|576|480)p\]\[x264)|(?:(?:Ma10p_(?:2160|1080|816|720|576|480)p\]\[x265)))(?:_\d*(?:flac|aac|ac3|dts))+\](?:\.(?:mkv|mka|flac))?|(?:(?:1080|816|720|576)p\]\[(?:x264|x265)_(?:aac|ac3|dts)\](?:\.mp4)?))(?:(?<!(?:mkv|mka|mp4))(?:\.(?:[SsTt]c|[Cc]h(?:s|t)|[Jj](?:pn|ap)|[Cc]h(?:s|t)&[Jj](?:pn|ap)))?\.ass)?$";
         public string MENU  = @"^\[[^\[\]]*VCB\-S(?:tudio)*[^\[\]]*\] [^\[\]]+ \[[^\[\]]*\]\.png$";
-        public string CD    = @"^\[\d{6}\] 「[^／]+」(?:\[[^\[\]]+\])?(?:／[^\(\)\[\]]+)?(?: \[\d{2}bit_\d{2,3}kHz\])? \((?:flac|alac|tak|mp3)(?:\+(?:flac|alac|tak|mp3))?(?:\+(?:jpg|webp))*\)$";
+        public string CD    = @"^\[\d{6}\] ((「[^／]+」)|([^／]+))(?:\[[^\[\]]+\])?(?:／[^\(\)\[\]]+)?(?: \[\d{2}bit_\d{2,3}kHz\])? \((?:flac|alac|tak|mp3)(?:\+(?:flac|alac|tak|mp3))?(?:\+(?:jpg|webp))*\)$";
         [JilDirective(Ignore = true)]
         public string FCH   = @"^(?:\[(?:[^\[\]])*philosophy\-raws(?:[^\[\]])*\])\[[^\[\]]+\]\[(?:(?:[^\[\]]+\]\[(?:BDRIP|DVDRIP|BDRemux))|(?:(?:BDRIP|DVDRIP|BDRemux)(?:\]\[[^\[\]]+)?))\]\[(?:(?:(?:HEVC )?Main10P)|(?:(?:AVC )?Hi10P)|Hi444PP|H264) \d*(?:FLAC|AC3)\]\[(?:(?:(?:1920|1440)[Xx]1080)|(?:1280[Xx]720)|(?:1024[Xx]576)|(?:720[Xx]480))\](?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$";
         [JilDirective(Ignore = true)]
