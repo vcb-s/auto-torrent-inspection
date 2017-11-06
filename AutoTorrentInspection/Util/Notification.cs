@@ -28,6 +28,16 @@ namespace AutoTorrentInspection.Util
             new Task(() => MessageBox.Show(caption: _(title), text: _(argMessage))).Start();
         }
 
+        public static DialogResult ShowQuestion(string argQuestion, string argTitle, bool argShowCancel = true)
+        {
+            var msgBoxBtns = MessageBoxButtons.YesNoCancel;
+            if (!argShowCancel)
+            {
+                msgBoxBtns = MessageBoxButtons.YesNo;
+            }
+            return MessageBox.Show(argQuestion, argTitle, msgBoxBtns, MessageBoxIcon.Question);
+        }
+
         private static string _(string value) => value.Replace('\0', ' ');
     }
 }
