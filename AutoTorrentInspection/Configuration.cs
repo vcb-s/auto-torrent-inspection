@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
 using Jil;
 
 namespace AutoTorrentInspection
@@ -13,38 +11,23 @@ namespace AutoTorrentInspection
 
         private const string ConfigFile = "config.json";
 
-        private static readonly Lazy<bool> Loadable = new Lazy<bool>(() =>
-        {
-            var basePath = Path.GetDirectoryName(Application.ExecutablePath) ?? "";
-            var requires = new[] {"Jil.dll", "Sigil.dll", ConfigFile};
-            return requires.All(require => File.Exists(Path.Combine(basePath, require)));
-        });
-
         protected GlobalConfiguration() {}
 
         public static Configuration Instance(bool reload = false)
         {
             if (_instance == null || reload)
             {
-                if (Loadable.Value)
+                try
                 {
-                    try
+                    using (var input = new StreamReader(ConfigFile))
                     {
-                        using (var input = new StreamReader(ConfigFile))
-                        {
-                            _instance = JSON.Deserialize<Configuration>(input);
-                            Logger.Log("Load configuration file success");
-                        }
-                    }
-                    catch (Exception exception)
-                    {
-                        Logger.Log(exception);
-                        _instance = new Configuration();
+                        _instance = JSON.Deserialize<Configuration>(input);
+                        Logger.Log("Load configuration file success");
                     }
                 }
-                else
+                catch (Exception exception)
                 {
-                    Logger.Log("Lacking some components to load the configuration file, using the default configuration");
+                    Logger.Log(exception);
                     _instance = new Configuration();
                 }
             }

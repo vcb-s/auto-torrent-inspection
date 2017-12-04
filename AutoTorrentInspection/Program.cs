@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 using AutoTorrentInspection.Forms;
 using AutoTorrentInspection.Logging.Handlers;
-using AutoTorrentInspection.Properties;
 using Microsoft.Win32;
 using AutoTorrentInspection.Util;
 using Jil;
@@ -31,18 +28,9 @@ namespace AutoTorrentInspection
                 System.Diagnostics.Process.Start("http://dotnetsocial.cloudapp.net/GetDotnet?tfm=.NETFramework,Version=v4.7");
                 if (ret == DialogResult.Yes) RegistryStorage.Save("False", name: "DoVersionCheck");
             }
-
-            if (CheckDependencies().Count() != 0)
-            {
-                using (var stream = new MemoryStream(Resources.Jil_2_15_4_0))
-                using (var zip = new Unzip(stream))
-                {
-                    Logger.Log("Extract dependences to current directory");
-                    zip.ExtractToCurrentDirectory();
-                }
-            }
             if (!File.Exists("config.json"))
             {
+
                 Logger.Log("Extract default config file to current directory");
                 File.WriteAllText("config.json", new Configuration().ToString());
             }
@@ -103,23 +91,6 @@ namespace AutoTorrentInspection
                 }
             }
             return false;
-        }
-
-
-        private static IEnumerable<(string name, string URL, string version)> CheckDependencies()
-        {
-            var basePath = Path.GetDirectoryName(Application.ExecutablePath) ?? "";
-            var requires = new (string name, string URL, string version)[]
-            {
-                ("Jil", "https://www.nuget.org/api/v2/package/Jil/", "2.15.4"),
-                ("Sigil", "https://www.nuget.org/api/v2/package/Sigil/", "4.7.0")
-            };
-            foreach (var require in requires)
-            {
-                var dllPath = Path.Combine(basePath, require.name + ".dll");
-                if (File.Exists(dllPath)) continue;
-                yield return require;
-            }
         }
     }
 }

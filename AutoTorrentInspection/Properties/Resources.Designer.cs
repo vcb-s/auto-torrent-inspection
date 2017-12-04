@@ -71,16 +71,6 @@ namespace AutoTorrentInspection.Properties {
         }
         
         /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] Jil_2_15_4_0 {
-            get {
-                object obj = ResourceManager.GetObject("Jil_2_15_4_0", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 本次发布中，有些图片使用WebP格式储存。WebP是一种比起JPEG更为先进的格式，表现为可以用更小的体积，达到更高的还原度。
         ///
         ///Windows XP SP3或者更高版本下，WebP可以通过Google的官方的小插件，实现自带图片浏览器与略缩图的原生支持。请下载 http://pan.baidu.com/s/1mi9zGMk 中 WebpCodecSetup.exe 并安装。(备用链接：https://vcb-s.github.io/attach/WebpCodecSetup.7z)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using BencodeNET;
 using BencodeNET.Objects;
 using System.Collections.Generic;
 using BencodeNET.Parsing;
@@ -20,7 +19,7 @@ namespace AutoTorrentInspection.Util
 
         public IEnumerable<string> GetAnnounceList()
         {
-            return _torrent.Trackers.Flatten();
+            return _torrent.Trackers.SelectMany(x => x);
         }
 
         public IList<IList<string>> RawAnnounceList => _torrent.Trackers;

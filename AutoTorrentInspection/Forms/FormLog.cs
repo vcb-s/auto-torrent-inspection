@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
@@ -45,7 +44,7 @@ namespace AutoTorrentInspection.Forms
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Logger.Log(ex);
                 Util.Notification.ShowError("Close", ex);
             }
         }
@@ -58,7 +57,7 @@ namespace AutoTorrentInspection.Forms
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Logger.Log(ex);
                 Util.Notification.ShowError("Copy", ex);
             }
         }
@@ -71,7 +70,7 @@ namespace AutoTorrentInspection.Forms
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Logger.Log(ex);
                 Util.Notification.ShowError("Refresh", ex);
             }
         }
@@ -94,7 +93,7 @@ namespace AutoTorrentInspection.Forms
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Logger.Log(ex);
                 Util.Notification.ShowError("Clear", ex);
             }
         }
@@ -122,7 +121,7 @@ namespace AutoTorrentInspection.Forms
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Logger.Log(ex);
                 Util.Notification.ShowError("Save", ex);
             }
         }

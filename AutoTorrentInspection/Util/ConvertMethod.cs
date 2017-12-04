@@ -104,9 +104,17 @@ namespace AutoTorrentInspection.Util
         //https://en.wikipedia.org/wiki/Longest_common_subsequence_problem
         public static IEnumerable<(int ope, string text)> GetDiff(string lhs, string rhs, char separator = '\n')
         {
-            var lList = lhs.Split(separator);
-            var rList = rhs.Split(separator);
-            //var answer = new StringBuilder();
+            string[] lList, rList;
+            if (separator != '\0')
+            {
+                lList = lhs.Split(separator);
+                rList = rhs.Split(separator);
+            }
+            else
+            {
+                lList = lhs.Select(c => new string(c, 1)).ToArray();
+                rList = rhs.Select(c => new string(c, 1)).ToArray();
+            }
 
             var mat = LCS(lList, rList);
             return PrintDiff(mat, lList, rList, lList.Length - 1, rList.Length - 1);
