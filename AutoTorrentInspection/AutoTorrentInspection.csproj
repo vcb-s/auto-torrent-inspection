@@ -48,6 +48,9 @@
       <HintPath>..\packages\Costura.Fody.1.6.2\lib\dotnet\Costura.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Crc32C.NET, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Crc32C.NET.1.0.5.0\lib\net20\Crc32C.NET.dll</HintPath>
+    </Reference>
     <Reference Include="Jil, Version=2.15.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Jil.2.15.4\lib\net45\Jil.dll</HintPath>
     </Reference>
@@ -150,9 +153,6 @@
     <Compile Include="Ude\DetectionConfidence.cs" />
     <Compile Include="Ude\ICharsetDetector.cs" />
     <Compile Include="Util\ConvertMethod.cs" />
-    <Compile Include="Util\CRC32.cs" />
-    <Compile Include="Util\Crc32.NET\Crc32Algorithm.cs" />
-    <Compile Include="Util\Crc32.NET\SafeProxy.cs" />
     <Compile Include="Util\CueCurer.cs" />
     <Compile Include="Util\AESEncryptDecrypt.cs" />
     <Compile Include="Util\EncodingConverter.cs" />
@@ -198,7 +198,9 @@
     <EmbeddedResource Include="Forms\TreeViewForm.resx">
       <DependentUpon>TreeViewForm.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

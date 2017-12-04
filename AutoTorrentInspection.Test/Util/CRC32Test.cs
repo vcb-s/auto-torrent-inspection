@@ -1,10 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using AutoTorrentInspection.Util;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using Crc32C;
 
@@ -17,9 +12,8 @@ namespace AutoTorrentInspection.Util.Tests
         public void FileCRCTest()
         {
             const string path = @"..\..\[CRC Sample]\VIDEO_TS [57FD7F1E].IFO";
-            uint calCRC = Crc32.NET.Crc32Algorithm.FileCRC(path).Result;
-            uint fileCRC;
-            CRC32.FindCRC(path, out fileCRC);
+            var calCRC = Crc32.NET.Crc32Algorithm.FileCRC(path).Result;
+            CRC32.FindCRC(path, out var fileCRC);
             Console.WriteLine($@"{fileCRC} {calCRC}");
             Assert.IsTrue(calCRC == fileCRC);
         }

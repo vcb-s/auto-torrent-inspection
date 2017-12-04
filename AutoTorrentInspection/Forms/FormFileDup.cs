@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using AutoTorrentInspection.Util;
-using AutoTorrentInspection.Util.Crc32.NET;
 
 namespace AutoTorrentInspection.Forms
 {
@@ -34,7 +35,7 @@ namespace AutoTorrentInspection.Forms
                 filesize = size.length,
                 files = size.files.Select(item => new
                 {
-                    crc  = Crc32Algorithm.FileCRC(item.FullPath),
+                    crc  = FileCRC32C(item.FullPath),
                     info = item
                 })
             });
@@ -55,7 +56,7 @@ namespace AutoTorrentInspection.Forms
                         else
                         {
                             node.Nodes.Add($"[{crc:X}] {file.info.FullPath}");
-                            Logger.Log($"{file.info.FileName} ||| crc: {crc:X}");
+                            Logger.Log($"{file.info.FileName} ||| CRC32C: {crc:X}");
                         }
                     }
                     var valid = tmp.Distinct().Count() != tmp.Count;
@@ -83,6 +84,29 @@ namespace AutoTorrentInspection.Forms
         private void FormFileDup_FormClosing(object sender, FormClosingEventArgs e)
         {
             _cts.Cancel();
+        }
+
+        /// <summary>
+        /// Calculate file's CRC32C Value
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public static async Task<uint> FileCRC32C(string filePath)
+        {
+            if (!File.Exists(filePath)) return 0;
+            var currentCRC32C = 0U;
+            const int capacity = 1024 * 1024;
+            var buffer = new byte[capacity];
+            using (var file = File.OpenRead(filePath))
+            {
+                int cbSize;
+                do
+                {
+                    cbSize = await file.ReadAsync(buffer, 0, capacity).ConfigureAwait(false);
+                    if (cbSize > 0) currentCRC32C = Crc32C.Crc32CAlgorithm.Append(currentCRC32C, buffer, 0, cbSize);
+                } while (cbSize > 0);
+                return currentCRC32C;
+            }
         }
     }
 }
