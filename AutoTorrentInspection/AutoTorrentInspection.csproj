@@ -68,6 +68,9 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="Ude, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\UDE.CSharp.1.1.0\lib\Ude.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
@@ -119,39 +122,6 @@
     <Compile Include="Logging\ILoggerHandlerManager.cs" />
     <Compile Include="Logging\LogMessage.cs" />
     <Compile Include="Logging\LogPublisher.cs" />
-    <Compile Include="Ude\CharsetDetector.cs" />
-    <Compile Include="Ude\Core\Big5Prober.cs" />
-    <Compile Include="Ude\Core\BitPackage.cs" />
-    <Compile Include="Ude\Core\CharDistributionAnalyser.cs" />
-    <Compile Include="Ude\Core\CharsetProber.cs" />
-    <Compile Include="Ude\Core\Charsets.cs" />
-    <Compile Include="Ude\Core\CodingStateMachine.cs" />
-    <Compile Include="Ude\Core\EscCharsetProber.cs" />
-    <Compile Include="Ude\Core\EscSM.cs" />
-    <Compile Include="Ude\Core\EUCJPProber.cs" />
-    <Compile Include="Ude\Core\EUCKRProber.cs" />
-    <Compile Include="Ude\Core\EUCTWProber.cs" />
-    <Compile Include="Ude\Core\GB18030Prober.cs" />
-    <Compile Include="Ude\Core\HebrewProber.cs" />
-    <Compile Include="Ude\Core\JapaneseContextAnalyser.cs" />
-    <Compile Include="Ude\Core\LangBulgarianModel.cs" />
-    <Compile Include="Ude\Core\LangCyrillicModel.cs" />
-    <Compile Include="Ude\Core\LangGreekModel.cs" />
-    <Compile Include="Ude\Core\LangHebrewModel.cs" />
-    <Compile Include="Ude\Core\LangHungarianModel.cs" />
-    <Compile Include="Ude\Core\LangThaiModel.cs" />
-    <Compile Include="Ude\Core\Latin1Prober.cs" />
-    <Compile Include="Ude\Core\MBCSGroupProber.cs" />
-    <Compile Include="Ude\Core\MBCSSM.cs" />
-    <Compile Include="Ude\Core\SBCharsetProber.cs" />
-    <Compile Include="Ude\Core\SBCSGroupProber.cs" />
-    <Compile Include="Ude\Core\SequenceModel.cs" />
-    <Compile Include="Ude\Core\SJISProber.cs" />
-    <Compile Include="Ude\Core\SMModel.cs" />
-    <Compile Include="Ude\Core\UniversalDetector.cs" />
-    <Compile Include="Ude\Core\UTF8Prober.cs" />
-    <Compile Include="Ude\DetectionConfidence.cs" />
-    <Compile Include="Ude\ICharsetDetector.cs" />
     <Compile Include="Util\ConvertMethod.cs" />
     <Compile Include="Util\CueCurer.cs" />
     <Compile Include="Util\AESEncryptDecrypt.cs" />
