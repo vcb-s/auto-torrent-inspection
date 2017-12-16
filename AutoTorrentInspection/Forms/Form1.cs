@@ -63,7 +63,6 @@ namespace AutoTorrentInspection.Forms
             _systemMenu = new SystemMenu(this);
             _systemMenu.AddCommand("检查更新(&U)", Updater.CheckUpdate, true);
             _systemMenu.AddCommand("关于(&A)", () => { new FormAbout().Show(); }, false);
-            _systemMenu.AddCommand("导出概要(&E)", ExportSummary, false);
             FormLog formLog = null;
             _systemMenu.AddCommand("显示日志(&L)", () =>
             {
@@ -694,67 +693,6 @@ namespace AutoTorrentInspection.Forms
             if (_torrent == null) return;
             var frm = new TreeViewForm(_torrent);
             frm.Show();
-        }
-
-        private void ExportSummary()
-        {
-            if (string.IsNullOrEmpty(FilePath)) return;
-            using (var writer = new StreamWriter(File.OpenWrite(FilePath + ".md"), Encoding.UTF8))
-            {
-                writer.WriteLine("# Summary");
-                writer.WriteLine($"## Source type: {(_torrent == null ? "Folder" : "Torrent")}");
-                writer.WriteLine();
-
-                if (_torrent != null)
-                {
-                    writer.WriteLine($"- TorrentName:\t{_torrent.TorrentName}\n" +
-                                     $"- CreatedBy:\t{_torrent.CreatedBy}\n" +
-                                     $"- IsPrivate:\t{_torrent.IsPrivate}");
-                    writer.WriteLine();
-                    var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd();
-                    writer.WriteLine($"- TrackerList:\t{trackerList == _currentTrackerList}");
-                    writer.WriteLine();
-                    writer.WriteLine($"{new string('=', 20)}\n\n" +
-                                     $"{trackerList}\n\n" +
-                                     $"{new string('=', 20)}");
-                    writer.WriteLine();
-                }
-                else
-                {
-                    writer.WriteLine($"- PathName:\t{FilePath}");
-                    writer.WriteLine();
-                    var fonts = string.Join("\n\t- ", GetUsedFonts());
-                    if (!string.IsNullOrEmpty(fonts))
-                    {
-                        writer.WriteLine("- Fonts:");
-                        writer.WriteLine("\t- " + fonts);
-                        writer.WriteLine();
-                    }
-                }
-                writer.WriteLine("## Doubtful files");
-                writer.WriteLine();
-
-                var rows = new Dictionary<FileState, List<FileDescription>>();
-                foreach (DataGridViewRow row in dataGridView1.Rows)
-                {
-                    var fileInfo = row.Tag as FileDescription;
-                    if (fileInfo == null) continue;
-                    if (!rows.ContainsKey(fileInfo.State))
-                    {
-                        rows[fileInfo.State] = new List<FileDescription>();
-                    }
-                    rows[fileInfo.State].Add(fileInfo);
-                }
-                foreach (var state in rows)
-                {
-                    writer.WriteLine($"### {state.Key}");
-                    foreach (var info in state.Value)
-                    {
-                        writer.WriteLine($"- {info.FullPath}");
-                    }
-                    writer.WriteLine();
-                }
-            }
         }
     }
 }

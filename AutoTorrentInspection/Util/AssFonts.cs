@@ -36,8 +36,9 @@ namespace AutoTorrentInspection.Util
         public HashSet<string> UsedFonts => _usedFonts;
         public HashSet<string> ExistFonts => _existFonts;
 
-        private static readonly Regex StyleRegex = new Regex(@"^Style:[^,]*,\s*([^,]*)\s*,\d+");
-        private static readonly Regex InlineFontRegex = new Regex(@"{[^}]*\\fn\s*([^\\}]*)\s*[^}]*?}");
+        private static readonly Regex StyleRegex = new Regex(@"^Style:\s*(?<style>[^,]+?)\s*,\s*@?(?<font>[^,]+?)\s*,\s*\d+");
+        private static readonly Regex DialogueRegex = new Regex(@"^Dialogue:\s*\d+\s*,\s*[^,]*\s*,\s*[^,]*\s*,\s*\*?(?<style>[^,]+?)\s*,");
+        private static readonly Regex InlineFontRegex = new Regex(@"{[^}]*\\fn\s*@?(?<font>[^\\}]*)\s*[^}]*?}");
 
         public static ISet<string> GetFontsUsed(string subtitlePath)
         {
@@ -48,31 +49,56 @@ namespace AutoTorrentInspection.Util
 
         private static void GetFontsUsed(string subtitlePath, ref HashSet<string> usedFonts)
         {
+            const string undefinedStyle = "未定义的Style: {0}";
+            const string unusedStyle = "未使用的Style: {0}";
+            const string warningLine = ", 行号: {0}";
+            Logger.Log($"Advanced SSA Subtitle: {subtitlePath}");
             if (usedFonts == null) usedFonts = new HashSet<string>();
+            var lineIndex = 0;
             using (var stream = File.OpenText(subtitlePath))
             {
                 string line;
+                var styles = new Dictionary<string, string>();
+                var usedStyle = new HashSet<string>();
+
                 while ((line = stream.ReadLine()) != null)
                 {
-                    var ret = StyleRegex.Match(line);
-                    if (ret.Success)
+                    ++lineIndex;
+                    var styleLine = StyleRegex.Match(line);
+                    if (styleLine.Success)
                     {
-                        var font = ret.Groups[1].Value.TrimStart('@');
-                        if (usedFonts.Contains(font))
-                            continue;
-                        usedFonts.Add(font);
+                        var style = styleLine.Groups["style"].Value;
+                        var font = styleLine.Groups["font"].Value;
+                        if (!styles.ContainsKey(style)) styles[style] = font;
                     }
-                    else if (line.StartsWith("Dialogue"))
+                    else
                     {
+                        var dialogueLine = DialogueRegex.Match(line);
+                        if (!dialogueLine.Success) continue;
+                        var style = dialogueLine.Groups["style"].Value;
+                        if (styles.ContainsKey(style))
+                        {
+                            usedStyle.Add(style);
+                            usedFonts.Add(styles[style]);
+                        }
+                        else
+                        {
+                            var warning = string.Format(undefinedStyle, style);
+                            Logger.Log(Logger.Level.Warning, warning + string.Format(warningLine, lineIndex));
+                            usedFonts.Add(warning);
+                        }
                         var rets = InlineFontRegex.Matches(line);
                         foreach (Match item in rets)
                         {
-                            var font = item.Groups[1].Value.TrimStart('@');
-                            if (usedFonts.Contains(font))
-                                continue;
-                            usedFonts.Add(font);
+                            usedFonts.Add(item.Groups["font"].Value);
                         }
                     }
+                }
+                foreach (var style in styles.Keys.Except(usedStyle))
+                {
+                    var warning = string.Format(unusedStyle, style);
+                    Logger.Log(Logger.Level.Warning, warning);
+                    usedFonts.Add(warning);
                 }
             }
         }
@@ -115,6 +141,5 @@ namespace AutoTorrentInspection.Util
             }
             return ret;
         }
-
     }
 }
