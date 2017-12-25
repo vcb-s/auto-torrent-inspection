@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using AutoTorrentInspection.Objects;
 using AutoTorrentInspection.Util;
 using BencodeNET.Objects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

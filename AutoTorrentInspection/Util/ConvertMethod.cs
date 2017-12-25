@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using AutoTorrentInspection.Objects;
 
 namespace AutoTorrentInspection.Util
 {

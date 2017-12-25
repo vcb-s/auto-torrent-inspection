@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Linq;
-using BencodeNET.Objects;
 using System.Collections.Generic;
+using System.Linq;
+using AutoTorrentInspection.Util;
+using BencodeNET.Objects;
 using BencodeNET.Parsing;
 using BencodeNET.Torrents;
 
-namespace AutoTorrentInspection.Util
+namespace AutoTorrentInspection.Objects
 {
     public class TorrentData
     {
