@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AutoTorrentInspection.Objects;
 using AutoTorrentInspection.Properties;
 using AutoTorrentInspection.Util;
 
@@ -63,7 +64,6 @@ namespace AutoTorrentInspection.Forms
             _systemMenu = new SystemMenu(this);
             _systemMenu.AddCommand("检查更新(&U)", Updater.CheckUpdate, true);
             _systemMenu.AddCommand("关于(&A)", () => { new FormAbout().Show(); }, false);
-            _systemMenu.AddCommand("导出概要(&E)", ExportSummary, false);
             FormLog formLog = null;
             _systemMenu.AddCommand("显示日志(&L)", () =>
             {
@@ -207,6 +207,7 @@ namespace AutoTorrentInspection.Forms
         }
 
         private readonly string[] _loadingText = {
+            "正在...更加用力地深思熟虑",
             "正在重新校正什么来着",
             "正在打蜡、除蜡",
             "正在树立威望",
@@ -220,7 +221,12 @@ namespace AutoTorrentInspection.Forms
             "正在挑拨离间",
             "正在推向极限",
             "耐心就是美德",
+            "正在理清头绪",
+            "正在除旧布新",
+            "正在准备发射",
         };
+
+        private readonly Random _random = new Random();
 
         private void LoadFile(string filepath)
         {
@@ -233,7 +239,7 @@ namespace AutoTorrentInspection.Forms
 
             try
             {
-                toolStripStatusLabel_Status.Text = _loadingText[new Random().Next() % _loadingText.Length];
+                toolStripStatusLabel_Status.Text = _loadingText[_random.Next(0, _loadingText.Length - 1)];
                 Application.DoEvents();
                 if (Directory.Exists(filepath))
                 {
@@ -261,7 +267,7 @@ namespace AutoTorrentInspection.Forms
 
                 if (_torrent.IsPrivate)
                 {
-                    Notification.ShowInfo(@"This torrent has been set as a private torrent");
+                    new Task(() => Notification.ShowInfo(@"This torrent has been set as a private torrent")).Start();
                 }
                 if (!string.IsNullOrEmpty(_torrent.Comment) || !string.IsNullOrEmpty(_torrent.Source))
                 {
@@ -299,10 +305,12 @@ namespace AutoTorrentInspection.Forms
                 {
                     if (!_data["root"].Any(item => item.FileName.ToLower().Contains("font")))
                     {
-                        Notification.ShowInfo("发现ass格式字幕\n但未在根目录发现字体包");
+                        new Task(() => Notification.ShowInfo("发现ass格式字幕\n但未在根目录发现字体包")).Start();
                     }
                 }
             }
+
+            if (!GlobalConfiguration.Instance().InspectionOptions.WebPPosition) goto SKIP_WEBP;
 
             var webpState = WebpState.Default;
             const string webpReadMe = "readme about WebP.txt";
@@ -357,46 +365,53 @@ namespace AutoTorrentInspection.Forms
                 }
                 EXIT_WEBP:
                 btnWebP.Visible = btnWebP.Enabled = webpState == WebpState.Zero;
-                switch (webpState)
+                new Task(() =>
                 {
-                    case WebpState.Zero:
-                        Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现{webpReadMe}");
-                        break;
-                    case WebpState.One:
-                        break;
-                    case WebpState.TwoOrMore:
-                        Notification.ShowInfo($"存在复数个{webpReadMe}，但根目录下的报道没有偏差");
-                        break;
-                    case WebpState.One | WebpState.IncorrectContent:
-                        Notification.ShowInfo($"{webpReadMe}的内容在报道上出现了偏差");
-                        break;
-                    case WebpState.TwoOrMore | WebpState.IncorrectContent:
-                        Notification.ShowInfo($"存在复数个{webpReadMe}，并且根目录下的报道还出现了偏差\n现时请手工检查");
-                        break;
-                    case WebpState.One | WebpState.ReadFileFailed:
-                        Notification.ShowError($"读取{webpReadMe}失败", resultException);
-                        break;
-                    case WebpState.TwoOrMore | WebpState.ReadFileFailed:
-                        Notification.ShowError($"存在复数个{webpReadMe}，并且根目录下的读取失败\n请根据给定的异常进行排查", resultException);
-                        break;
-                    case WebpState.NotInRoot | WebpState.One:
-                        Notification.ShowInfo($"{webpReadMe}处于非根目录\n似乎不大对路，现时请手工递归检查");
-                        break;
-                    case WebpState.NotInRoot | WebpState.TwoOrMore:
-                        Notification.ShowInfo($"存在非根目录复数个{webpReadMe}\n似乎不大对路，现时请手工递归检查");
-                        break;
-                    case WebpState.EmptyInRoot | WebpState.One:
-                        Notification.ShowInfo($"根目录为空并且{webpReadMe}处于非根目录\n似乎不大对路，现时请手工递归检查");
-                        break;
-                    case WebpState.EmptyInRoot | WebpState.TwoOrMore:
-                        Notification.ShowInfo($"根目录为空并且存在复数个{webpReadMe}处于非根目录\n现时请手工递归检查");
-                        break;
-                    default:
-                        throw new Exception($"webp state: \"{webpState}\", unknow combination");
-                }
+                    switch (webpState)
+                    {
+                        case WebpState.Zero:
+                            Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现{webpReadMe}");
+                            break;
+                        case WebpState.One:
+                            break;
+                        case WebpState.TwoOrMore:
+                            Notification.ShowInfo($"存在复数个{webpReadMe}，但根目录下的报道没有偏差");
+                            break;
+                        case WebpState.One | WebpState.IncorrectContent:
+                            Notification.ShowInfo($"{webpReadMe}的内容在报道上出现了偏差");
+                            break;
+                        case WebpState.TwoOrMore | WebpState.IncorrectContent:
+                            Notification.ShowInfo($"存在复数个{webpReadMe}，并且根目录下的报道还出现了偏差\n现时请手工检查");
+                            break;
+                        case WebpState.One | WebpState.ReadFileFailed:
+                            Notification.ShowError($"读取{webpReadMe}失败", resultException);
+                            break;
+                        case WebpState.TwoOrMore | WebpState.ReadFileFailed:
+                            Notification.ShowError($"存在复数个{webpReadMe}，并且根目录下的读取失败\n请根据给定的异常进行排查", resultException);
+                            break;
+                        case WebpState.NotInRoot | WebpState.One:
+                            Notification.ShowInfo($"{webpReadMe}处于非根目录\n似乎不大对路，现时请手工递归检查");
+                            break;
+                        case WebpState.NotInRoot | WebpState.TwoOrMore:
+                            Notification.ShowInfo($"存在非根目录复数个{webpReadMe}\n似乎不大对路，现时请手工递归检查");
+                            break;
+                        case WebpState.EmptyInRoot | WebpState.One:
+                            Notification.ShowInfo($"根目录为空并且{webpReadMe}处于非根目录\n似乎不大对路，现时请手工递归检查");
+                            break;
+                        case WebpState.EmptyInRoot | WebpState.TwoOrMore:
+                            Notification.ShowInfo($"根目录为空并且存在复数个{webpReadMe}处于非根目录\n现时请手工递归检查");
+                            break;
+                        default:
+                            throw new Exception($"webp state: \"{webpState}\", unknow combination");
+                    }
+                }).Start();
             }
 
+            SKIP_WEBP:
             ThroughInspection();
+            if (!GlobalConfiguration.Instance().InspectionOptions.CDNaming) goto SKIP_CD;
+            CDInspection();
+            SKIP_CD:
             cbCategory.Enabled = cbCategory.Items.Count > 1;
         }
 
@@ -491,6 +506,43 @@ namespace AutoTorrentInspection.Forms
             }
             toolStripStatusLabel_Status.Text = dataGridView1.Rows.Count == 0 ? "状态正常, All Green"
                 : $"发现 {dataGridView1.Rows.Count} 个世界的扭曲点{(cbShowAll.Checked ? "(并不是)" : "")}";
+        }
+
+        private void CDInspection()
+        {
+            if (!_data.ContainsKey("CDs"))
+            {
+                Logger.Log("No 'CDs' found under root folder");
+                return;
+            }
+            var INVALID_CD_FOLDER = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_CD_FOLDER, System.Globalization.NumberStyles.HexNumber));
+            var pat = new Regex(GlobalConfiguration.Instance().Naming.Pattern.CD);
+
+            dataGridView1.Rows.AddRange(_data["CDs"].Select(Split).Distinct().Where(NotMatchPattern).Select(ToRow).ToArray());
+
+            string Split(FileDescription file)
+            {
+                var path = file.ReletivePath;
+                var beginIndex = path.IndexOf('\\') + 1;
+                var endIndex = path.IndexOf('\\', beginIndex);
+                if (endIndex == -1)
+                    return path.Substring(beginIndex);
+                return path.Substring(beginIndex, endIndex - beginIndex);
+            }
+
+            bool NotMatchPattern(string folder)
+            {
+                Logger.Log($"Progress: '{folder}'");
+                return !pat.IsMatch(folder);
+            }
+
+            DataGridViewRow ToRow(string folder)
+            {
+                var row = new DataGridViewRow();
+                row.Cells.AddRange(new DataGridViewTextBoxCell {Value = folder});
+                row.DefaultCellStyle.BackColor = INVALID_CD_FOLDER;
+                return row;
+            }
         }
 
         private void btnWebP_Click(object sender, EventArgs e)
@@ -642,67 +694,6 @@ namespace AutoTorrentInspection.Forms
             if (_torrent == null) return;
             var frm = new TreeViewForm(_torrent);
             frm.Show();
-        }
-
-        private void ExportSummary()
-        {
-            if (string.IsNullOrEmpty(FilePath)) return;
-            using (var writer = new StreamWriter(File.OpenWrite(FilePath + ".md"), Encoding.UTF8))
-            {
-                writer.WriteLine("# Summary");
-                writer.WriteLine($"## Source type: {(_torrent == null ? "Folder" : "Torrent")}");
-                writer.WriteLine();
-
-                if (_torrent != null)
-                {
-                    writer.WriteLine($"- TorrentName:\t{_torrent.TorrentName}\n" +
-                                     $"- CreatedBy:\t{_torrent.CreatedBy}\n" +
-                                     $"- IsPrivate:\t{_torrent.IsPrivate}");
-                    writer.WriteLine();
-                    var trackerList = string.Join("\n", _torrent.RawAnnounceList.Select(list => list.Aggregate(string.Empty, (current, url) => $"{current}{url}\n"))).TrimEnd();
-                    writer.WriteLine($"- TrackerList:\t{trackerList == _currentTrackerList}");
-                    writer.WriteLine();
-                    writer.WriteLine($"{new string('=', 20)}\n\n" +
-                                     $"{trackerList}\n\n" +
-                                     $"{new string('=', 20)}");
-                    writer.WriteLine();
-                }
-                else
-                {
-                    writer.WriteLine($"- PathName:\t{FilePath}");
-                    writer.WriteLine();
-                    var fonts = string.Join("\n\t- ", GetUsedFonts());
-                    if (!string.IsNullOrEmpty(fonts))
-                    {
-                        writer.WriteLine("- Fonts:");
-                        writer.WriteLine("\t- " + fonts);
-                        writer.WriteLine();
-                    }
-                }
-                writer.WriteLine("## Doubtful files");
-                writer.WriteLine();
-
-                var rows = new Dictionary<FileState, List<FileDescription>>();
-                foreach (DataGridViewRow row in dataGridView1.Rows)
-                {
-                    var fileInfo = row.Tag as FileDescription;
-                    if (fileInfo == null) continue;
-                    if (!rows.ContainsKey(fileInfo.State))
-                    {
-                        rows[fileInfo.State] = new List<FileDescription>();
-                    }
-                    rows[fileInfo.State].Add(fileInfo);
-                }
-                foreach (var state in rows)
-                {
-                    writer.WriteLine($"### {state.Key}");
-                    foreach (var info in state.Value)
-                    {
-                        writer.WriteLine($"- {info.FullPath}");
-                    }
-                    writer.WriteLine();
-                }
-            }
         }
     }
 }

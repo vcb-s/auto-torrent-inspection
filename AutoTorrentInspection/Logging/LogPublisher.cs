@@ -87,6 +87,14 @@ namespace AutoTorrentInspection.Logging
 
         public IEnumerable<LogMessage> Messages => _messages;
 
+        public bool Clear()
+        {
+            if (!StoreLogMessages)
+                return false;
+            _messages.Clear();
+            return true;
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="LogPublisher"/> store log messages.
         /// </summary>

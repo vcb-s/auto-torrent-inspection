@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AutoTorrentInspection.Objects;
 using AutoTorrentInspection.Util;
 
 namespace AutoTorrentInspection.Forms

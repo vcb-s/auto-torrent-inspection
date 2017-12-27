@@ -1,0 +1,128 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Windows.Forms;
+using AutoTorrentInspection.Util;
+
+namespace AutoTorrentInspection.Objects
+{
+    [Flags]
+    public enum FileState : long
+    {
+        //universal
+        ValidFile = 0,
+        InValidPathLength = 1,
+        InValidFile = 1 << 1,
+        InValidFileSignature = 1 << 2,
+        //cue
+        InValidCue = 1 << 11,
+        InValidEncode = 1 << 12,
+        NonUTF8WBOM = 1 << 13,
+        //flac
+        InValidFlacLevel = 1 << 21,
+        HiResAudio = 1 << 22,
+    }
+
+    public enum SourceTypeEnum
+    {
+        RealFile,
+        TorrentFile
+    }
+
+    public partial class FileDescription
+    {
+        public string FileName { get; protected set; }
+        public string ReletivePath { get; protected set; }
+        public string BasePath { get; protected set; }
+        public string FullPath => Path.Combine(BasePath, ReletivePath, FileName);
+        public string Extension => Path.GetExtension(FileName)?.ToLower();
+        public long Length { get; protected set; }
+        public FileState State { get; protected set; } = FileState.InValidFile;
+        public SourceTypeEnum SourceType { get; protected set; }
+
+        protected static readonly Regex AnimePattern = new Regex(GlobalConfiguration.Instance().Naming.Pattern.VCBS);
+        protected static readonly Regex MenuPngPattern = new Regex(GlobalConfiguration.Instance().Naming.Pattern.MENU);
+        protected static readonly Regex FchPattern = new Regex(GlobalConfiguration.Instance().Naming.Pattern.FCH);
+        protected static readonly Regex MaWenPattern = new Regex(GlobalConfiguration.Instance().Naming.Pattern.MAWEN);
+        protected static readonly Regex AudioExtension = GlobalConfiguration.Instance().Naming.Extension.AudioExtension;
+        protected static readonly Regex ImageExtension = GlobalConfiguration.Instance().Naming.Extension.ImageExtension;
+        protected static readonly Regex ExceptExtension = GlobalConfiguration.Instance().Naming.Extension.ExceptExtension;
+
+        protected static readonly Color INVALID_FILE = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE, System.Globalization.NumberStyles.HexNumber));
+        protected static readonly Color VALID_FILE = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.VALID_FILE, System.Globalization.NumberStyles.HexNumber));
+        protected static readonly Color INVALID_CUE = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_CUE, System.Globalization.NumberStyles.HexNumber));
+        protected static readonly Color INVALID_ENCODE = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_ENCODE, System.Globalization.NumberStyles.HexNumber));
+        protected static readonly Color INVALID_PATH_LENGTH = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_PATH_LENGTH, System.Globalization.NumberStyles.HexNumber));
+        protected static readonly Color INVALID_FLAC_LEVEL = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FLAC_LEVEL, System.Globalization.NumberStyles.HexNumber));
+        protected static readonly Color NON_UTF_8_W_BOM = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.NON_UTF_8_W_BOM, System.Globalization.NumberStyles.HexNumber));
+        protected static readonly Color INVALID_FILE_SIGNATUR = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE_SIGNATUR, System.Globalization.NumberStyles.HexNumber));
+
+        protected static readonly Dictionary<FileState, Color> StateColor = new Dictionary<FileState, Color>
+        {
+            [FileState.ValidFile] = VALID_FILE,
+            [FileState.InValidPathLength] = INVALID_PATH_LENGTH,
+            [FileState.InValidFile] = INVALID_FILE,
+            [FileState.InValidCue] = INVALID_CUE,
+            [FileState.InValidEncode] = INVALID_ENCODE,
+            [FileState.InValidFlacLevel] = INVALID_FLAC_LEVEL,
+            [FileState.NonUTF8WBOM] = NON_UTF_8_W_BOM,
+            [FileState.InValidFileSignature] = INVALID_FILE_SIGNATUR
+        };
+
+        protected const long MaxFilePathLength = 240;
+
+        protected FileDescription()
+        {
+            BasePath = string.Empty;
+            ReletivePath = string.Empty;
+            FileName = string.Empty;
+            Length = 0;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>true代表无需进一步的检查</returns>
+        protected bool BaseValidation()
+        {
+            if (FullPath.Length > MaxFilePathLength)
+            {
+                State = FileState.InValidPathLength;
+                return true;
+            }
+
+            if (FileName == "readme about WebP.txt")
+            {
+                State = FileState.ValidFile;
+                return true;
+            }
+
+            State = FileState.InValidFile;
+            if (RegexesMatch(Extension, ExceptExtension, ImageExtension, AudioExtension) ||
+                RegexesMatch(FileName, AnimePattern, MenuPngPattern, FchPattern, MaWenPattern))
+            {
+                State = FileState.ValidFile;
+            }
+
+            return false;
+        }
+
+        private static bool RegexesMatch(string value, params Regex[] regexes)
+        {
+            return regexes.Any(regex => regex.IsMatch(value));
+        }
+
+        public DataGridViewRow ToRow()
+        {
+            var row = new DataGridViewRow { Tag = this };
+            row.Cells.Add(new DataGridViewTextBoxCell { Value = ReletivePath });
+            row.Cells.Add(new DataGridViewTextBoxCell { Value = FileName });
+            row.Cells.Add(new DataGridViewTextBoxCell { Value = FileSize.FileSizeToString(Length) });
+            row.DefaultCellStyle.BackColor = StateColor[State];
+            return row;
+        }
+    }
+}

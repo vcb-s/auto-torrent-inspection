@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Linq;
-using BencodeNET;
-using BencodeNET.Objects;
 using System.Collections.Generic;
+using System.Linq;
+using AutoTorrentInspection.Util;
+using BencodeNET.Objects;
 using BencodeNET.Parsing;
 using BencodeNET.Torrents;
 
-namespace AutoTorrentInspection.Util
+namespace AutoTorrentInspection.Objects
 {
     public class TorrentData
     {
@@ -20,7 +20,7 @@ namespace AutoTorrentInspection.Util
 
         public IEnumerable<string> GetAnnounceList()
         {
-            return _torrent.Trackers.Flatten();
+            return _torrent.Trackers.SelectMany(x => x);
         }
 
         public IList<IList<string>> RawAnnounceList => _torrent.Trackers;

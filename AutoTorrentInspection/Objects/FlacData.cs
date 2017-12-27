@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
-namespace AutoTorrentInspection.Util
+namespace AutoTorrentInspection.Objects
 {
     public class FlacInfo
     {

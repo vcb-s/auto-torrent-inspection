@@ -1,9 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
 using Jil;
 
 namespace AutoTorrentInspection
@@ -14,38 +11,23 @@ namespace AutoTorrentInspection
 
         private const string ConfigFile = "config.json";
 
-        private static readonly Lazy<bool> Loadable = new Lazy<bool>(() =>
-        {
-            var basePath = Path.GetDirectoryName(Application.ExecutablePath) ?? "";
-            var requires = new[] {"Jil.dll", "Sigil.dll", ConfigFile};
-            return requires.All(require => File.Exists(Path.Combine(basePath, require)));
-        });
-
         protected GlobalConfiguration() {}
 
         public static Configuration Instance(bool reload = false)
         {
             if (_instance == null || reload)
             {
-                if (Loadable.Value)
+                try
                 {
-                    try
+                    using (var input = new StreamReader(ConfigFile))
                     {
-                        using (var input = new StreamReader(ConfigFile))
-                        {
-                            _instance = JSON.Deserialize<Configuration>(input);
-                            Logger.Log("Load configuration file success");
-                        }
-                    }
-                    catch (Exception exception)
-                    {
-                        Logger.Log(exception);
-                        _instance = new Configuration();
+                        _instance = JSON.Deserialize<Configuration>(input);
+                        Logger.Log("Load configuration file success");
                     }
                 }
-                else
+                catch (Exception exception)
                 {
-                    Logger.Log("Lacking some components to load the configuration file, using the default configuration");
+                    Logger.Log(exception);
                     _instance = new Configuration();
                 }
             }
@@ -55,9 +37,10 @@ namespace AutoTorrentInspection
 
     public class Configuration
     {
-        public int Version = 1;
+        public int Version = 2;
         public Naming Naming = new Naming();
         public RowColor RowColor = new RowColor();
+        public InspectionOptions InspectionOptions = new InspectionOptions();
         public string[] TrackerList = {
             "http://208.67.16.113:8000/annonuce",
             "udp://208.67.16.113:8000/annonuce",
@@ -80,8 +63,9 @@ namespace AutoTorrentInspection
 
     public class Pattern
     {
-        public string VCBS  = @"^\[[^\[\]]*VCB\-S(?:tudio)?[^\[\]]*\] [^\[\]]+ (?:\[[^\[\]]*\d*\])?\[(?:(?:(?:(?:Hi10p|Hi444pp)_(?:2160|1080|720|576|480)p\]\[x264)|(?:(?:Ma10p_(?:2160|1080|720|576|480)p\]\[x265)))(?:_\d*(?:flac|aac|ac3|dts))+\](?:\.(?:mkv|mka|flac))?|(?:(?:1080|720|576)p\]\[(?:x264|x265)_(?:aac|ac3|dts)\](?:\.mp4)?))(?:(?<!(?:mkv|mka|mp4))(?:\.(?:[SsTt]c|[Cc]h(?:s|t)|[Jj](?:pn|ap)|[Cc]h(?:s|t)&[Jj](?:pn|ap)))?\.ass)?$";
+        public string VCBS  = @"^\[[^\[\]]*VCB\-S(?:tudio)?[^\[\]]*\] [^\[\]]+ (?:\[[^\[\]]*\d*\])?\[(?:(?:(?:(?:Hi10p|Hi444pp)_(?:2160|1080|816|720|576|480)p\]\[x264)|(?:(?:Ma10p_(?:2160|1080|816|720|576|480)p\]\[x265)))(?:_\d*(?:flac|aac|ac3|dts))+\](?:\.(?:mkv|mka|flac))?|(?:(?:1080|816|720|576)p\]\[(?:x264|x265)_(?:aac|ac3|dts)\](?:\.mp4)?))(?:(?<!(?:mkv|mka|mp4))(?:\.(?:[SsTt]c|[Cc]h(?:s|t)|[Jj](?:pn|ap)|[Cc]h(?:s|t)&[Jj](?:pn|ap)))?\.ass)?$";
         public string MENU  = @"^\[[^\[\]]*VCB\-S(?:tudio)*[^\[\]]*\] [^\[\]]+ \[[^\[\]]*\]\.png$";
+        public string CD    = @"^\[\d{6}\] ((「[^／]+」)|([^／]+))(?:\[[^\[\]]+\])?(?:／[^\(\)\[\]]+)?(?: \[\d{2}bit_\d{2,3}kHz\])? \((?:flac|alac|tak|mp3)(?:\+(?:flac|alac|tak|mp3))?(?:\+(?:jpg|webp))*\)$";
         [JilDirective(Ignore = true)]
         public string FCH   = @"^(?:\[(?:[^\[\]])*philosophy\-raws(?:[^\[\]])*\])\[[^\[\]]+\]\[(?:(?:[^\[\]]+\]\[(?:BDRIP|DVDRIP|BDRemux))|(?:(?:BDRIP|DVDRIP|BDRemux)(?:\]\[[^\[\]]+)?))\]\[(?:(?:(?:HEVC )?Main10P)|(?:(?:AVC )?Hi10P)|Hi444PP|H264) \d*(?:FLAC|AC3)\]\[(?:(?:(?:1920|1440)[Xx]1080)|(?:1280[Xx]720)|(?:1024[Xx]576)|(?:720[Xx]480))\](?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$";
         [JilDirective(Ignore = true)]
@@ -113,5 +97,15 @@ namespace AutoTorrentInspection
         public string INVALID_FLAC_LEVEL    = "ffcfd8dc";
         public string NON_UTF_8_W_BOM       = "fffbbc05";
         public string INVALID_FILE_SIGNATUR = "ff009933";
+        public string INVALID_CD_FOLDER     = "ff0559ae";
+    }
+
+    public class InspectionOptions
+    {
+        public bool WebPPosition = true;
+        public bool CDNaming = true;
+        public bool FileHeader = true;
+        public bool FLACCompressRate = true;
+        public bool CUEEncoding = true;
     }
 }

@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 using AutoTorrentInspection.Forms;
 using AutoTorrentInspection.Logging.Handlers;
-using AutoTorrentInspection.Properties;
 using Microsoft.Win32;
 using AutoTorrentInspection.Util;
+using Jil;
 
 namespace AutoTorrentInspection
 {
@@ -21,6 +19,8 @@ namespace AutoTorrentInspection
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            Logger.StoreLogMessages = true;
+            Logger.LoggerHandlerManager.AddHandler(new DebugConsoleLoggerHandler());
 
             if (!IsSupportedRuntimeVersion())
             {
@@ -28,18 +28,41 @@ namespace AutoTorrentInspection
                 System.Diagnostics.Process.Start("http://dotnetsocial.cloudapp.net/GetDotnet?tfm=.NETFramework,Version=v4.7");
                 if (ret == DialogResult.Yes) RegistryStorage.Save("False", name: "DoVersionCheck");
             }
-
-            Logger.StoreLogMessages = true;
-            Logger.LoggerHandlerManager.AddHandler(new DebugConsoleLoggerHandler());
-
-            if (CheckDependencies().Count() != 0)
+            if (!File.Exists("config.json"))
             {
-                using (var stream = new MemoryStream(Resources.Jil_2_15_4_0))
-                using (var zip = new Unzip(stream))
+                Logger.Log("Extract default config file to current directory");
+                File.WriteAllText("config.json", new Configuration().ToString());
+            }
+            else
+            {
+                try
                 {
-                    Logger.Log("Extract dependences to current directory");
-                    zip.ExtractToCurrentDirectory();
+                    var updateConfigFile = false;
+                    Configuration config, defaultConfig;
+                    using (var input = new StreamReader("config.json"))
+                    {
+                        config = JSON.Deserialize<Configuration>(input);
+                        defaultConfig = new Configuration();
+                        if (defaultConfig.Version > config.Version)
+                        {
+                            updateConfigFile = true;
+                        }
+                    }
+                    if (updateConfigFile)
+                    {
+                        File.WriteAllText("config.json", config.ToString());
+                        Logger.Log($"Update the config file version from {config.Version}->{defaultConfig.Version}");
+                    }
                 }
+                catch (Exception e)
+                {
+                    Logger.Log(e);
+                    Notification.ShowError("无法读取配置文件", e);
+                }
+#if DEBUG
+                File.WriteAllText("config.json", new Configuration().ToString());
+                Logger.Log("Config file is now up to date");
+#endif
             }
             if (args.Length == 0)
             {
@@ -67,23 +90,6 @@ namespace AutoTorrentInspection
                 }
             }
             return false;
-        }
-
-
-        private static IEnumerable<(string name, string version)> CheckDependencies()
-        {
-            var basePath = Path.GetDirectoryName(Application.ExecutablePath) ?? "";
-            var requires = new[]
-            {
-                ("Jil", "https://www.nuget.org/api/v2/package/Jil/", "2.15.4"),
-                ("Sigil", "https://www.nuget.org/api/v2/package/Sigil/", "4.7.0")
-            };
-            foreach (var require in requires)
-            {
-                var dllPath = Path.Combine(basePath, require.Item1 + ".dll");
-                if (File.Exists(dllPath)) continue;
-                yield return (require.Item1, require.Item3);
-            }
         }
     }
 }

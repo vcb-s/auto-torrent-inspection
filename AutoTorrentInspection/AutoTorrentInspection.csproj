@@ -12,6 +12,8 @@
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -39,6 +41,16 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BencodeNET, Version=2.2.22.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\BencodeNET.2.2.22\lib\net45\BencodeNET.dll</HintPath>
+    </Reference>
+    <Reference Include="Costura, Version=1.6.2.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
+      <HintPath>..\packages\Costura.Fody.1.6.2\lib\dotnet\Costura.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Crc32C.NET, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Crc32C.NET.1.0.5.0\lib\net20\Crc32C.NET.dll</HintPath>
+    </Reference>
     <Reference Include="Jil, Version=2.15.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Jil.2.15.4\lib\net45\Jil.dll</HintPath>
     </Reference>
@@ -56,39 +68,11 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="Ude, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\UDE.CSharp.1.1.0\lib\Ude.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BencodeNET\Exceptions\BencodeException.cs" />
-    <Compile Include="BencodeNET\Exceptions\InvalidBencodeException.cs" />
-    <Compile Include="BencodeNET\Exceptions\InvalidTorrentException.cs" />
-    <Compile Include="BencodeNET\Exceptions\UnsupportedBencodeException.cs" />
-    <Compile Include="BencodeNET\IO\BencodeStream.cs" />
-    <Compile Include="BencodeNET\Objects\BDictionary.cs" />
-    <Compile Include="BencodeNET\Objects\BList.cs" />
-    <Compile Include="BencodeNET\Objects\BNumber.cs" />
-    <Compile Include="BencodeNET\Objects\BObject.cs" />
-    <Compile Include="BencodeNET\Objects\BString.cs" />
-    <Compile Include="BencodeNET\Objects\IBObject.cs" />
-    <Compile Include="BencodeNET\Parsing\BDictionaryParser.cs" />
-    <Compile Include="BencodeNET\Parsing\BencodeParser.cs" />
-    <Compile Include="BencodeNET\Parsing\BListParser.cs" />
-    <Compile Include="BencodeNET\Parsing\BNumberParser.cs" />
-    <Compile Include="BencodeNET\Parsing\BObjectParser.cs" />
-    <Compile Include="BencodeNET\Parsing\BObjectParserList.cs" />
-    <Compile Include="BencodeNET\Parsing\BStringParser.cs" />
-    <Compile Include="BencodeNET\Parsing\IBencodeParser.cs" />
-    <Compile Include="BencodeNET\Parsing\IBObjectParser.cs" />
-    <Compile Include="BencodeNET\Parsing\ParseUtil.cs" />
-    <Compile Include="BencodeNET\Parsing\TorrentParser.cs" />
-    <Compile Include="BencodeNET\Torrents\MagnetLinkOptions.cs" />
-    <Compile Include="BencodeNET\Torrents\MultiFileInfo.cs" />
-    <Compile Include="BencodeNET\Torrents\MultiFileInfoList.cs" />
-    <Compile Include="BencodeNET\Torrents\SingleFileInfo.cs" />
-    <Compile Include="BencodeNET\Torrents\Torrent.cs" />
-    <Compile Include="BencodeNET\Torrents\TorrentFields.cs" />
-    <Compile Include="BencodeNET\Torrents\TorrentFileMode.cs" />
-    <Compile Include="BencodeNET\Torrents\TorrentUtil.cs" />
-    <Compile Include="BencodeNET\UtilityExtensions.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="Forms\Form1.cs">
       <SubType>Form</SubType>
@@ -138,57 +122,24 @@
     <Compile Include="Logging\ILoggerHandlerManager.cs" />
     <Compile Include="Logging\LogMessage.cs" />
     <Compile Include="Logging\LogPublisher.cs" />
-    <Compile Include="Ude\CharsetDetector.cs" />
-    <Compile Include="Ude\Core\Big5Prober.cs" />
-    <Compile Include="Ude\Core\BitPackage.cs" />
-    <Compile Include="Ude\Core\CharDistributionAnalyser.cs" />
-    <Compile Include="Ude\Core\CharsetProber.cs" />
-    <Compile Include="Ude\Core\Charsets.cs" />
-    <Compile Include="Ude\Core\CodingStateMachine.cs" />
-    <Compile Include="Ude\Core\EscCharsetProber.cs" />
-    <Compile Include="Ude\Core\EscSM.cs" />
-    <Compile Include="Ude\Core\EUCJPProber.cs" />
-    <Compile Include="Ude\Core\EUCKRProber.cs" />
-    <Compile Include="Ude\Core\EUCTWProber.cs" />
-    <Compile Include="Ude\Core\GB18030Prober.cs" />
-    <Compile Include="Ude\Core\HebrewProber.cs" />
-    <Compile Include="Ude\Core\JapaneseContextAnalyser.cs" />
-    <Compile Include="Ude\Core\LangBulgarianModel.cs" />
-    <Compile Include="Ude\Core\LangCyrillicModel.cs" />
-    <Compile Include="Ude\Core\LangGreekModel.cs" />
-    <Compile Include="Ude\Core\LangHebrewModel.cs" />
-    <Compile Include="Ude\Core\LangHungarianModel.cs" />
-    <Compile Include="Ude\Core\LangThaiModel.cs" />
-    <Compile Include="Ude\Core\Latin1Prober.cs" />
-    <Compile Include="Ude\Core\MBCSGroupProber.cs" />
-    <Compile Include="Ude\Core\MBCSSM.cs" />
-    <Compile Include="Ude\Core\SBCharsetProber.cs" />
-    <Compile Include="Ude\Core\SBCSGroupProber.cs" />
-    <Compile Include="Ude\Core\SequenceModel.cs" />
-    <Compile Include="Ude\Core\SJISProber.cs" />
-    <Compile Include="Ude\Core\SMModel.cs" />
-    <Compile Include="Ude\Core\UniversalDetector.cs" />
-    <Compile Include="Ude\Core\UTF8Prober.cs" />
-    <Compile Include="Ude\DetectionConfidence.cs" />
-    <Compile Include="Ude\ICharsetDetector.cs" />
+    <Compile Include="Objects\Description.File.cs" />
+    <Compile Include="Objects\Description.Base.cs" />
+    <Compile Include="Objects\Description.Torrent.cs" />
     <Compile Include="Util\ConvertMethod.cs" />
-    <Compile Include="Util\CRC32.cs" />
-    <Compile Include="Util\Crc32.NET\Crc32Algorithm.cs" />
-    <Compile Include="Util\Crc32.NET\SafeProxy.cs" />
     <Compile Include="Util\CueCurer.cs" />
     <Compile Include="Util\AESEncryptDecrypt.cs" />
     <Compile Include="Util\EncodingConverter.cs" />
     <Compile Include="Util\EncodingDetector.cs" />
-    <Compile Include="Util\FileDescription.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\AssFonts.cs" />
     <Compile Include="Util\FileHeader.cs" />
-    <Compile Include="Util\FlacData.cs" />
+    <Compile Include="Util\FileSize.cs" />
+    <Compile Include="Objects\FlacData.cs" />
     <Compile Include="Util\Notification.cs" />
     <Compile Include="Util\RegistryStorage.cs" />
     <Compile Include="Util\SystemMenu.cs" />
-    <Compile Include="Util\TorrentData.cs" />
+    <Compile Include="Objects\TorrentData.cs" />
     <Compile Include="Util\TreeViewNode.cs" />
     <Compile Include="Util\Unzip.cs" />
     <Compile Include="Util\Updater.cs" />
@@ -220,11 +171,9 @@
     <EmbeddedResource Include="Forms\TreeViewForm.resx">
       <DependentUpon>TreeViewForm.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="BencodeNET\project.json" />
-    <None Include="config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -234,13 +183,13 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="Resources\Jil.2.15.4.0.zip" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ati.ico" />
+    <None Include="FodyWeavers.xml" />
     <Content Include="Images\About.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -248,6 +197,15 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Costura.Fody.1.6.2\build\dotnet\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.1.6.2\build\dotnet\Costura.Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Fody.2.3.5\build\net452\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.2.3.5\build\net452\Fody.targets'))" />
+  </Target>
+  <Import Project="..\packages\Costura.Fody.1.6.2\build\dotnet\Costura.Fody.targets" Condition="Exists('..\packages\Costura.Fody.1.6.2\build\dotnet\Costura.Fody.targets')" />
+  <Import Project="..\packages\Fody.2.3.5\build\net452\Fody.targets" Condition="Exists('..\packages\Fody.2.3.5\build\net452\Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -1,3 +1,5 @@
+using System.Windows.Forms;
+
 namespace AutoTorrentInspection.Forms
 {
     partial class FormLog
@@ -28,11 +30,12 @@ namespace AutoTorrentInspection.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormLog));
             this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
             this.grpLog = new System.Windows.Forms.GroupBox();
             this.txtLog = new System.Windows.Forms.TextBox();
             this.grpActions = new System.Windows.Forms.GroupBox();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.btnClear = new System.Windows.Forms.Button();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.btnCopy = new System.Windows.Forms.Button();
             this.btnClose = new System.Windows.Forms.Button();
@@ -85,6 +88,8 @@ namespace AutoTorrentInspection.Forms
             // 
             // grpActions
             // 
+            this.grpActions.Controls.Add(this.btnSave);
+            this.grpActions.Controls.Add(this.btnClear);
             this.grpActions.Controls.Add(this.btnRefresh);
             this.grpActions.Controls.Add(this.btnCopy);
             this.grpActions.Controls.Add(this.btnClose);
@@ -95,6 +100,26 @@ namespace AutoTorrentInspection.Forms
             this.grpActions.TabIndex = 1;
             this.grpActions.TabStop = false;
             this.grpActions.Text = "Actions";
+            // 
+            // btnSave
+            // 
+            this.btnSave.Location = new System.Drawing.Point(105, 15);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(93, 40);
+            this.btnSave.TabIndex = 4;
+            this.btnSave.Text = "Save...";
+            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            // 
+            // btnClear
+            // 
+            this.btnClear.Location = new System.Drawing.Point(6, 15);
+            this.btnClear.Name = "btnClear";
+            this.btnClear.Size = new System.Drawing.Size(93, 40);
+            this.btnClear.TabIndex = 3;
+            this.btnClear.Text = "Clear Log";
+            this.btnClear.UseVisualStyleBackColor = true;
+            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
             // 
             // btnRefresh
             // 
@@ -136,7 +161,6 @@ namespace AutoTorrentInspection.Forms
             this.ClientSize = new System.Drawing.Size(604, 501);
             this.Controls.Add(this.tlpMain);
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(161)));
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(350, 350);
             this.Name = "FormLog";
             this.Text = "frmLog";
@@ -152,16 +176,14 @@ namespace AutoTorrentInspection.Forms
 
         #endregion
 
-
-		private System.Windows.Forms.Button btnClose;
-        private System.Windows.Forms.Button btnCopy;
-        private System.Windows.Forms.Button btnRefresh;
-        private System.Windows.Forms.GroupBox grpActions;
-        private System.Windows.Forms.GroupBox grpLog;
         private System.Windows.Forms.TableLayoutPanel tlpMain;
+        private System.Windows.Forms.GroupBox grpLog;
         private System.Windows.Forms.TextBox txtLog;
-        //private object AnchorStyles;
-
-        public object DockStyle { get; private set; }
+        private System.Windows.Forms.GroupBox grpActions;
+        private System.Windows.Forms.Button btnCopy;
+        private System.Windows.Forms.Button btnClose;
+        private System.Windows.Forms.Button btnRefresh;
+        private System.Windows.Forms.Button btnClear;
+        private System.Windows.Forms.Button btnSave;
     }
 }

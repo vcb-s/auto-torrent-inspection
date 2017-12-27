@@ -169,6 +169,10 @@ namespace AutoTorrentInspection
 
         public static IEnumerable<LogMessage> Messages => LogPublisher.Messages;
 
+        public static string MessagesText => string.Join(Environment.NewLine, Messages) + Environment.NewLine;
+
+        public static bool Clear() => LogPublisher.Clear();
+
         public static DebugLogger Debug { get; }
 
         public static bool StoreLogMessages
