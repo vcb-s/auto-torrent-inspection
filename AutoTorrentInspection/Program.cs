@@ -30,7 +30,6 @@ namespace AutoTorrentInspection
             }
             if (!File.Exists("config.json"))
             {
-
                 Logger.Log("Extract default config file to current directory");
                 File.WriteAllText("config.json", new Configuration().ToString());
             }
