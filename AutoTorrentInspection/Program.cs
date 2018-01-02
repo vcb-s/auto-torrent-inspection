@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Windows.Forms;
 using AutoTorrentInspection.Forms;
 using AutoTorrentInspection.Logging.Handlers;
@@ -19,6 +20,8 @@ namespace AutoTorrentInspection
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            Updater.Utils.SoftwareName = "AutoTorrentInspection";
+            Updater.Utils.CurrentVersion = Assembly.GetExecutingAssembly().GetName().Version;
             Logger.StoreLogMessages = true;
             Logger.LoggerHandlerManager.AddHandler(new DebugConsoleLoggerHandler());
 
