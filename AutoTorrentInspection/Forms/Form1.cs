@@ -171,11 +171,11 @@ namespace AutoTorrentInspection.Forms
 
         private readonly string _currentTrackerList = string.Join("\n\n", GlobalConfiguration.Instance().TrackerList);
 
-        private IEnumerable<string> GetUsedFonts()
+        private AssCheck CheckAss()
         {
-            var assFonts = new AssFonts();
-            assFonts.FeedSubtitle(_data.Values.SelectMany(_ => _).Where(file => file.Extension == ".ass").Select(file => file.FullPath));
-            return assFonts.UsedFonts.OrderBy(i => i);
+            var assCheck = new AssCheck();
+            assCheck.FeedSubtitle(_data.Values.SelectMany(_ => _).Where(file => file.Extension == ".ass").Select(file => file.FullPath));
+            return assCheck;
         }
 
         private void btnAnnounceList_Click(object sender, EventArgs e)
@@ -184,10 +184,22 @@ namespace AutoTorrentInspection.Forms
             {
                 new Task(() =>
                 {
-                    var fonts = GetUsedFonts().ToList();
-                    if (fonts.Count == 0) return;
-                    Logger.Log($"Fonts used in subtitles: {string.Join(", ", fonts)}");
-                    string.Join(Environment.NewLine, fonts).ShowWithTitle("Fonts used in subtitles");
+                    var check = CheckAss();
+                    var fonts = check.UsedFonts.OrderBy(i => i).ToList();
+                    var tags = check.UnexpectedTags.OrderBy(i => i).ToList();
+
+                    if (fonts.Count != 0)
+                    {
+                        Logger.Log($"Fonts used in subtitles: {string.Join(", ", fonts)}");
+                        string.Join(Environment.NewLine, fonts).ShowWithTitle("Fonts used in subtitles");
+                    }
+
+                    if (tags.Count != 0)
+                    {
+                        Logger.Log($"Unexpected tags found in subtitles: {string.Join(", ", tags)}");
+                        string.Join(Environment.NewLine, tags).ShowWithTitle("Unexpected tags in subtitles");
+                    }
+
                 }).Start();
                 return;
             }

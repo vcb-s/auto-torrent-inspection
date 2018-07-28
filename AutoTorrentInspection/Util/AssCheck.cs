@@ -6,53 +6,50 @@ using System.Text.RegularExpressions;
 
 namespace AutoTorrentInspection.Util
 {
-    class AssFonts
+    class AssCheck
     {
         private HashSet<string> _usedFonts;
         private HashSet<string> _existFonts;
+        private HashSet<string> _unexpectedTags;
 
-        public AssFonts()
+        public AssCheck()
         {
             _usedFonts = new HashSet<string>();
             _existFonts = new HashSet<string>();
+            _unexpectedTags = new HashSet<string>();
         }
 
         public void FeedSubtitle(string subtitlePath)
         {
+            Logger.Log($"Advanced SSA Subtitle: {subtitlePath}");
             GetFontsUsed(subtitlePath, ref _usedFonts);
+            GetUnexpectedTags(subtitlePath, ref _unexpectedTags);
         }
 
         public void FeedSubtitle(IEnumerable<string> subtitlePaths)
         {
-            foreach(var subtitlePath in subtitlePaths)
-                GetFontsUsed(subtitlePath, ref _usedFonts);
+            foreach (var subtitlePath in subtitlePaths)
+                FeedSubtitle(subtitlePath);
         }
 
         public void FeedFont(string fontPath)
         {
-            GetNameVia(fontPath, ref _existFonts);
+            GetFontNameVia(fontPath, ref _existFonts);
         }
 
         public HashSet<string> UsedFonts => _usedFonts;
         public HashSet<string> ExistFonts => _existFonts;
+        public HashSet<string> UnexpectedTags => _unexpectedTags;
 
         private static readonly Regex StyleRegex = new Regex(@"^Style:\s*(?<style>[^,]+?)\s*,\s*@?(?<font>[^,]+?)\s*,\s*\d+");
         private static readonly Regex DialogueRegex = new Regex(@"^Dialogue:\s*\d+\s*,\s*[^,]*\s*,\s*[^,]*\s*,\s*\*?(?<style>[^,]+?)\s*,");
         private static readonly Regex InlineFontRegex = new Regex(@"{[^}]*\\fn\s*@?(?<font>[^\\}]*)\s*[^}]*?}");
-
-        public static ISet<string> GetFontsUsed(string subtitlePath)
-        {
-            var usedFonts = new HashSet<string>();
-            GetFontsUsed(subtitlePath, ref usedFonts);
-            return usedFonts;
-        }
 
         private static void GetFontsUsed(string subtitlePath, ref HashSet<string> usedFonts)
         {
             const string undefinedStyle = "未定义的Style: {0}";
             const string unusedStyle = "未使用的Style: {0}";
             const string warningLine = ", 行号: {0}";
-            Logger.Log($"Advanced SSA Subtitle: {subtitlePath}");
             if (usedFonts == null) usedFonts = new HashSet<string>();
             var lineIndex = 0;
             using (var stream = File.OpenText(subtitlePath))
@@ -103,14 +100,48 @@ namespace AutoTorrentInspection.Util
             }
         }
 
-        public IEnumerable<string> GetNameVia(string fontPath)
+        private static void GetUnexpectedTags(string subtitlePath, ref HashSet<string> unexpectedTags)
+        {
+            using (var stream = File.OpenText(subtitlePath))
+            {
+                string line;
+
+                while ((line = stream.ReadLine()) != null)
+                {
+                    for (int i = 0, j; (j = line.IndexOf('\\', i)) >= 0; i = j)
+                    {
+                        var cmd = "";
+                        for (int t = ++j; t < line.Length && line[t] != '(' && line[t] != '\\'; ++t)
+                        {
+                            cmd += line[t];
+                        }
+
+                        if (string.IsNullOrWhiteSpace(cmd))
+                        {
+                            continue;
+                        }
+
+                        foreach (var tag in GlobalConfiguration.Instance().ASS.UnexceptedTags)
+                        {
+                            if (cmd.StartsWith(tag))
+                            {
+                                unexpectedTags.Add(tag);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public IEnumerable<string> GetFontNameVia(string fontPath)
         {
             var set = new HashSet<string>();
-            GetNameVia(fontPath, ref set);
+            GetFontNameVia(fontPath, ref set);
             return set.ToList();
         }
 
-        private static void GetNameVia(string fontPath, ref HashSet<string> existFonts)
+        private static void GetFontNameVia(string fontPath, ref HashSet<string> existFonts)
         {
             var fontCol = new PrivateFontCollection();
             fontCol.AddFontFile(fontPath);
