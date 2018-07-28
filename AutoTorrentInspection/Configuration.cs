@@ -46,7 +46,12 @@ namespace AutoTorrentInspection
             "udp://208.67.16.113:8000/annonuce",
             "udp://tracker.openbittorrent.com:80/announce",
             "http://t.acg.rip:6699/announce",
-            "http://nyaa.tracker.wf:7777/announce"
+            "http://nyaa.tracker.wf:7777/announce",
+            "https://tr.bangumi.moe:9696/announce",
+            "http://tr.bangumi.moe:6969/announce",
+            "udp://tr.bangumi.moe:6969/announce",
+            "http://open.acgnxtracker.com/announce",
+            "https://open.acgnxtracker.com/announce"
         };
 
         public ASS ASS = new ASS();
