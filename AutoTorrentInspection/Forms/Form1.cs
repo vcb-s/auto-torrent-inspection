@@ -379,42 +379,35 @@ namespace AutoTorrentInspection.Forms
                 btnWebP.Visible = btnWebP.Enabled = webpState == WebpState.Zero;
                 new Task(() =>
                 {
-                    switch (webpState)
+                    var knownStatus = new Dictionary<WebpState, string>
                     {
-                        case WebpState.Zero:
-                            Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现{webpReadMe}");
-                            break;
-                        case WebpState.One:
-                            break;
-                        case WebpState.TwoOrMore:
-                            Notification.ShowInfo($"存在复数个{webpReadMe}，但根目录下的报道没有偏差");
-                            break;
-                        case WebpState.One | WebpState.IncorrectContent:
-                            Notification.ShowInfo($"{webpReadMe}的内容在报道上出现了偏差");
-                            break;
-                        case WebpState.TwoOrMore | WebpState.IncorrectContent:
-                            Notification.ShowInfo($"存在复数个{webpReadMe}，并且根目录下的报道还出现了偏差\n现时请手工检查");
-                            break;
-                        case WebpState.One | WebpState.ReadFileFailed:
-                            Notification.ShowError($"读取{webpReadMe}失败", resultException);
-                            break;
-                        case WebpState.TwoOrMore | WebpState.ReadFileFailed:
-                            Notification.ShowError($"存在复数个{webpReadMe}，并且根目录下的读取失败\n请根据给定的异常进行排查", resultException);
-                            break;
-                        case WebpState.NotInRoot | WebpState.One:
-                            Notification.ShowInfo($"{webpReadMe}处于非根目录\n似乎不大对路，现时请手工递归检查");
-                            break;
-                        case WebpState.NotInRoot | WebpState.TwoOrMore:
-                            Notification.ShowInfo($"存在非根目录复数个{webpReadMe}\n似乎不大对路，现时请手工递归检查");
-                            break;
-                        case WebpState.EmptyInRoot | WebpState.One:
-                            Notification.ShowInfo($"根目录为空并且{webpReadMe}处于非根目录\n似乎不大对路，现时请手工递归检查");
-                            break;
-                        case WebpState.EmptyInRoot | WebpState.TwoOrMore:
-                            Notification.ShowInfo($"根目录为空并且存在复数个{webpReadMe}处于非根目录\n现时请手工递归检查");
-                            break;
-                        default:
-                            throw new Exception($"webp state: \"{webpState}\", unknow combination");
+                        [WebpState.Zero] = "发现WebP格式图片\n但未在根目录发现{0}",
+                        [WebpState.One] = null,
+                        [WebpState.TwoOrMore] = "存在复数个{0}，但根目录下的报道没有偏差",
+                        [WebpState.One | WebpState.IncorrectContent] = "{0}的内容在报道上出现了偏差",
+                        [WebpState.TwoOrMore | WebpState.IncorrectContent] = "存在复数个{0}，并且根目录下的报道还出现了偏差\n现时请手工检查",
+                        [WebpState.One | WebpState.ReadFileFailed] = "读取{0}失败",
+                        [WebpState.TwoOrMore | WebpState.ReadFileFailed] = "存在复数个{0}，并且根目录下的读取失败\n请根据给定的异常进行排查",
+                        [WebpState.NotInRoot | WebpState.One] = "{0}处于非根目录\n似乎不大对路，现时请手工递归检查",
+                        [WebpState.NotInRoot | WebpState.TwoOrMore] = "存在非根目录复数个{0}\n似乎不大对路，现时请手工递归检查",
+                        [WebpState.EmptyInRoot | WebpState.One] = "根目录为空并且{0}处于非根目录\n似乎不大对路，现时请手工递归检查",
+                        [WebpState.EmptyInRoot | WebpState.TwoOrMore] = "根目录为空并且存在复数个{0}处于非根目录\n现时请手工递归检查"
+                    };
+
+                    if (knownStatus.ContainsKey(webpState))
+                    {
+                        if (resultException != null)
+                        {
+                            Notification.ShowError(string.Format(knownStatus[webpState], webpReadMe), resultException);
+                        }
+                        else
+                        {
+                            Notification.ShowInfo(string.Format(knownStatus[webpState], webpReadMe));
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception($"webp state: \"{webpState}\", unknow combination");
                     }
                 }).Start();
             }
