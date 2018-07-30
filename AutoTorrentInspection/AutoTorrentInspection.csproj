@@ -134,6 +134,7 @@
     <Compile Include="Util\FileHeader.cs" />
     <Compile Include="Util\FileSize.cs" />
     <Compile Include="Objects\FlacData.cs" />
+    <Compile Include="Util\LogChecker.cs" />
     <Compile Include="Util\Notification.cs" />
     <Compile Include="Util\RegistryStorage.cs" />
     <Compile Include="Util\SystemMenu.cs" />
