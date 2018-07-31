@@ -54,7 +54,7 @@ namespace AutoTorrentInspection.Forms
             Text = $@"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version}";
             RegistryStorage.Save(Application.ExecutablePath);
             RegistryStorage.RegistryAddCount(@"Software\AutoTorrentInspection\Statistics", @"count");
-            Updater.CheckUpdateWeekly("AutoTorrentInspection");
+            Updater.Utils.CheckUpdateWeekly("AutoTorrentInspection");
         }
 
         private SystemMenu _systemMenu;
@@ -62,7 +62,7 @@ namespace AutoTorrentInspection.Forms
         private void AddCommand()
         {
             _systemMenu = new SystemMenu(this);
-            _systemMenu.AddCommand("检查更新(&U)", Updater.CheckUpdate, true);
+            _systemMenu.AddCommand("检查更新(&U)", Updater.Utils.CheckUpdate, true);
             _systemMenu.AddCommand("关于(&A)", () => { new FormAbout().Show(); }, false);
             FormLog formLog = null;
             _systemMenu.AddCommand("显示日志(&L)", () =>
@@ -171,11 +171,11 @@ namespace AutoTorrentInspection.Forms
 
         private readonly string _currentTrackerList = string.Join("\n\n", GlobalConfiguration.Instance().TrackerList);
 
-        private IEnumerable<string> GetUsedFonts()
+        private AssCheck CheckAss()
         {
-            var assFonts = new AssFonts();
-            assFonts.FeedSubtitle(_data.Values.SelectMany(_ => _).Where(file => file.Extension == ".ass").Select(file => file.FullPath));
-            return assFonts.UsedFonts.OrderBy(i => i);
+            var assCheck = new AssCheck();
+            assCheck.FeedSubtitle(_data.Values.SelectMany(_ => _).Where(file => file.Extension == ".ass").Select(file => file.FullPath));
+            return assCheck;
         }
 
         private void btnAnnounceList_Click(object sender, EventArgs e)
@@ -184,10 +184,22 @@ namespace AutoTorrentInspection.Forms
             {
                 new Task(() =>
                 {
-                    var fonts = GetUsedFonts().ToList();
-                    if (fonts.Count == 0) return;
-                    Logger.Log($"Fonts used in subtitles: {string.Join(", ", fonts)}");
-                    string.Join(Environment.NewLine, fonts).ShowWithTitle("Fonts used in subtitles");
+                    var check = CheckAss();
+                    var fonts = check.UsedFonts.OrderBy(i => i).ToList();
+                    var tags = check.UnexpectedTags.OrderBy(i => i).ToList();
+
+                    if (fonts.Count != 0)
+                    {
+                        Logger.Log($"Fonts used in subtitles: {string.Join(", ", fonts)}");
+                        string.Join(Environment.NewLine, fonts).ShowWithTitle("Fonts used in subtitles");
+                    }
+
+                    if (tags.Count != 0)
+                    {
+                        Logger.Log($"Unexpected tags found in subtitles: {string.Join(", ", tags)}");
+                        string.Join(Environment.NewLine, tags).ShowWithTitle("Unexpected tags in subtitles");
+                    }
+
                 }).Start();
                 return;
             }
@@ -367,42 +379,35 @@ namespace AutoTorrentInspection.Forms
                 btnWebP.Visible = btnWebP.Enabled = webpState == WebpState.Zero;
                 new Task(() =>
                 {
-                    switch (webpState)
+                    var knownStatus = new Dictionary<WebpState, string>
                     {
-                        case WebpState.Zero:
-                            Notification.ShowInfo($"发现WebP格式图片\n但未在根目录发现{webpReadMe}");
-                            break;
-                        case WebpState.One:
-                            break;
-                        case WebpState.TwoOrMore:
-                            Notification.ShowInfo($"存在复数个{webpReadMe}，但根目录下的报道没有偏差");
-                            break;
-                        case WebpState.One | WebpState.IncorrectContent:
-                            Notification.ShowInfo($"{webpReadMe}的内容在报道上出现了偏差");
-                            break;
-                        case WebpState.TwoOrMore | WebpState.IncorrectContent:
-                            Notification.ShowInfo($"存在复数个{webpReadMe}，并且根目录下的报道还出现了偏差\n现时请手工检查");
-                            break;
-                        case WebpState.One | WebpState.ReadFileFailed:
-                            Notification.ShowError($"读取{webpReadMe}失败", resultException);
-                            break;
-                        case WebpState.TwoOrMore | WebpState.ReadFileFailed:
-                            Notification.ShowError($"存在复数个{webpReadMe}，并且根目录下的读取失败\n请根据给定的异常进行排查", resultException);
-                            break;
-                        case WebpState.NotInRoot | WebpState.One:
-                            Notification.ShowInfo($"{webpReadMe}处于非根目录\n似乎不大对路，现时请手工递归检查");
-                            break;
-                        case WebpState.NotInRoot | WebpState.TwoOrMore:
-                            Notification.ShowInfo($"存在非根目录复数个{webpReadMe}\n似乎不大对路，现时请手工递归检查");
-                            break;
-                        case WebpState.EmptyInRoot | WebpState.One:
-                            Notification.ShowInfo($"根目录为空并且{webpReadMe}处于非根目录\n似乎不大对路，现时请手工递归检查");
-                            break;
-                        case WebpState.EmptyInRoot | WebpState.TwoOrMore:
-                            Notification.ShowInfo($"根目录为空并且存在复数个{webpReadMe}处于非根目录\n现时请手工递归检查");
-                            break;
-                        default:
-                            throw new Exception($"webp state: \"{webpState}\", unknow combination");
+                        [WebpState.Zero] = "发现WebP格式图片\n但未在根目录发现{0}",
+                        [WebpState.One] = null,
+                        [WebpState.TwoOrMore] = "存在复数个{0}，但根目录下的报道没有偏差",
+                        [WebpState.One | WebpState.IncorrectContent] = "{0}的内容在报道上出现了偏差",
+                        [WebpState.TwoOrMore | WebpState.IncorrectContent] = "存在复数个{0}，并且根目录下的报道还出现了偏差\n现时请手工检查",
+                        [WebpState.One | WebpState.ReadFileFailed] = "读取{0}失败",
+                        [WebpState.TwoOrMore | WebpState.ReadFileFailed] = "存在复数个{0}，并且根目录下的读取失败\n请根据给定的异常进行排查",
+                        [WebpState.NotInRoot | WebpState.One] = "{0}处于非根目录\n似乎不大对路，现时请手工递归检查",
+                        [WebpState.NotInRoot | WebpState.TwoOrMore] = "存在非根目录复数个{0}\n似乎不大对路，现时请手工递归检查",
+                        [WebpState.EmptyInRoot | WebpState.One] = "根目录为空并且{0}处于非根目录\n似乎不大对路，现时请手工递归检查",
+                        [WebpState.EmptyInRoot | WebpState.TwoOrMore] = "根目录为空并且存在复数个{0}处于非根目录\n现时请手工递归检查"
+                    };
+
+                    if (knownStatus.ContainsKey(webpState))
+                    {
+                        if (resultException != null)
+                        {
+                            Notification.ShowError(string.Format(knownStatus[webpState], webpReadMe), resultException);
+                        }
+                        else
+                        {
+                            Notification.ShowInfo(string.Format(knownStatus[webpState], webpReadMe));
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception($"webp state: \"{webpState}\", unknow combination");
                     }
                 }).Start();
             }

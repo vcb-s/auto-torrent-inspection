@@ -30,7 +30,7 @@ namespace AutoTorrentInspection.Objects
                 {
                     if (!GlobalConfiguration.Instance().InspectionOptions.FLACCompressRate) goto SKIP_FLAC_COMRESS_RATE;
                     Flac = FlacData.GetMetadataFromFlac(FullPath);
-                    _confindece = (float)Flac.CompressRate;
+                    // _confindece = (float)Flac.CompressRate;
                     FileName += $"[{Flac.CompressRate * 100:00.00}%]";
                     if (Flac.IsHiRes)
                     {
@@ -49,6 +49,19 @@ namespace AutoTorrentInspection.Objects
                     if (!GlobalConfiguration.Instance().InspectionOptions.CUEEncoding) goto SKIP_CUE_ENCODING;
                     CheckCUE();
                     SKIP_CUE_ENCODING:
+                    break;
+                case ".log":
+                {
+                    Encode = EncodingDetector.GetEncoding(FullPath, out var confidence);
+                    if (confidence < 0.9) break;
+                    var text = File.ReadAllText(FullPath);
+                    var (version, old_signature, actual_signature) = LogChecker.Core.eac_verify(text);
+                    if (old_signature == "") break;
+                    if (old_signature != actual_signature)
+                    {
+                        State = FileState.TamperedLog;
+                    }
+                }
                     break;
                 default:
                     if (!GlobalConfiguration.Instance().InspectionOptions.FileHeader) goto SKIP_FILE_HEADER;

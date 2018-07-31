@@ -46,8 +46,15 @@ namespace AutoTorrentInspection
             "udp://208.67.16.113:8000/annonuce",
             "udp://tracker.openbittorrent.com:80/announce",
             "http://t.acg.rip:6699/announce",
-            "http://nyaa.tracker.wf:7777/announce"
+            "http://nyaa.tracker.wf:7777/announce",
+            "https://tr.bangumi.moe:9696/announce",
+            "http://tr.bangumi.moe:6969/announce",
+            "udp://tr.bangumi.moe:6969/announce",
+            "http://open.acgnxtracker.com/announce",
+            "https://open.acgnxtracker.com/announce"
         };
+
+        public ASS ASS = new ASS();
 
         public override string ToString()
         {
@@ -65,7 +72,7 @@ namespace AutoTorrentInspection
     {
         public string VCBS  = @"^\[[^\[\]]*VCB\-S(?:tudio)?[^\[\]]*\] [^\[\]]+ (?:\[[^\[\]]*\d*\])?\[(?:(?:(?:(?:Hi10p|Hi444pp)_(?:2160|1080|816|720|576|480)p\]\[x264)|(?:(?:Ma10p_(?:2160|1080|816|720|576|480)p\]\[x265)))(?:_\d*(?:flac|aac|ac3|dts))+\](?:\.(?:mkv|mka|flac))?|(?:(?:1080|816|720|576)p\]\[(?:x264|x265)_(?:aac|ac3|dts)\](?:\.mp4)?))(?:(?<!(?:mkv|mka|mp4))(?:\.(?:[SsTt]c|[Cc]h(?:s|t)|[Jj](?:pn|ap)|[Cc]h(?:s|t)&[Jj](?:pn|ap)))?\.ass)?$";
         public string MENU  = @"^\[[^\[\]]*VCB\-S(?:tudio)*[^\[\]]*\] [^\[\]]+ \[[^\[\]]*\]\.png$";
-        public string CD    = @"^\[\d{6}\] ((「[^／]+」)|([^／]+))(?:\[[^\[\]]+\])?(?:／[^\(\)\[\]]+)?(?: \[\d{2}bit_\d{2,3}kHz\])? \((?:flac|alac|tak|mp3)(?:\+(?:flac|alac|tak|mp3))?(?:\+(?:jpg|webp))*\)$";
+        public string CD    = @"^\[\d{6}\] (?<title>[^「」『』\(\)／]+)(?:／(?<artist>[^｢｣\(\)\[\]]+))? (?<hi_res>\[\d{2}bit_\d{2}kHz\] )?(?<content>\((?:\+?(?:(?:flac)|(?:tak)|(?:alac)|(?:mp3)|(?:webp)|(?:jpg)))+\))$";
         [JilDirective(Ignore = true)]
         public string FCH   = @"^(?:\[(?:[^\[\]])*philosophy\-raws(?:[^\[\]])*\])\[[^\[\]]+\]\[(?:(?:[^\[\]]+\]\[(?:BDRIP|DVDRIP|BDRemux))|(?:(?:BDRIP|DVDRIP|BDRemux)(?:\]\[[^\[\]]+)?))\]\[(?:(?:(?:HEVC )?Main10P)|(?:(?:AVC )?Hi10P)|Hi444PP|H264) \d*(?:FLAC|AC3)\]\[(?:(?:(?:1920|1440)[Xx]1080)|(?:1280[Xx]720)|(?:1024[Xx]576)|(?:720[Xx]480))\](?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$";
         [JilDirective(Ignore = true)]
@@ -98,6 +105,7 @@ namespace AutoTorrentInspection
         public string NON_UTF_8_W_BOM       = "fffbbc05";
         public string INVALID_FILE_SIGNATUR = "ff009933";
         public string INVALID_CD_FOLDER     = "ff0559ae";
+        public string TAMPERED_LOG          = "fffbbc05";
     }
 
     public class InspectionOptions
@@ -107,5 +115,10 @@ namespace AutoTorrentInspection
         public bool FileHeader = true;
         public bool FLACCompressRate = true;
         public bool CUEEncoding = true;
+    }
+
+    public class ASS
+    {
+        public string[] UnexceptedTags = { "1img", "2img", "3img", "4img", "1vc", "2vc", "3vc", "4vc", "1va", "2va", "3va", "4va", "distort", "frs", "fsvp", "jitter", "mover", "moves3", "moves4", "movevc", "rndx", "rndy", "rndz", "rnds", "rnd", "z" };
     }
 }

@@ -19,6 +19,7 @@ namespace AutoTorrentInspection.Forms
         {
             InitializeComponent();
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+            RemoveDupe(@"C:\Users\TautCony\PycharmProjects\CLC\FULL_TEST_CASE\2017");
         }
 
         public FormFileDup(IEnumerable<(long, IEnumerable<FileDescription>)> sizeData)
@@ -27,6 +28,41 @@ namespace AutoTorrentInspection.Forms
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             _cts = new CancellationTokenSource();
             GetCRCAsync(sizeData, _cts.Token);
+        }
+
+        private async void RemoveDupe(string path)
+        {
+            var files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories).Select(file => new FileInfo(file))
+                .GroupBy(fi => fi.Length);
+            foreach (var lengthGroup in files)
+            {
+                var length = lengthGroup.Key;
+                Console.WriteLine(length);
+                Console.WriteLine("-------------------");
+                var group = new Dictionary<uint, List<FileInfo>>();
+                foreach (var file in lengthGroup)
+                {
+                    var crc32 = await FileCRC32C(file.FullName);
+                    if (!group.ContainsKey(crc32))
+                    {
+                        group[crc32] = new List<FileInfo>();
+                    }
+                    group[crc32].Add(file);
+                }
+                foreach (var pair in group)
+                {
+                    Console.WriteLine($"-------------{pair.Key:x8}-----------");
+                    if (pair.Value.Count > 1)
+                    {
+                        foreach (var info in pair.Value.Skip(1))
+                        {
+                            //Console.WriteLine(info);
+                            info.Delete();
+                        }
+                    }
+                }
+                Console.WriteLine("-------------------");
+            }
         }
 
         private async void GetCRCAsync(IEnumerable<(long length, IEnumerable<FileDescription> files)> sizeData, CancellationToken token)
