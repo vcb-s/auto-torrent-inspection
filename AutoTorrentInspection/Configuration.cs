@@ -109,7 +109,7 @@ namespace AutoTorrentInspection
 
     public class InspectionOptions
     {
-        public bool WebPPosition = false;
+        public bool WebPPosition = true;
         public bool CDNaming = true;
         public bool FileHeader = true;
         public bool FLACCompressRate = true;
