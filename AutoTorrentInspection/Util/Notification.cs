@@ -8,11 +8,20 @@ namespace AutoTorrentInspection.Util
     {
         public static DialogResult ShowError(string argMessage, Exception exception)
         {
-            return MessageBox.Show(caption: @"ATI Error",
-                text: $"{_(argMessage)}:{Environment.NewLine}{_(exception.Message)}"
+            var text = $"{_(argMessage)}:";
 #if DEBUG
-                      + $"{Environment.NewLine}{exception.StackTrace}"
+            var currentException = exception;
+            while (currentException != null)
+            {
+                text += $"\n{_(exception.Message)}\n{currentException.StackTrace}\nwith inner exception: \n";
+                currentException = currentException.InnerException;
+            }
+
+            text += "null";
 #endif
+            return MessageBox.Show(caption: @"ATI Error",
+                text: text
+
                 , buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Hand);
         }
 
