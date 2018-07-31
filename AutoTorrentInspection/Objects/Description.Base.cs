@@ -24,6 +24,8 @@ namespace AutoTorrentInspection.Objects
         //flac
         InValidFlacLevel = 1 << 21,
         HiResAudio = 1 << 22,
+        //log
+        TamperedLog = 1 << 30,
     }
 
     public enum SourceTypeEnum
@@ -59,6 +61,7 @@ namespace AutoTorrentInspection.Objects
         protected static readonly Color INVALID_FLAC_LEVEL = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FLAC_LEVEL, System.Globalization.NumberStyles.HexNumber));
         protected static readonly Color NON_UTF_8_W_BOM = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.NON_UTF_8_W_BOM, System.Globalization.NumberStyles.HexNumber));
         protected static readonly Color INVALID_FILE_SIGNATUR = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE_SIGNATUR, System.Globalization.NumberStyles.HexNumber));
+        protected static readonly Color TAMPERED_LOG = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.TAMPERED_LOG, System.Globalization.NumberStyles.HexNumber));
 
         protected static readonly Dictionary<FileState, Color> StateColor = new Dictionary<FileState, Color>
         {
@@ -69,7 +72,8 @@ namespace AutoTorrentInspection.Objects
             [FileState.InValidEncode] = INVALID_ENCODE,
             [FileState.InValidFlacLevel] = INVALID_FLAC_LEVEL,
             [FileState.NonUTF8WBOM] = NON_UTF_8_W_BOM,
-            [FileState.InValidFileSignature] = INVALID_FILE_SIGNATUR
+            [FileState.InValidFileSignature] = INVALID_FILE_SIGNATUR,
+            [FileState.TamperedLog] = TAMPERED_LOG,
         };
 
         protected const long MaxFilePathLength = 240;
