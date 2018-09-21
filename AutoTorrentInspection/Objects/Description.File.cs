@@ -54,7 +54,7 @@ namespace AutoTorrentInspection.Objects
                 {
                     Encode = EncodingDetector.GetEncoding(FullPath, out var confidence);
                     if (confidence < 0.9) break;
-                    var text = File.ReadAllText(FullPath);
+                    var text = File.ReadAllText(FullPath, System.Text.Encoding.GetEncoding(Encode));
                     var (version, old_signature, actual_signature) = LogChecker.Core.eac_verify(text);
                     if (old_signature == "") break;
                     if (old_signature != actual_signature)
