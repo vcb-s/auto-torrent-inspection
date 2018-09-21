@@ -10,19 +10,21 @@ namespace AutoTorrentInspection.Util
     {
         private HashSet<string> _usedFonts;
         private HashSet<string> _existFonts;
+        private HashSet<string> _unuesedOrMissingStyles;
         private HashSet<string> _unexpectedTags;
 
         public AssCheck()
         {
             _usedFonts = new HashSet<string>();
             _existFonts = new HashSet<string>();
+            _unuesedOrMissingStyles = new HashSet<string>();
             _unexpectedTags = new HashSet<string>();
         }
 
         public void FeedSubtitle(string subtitlePath)
         {
             Logger.Log($"Advanced SSA Subtitle: {subtitlePath}");
-            GetFontsUsed(subtitlePath, ref _usedFonts);
+            GetFontsUsed(subtitlePath, ref _usedFonts, ref _unuesedOrMissingStyles);
             GetUnexpectedTags(subtitlePath, ref _unexpectedTags);
         }
 
@@ -39,13 +41,14 @@ namespace AutoTorrentInspection.Util
 
         public HashSet<string> UsedFonts => _usedFonts;
         public HashSet<string> ExistFonts => _existFonts;
+        public HashSet<string> UnusedOrMissingStyles => _unuesedOrMissingStyles;
         public HashSet<string> UnexpectedTags => _unexpectedTags;
 
         private static readonly Regex StyleRegex = new Regex(@"^Style:\s*(?<style>[^,]+?)\s*,\s*@?(?<font>[^,]+?)\s*,\s*\d+");
         private static readonly Regex DialogueRegex = new Regex(@"^Dialogue:\s*\d+\s*,\s*[^,]*\s*,\s*[^,]*\s*,\s*\*?(?<style>[^,]+?)\s*,");
         private static readonly Regex InlineFontRegex = new Regex(@"{[^}]*\\fn\s*@?(?<font>[^\\}]*)\s*[^}]*?}");
 
-        private static void GetFontsUsed(string subtitlePath, ref HashSet<string> usedFonts)
+        private static void GetFontsUsed(string subtitlePath, ref HashSet<string> usedFonts, ref HashSet<string> unusedOrMissingStyles)
         {
             const string undefinedStyle = "未定义的Style: {0}";
             const string unusedStyle = "未使用的Style: {0}";
@@ -82,7 +85,7 @@ namespace AutoTorrentInspection.Util
                         {
                             var warning = string.Format(undefinedStyle, style);
                             Logger.Log(Logger.Level.Warning, warning + string.Format(warningLine, lineIndex));
-                            usedFonts.Add(warning);
+                            unusedOrMissingStyles.Add(warning);
                         }
                         var rets = InlineFontRegex.Matches(line);
                         foreach (Match item in rets)
@@ -95,19 +98,23 @@ namespace AutoTorrentInspection.Util
                 {
                     var warning = string.Format(unusedStyle, style);
                     Logger.Log(Logger.Level.Warning, warning);
-                    usedFonts.Add(warning);
+                    unusedOrMissingStyles.Add(warning);
                 }
+
+                Logger.Log(Logger.Level.Warning, $"Fonts in ass: {string.Join(",", usedStyle)}");
             }
         }
 
         private static void GetUnexpectedTags(string subtitlePath, ref HashSet<string> unexpectedTags)
         {
+            const string warningLine = ", 行号: {0}";
+            var lineIndex = 0;
             using (var stream = File.OpenText(subtitlePath))
             {
                 string line;
-
                 while ((line = stream.ReadLine()) != null)
                 {
+                    ++lineIndex;
                     for (int i = 0, j; (j = line.IndexOf('\\', i)) >= 0; i = j)
                     {
                         var cmd = "";
@@ -125,7 +132,9 @@ namespace AutoTorrentInspection.Util
                         {
                             if (cmd.StartsWith(tag))
                             {
+                                
                                 unexpectedTags.Add(tag);
+                                Logger.Log(Logger.Level.Warning, $"Mod tag: '{tag}'" + string.Format(warningLine, lineIndex));
                                 break;
                             }
                         }

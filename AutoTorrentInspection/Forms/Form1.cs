@@ -182,25 +182,12 @@ namespace AutoTorrentInspection.Forms
         {
             if (_torrent == null)
             {
-                new Task(() =>
-                {
-                    var check = CheckAss();
-                    var fonts = check.UsedFonts.OrderBy(i => i).ToList();
-                    var tags = check.UnexpectedTags.OrderBy(i => i).ToList();
-
-                    if (fonts.Count != 0)
-                    {
-                        Logger.Log($"Fonts used in subtitles: {string.Join(", ", fonts)}");
-                        string.Join(Environment.NewLine, fonts).ShowWithTitle("Fonts used in subtitles");
-                    }
-
-                    if (tags.Count != 0)
-                    {
-                        Logger.Log($"Unexpected tags found in subtitles: {string.Join(", ", tags)}");
-                        string.Join(Environment.NewLine, tags).ShowWithTitle("Unexpected tags in subtitles");
-                    }
-
-                }).Start();
+                var check = CheckAss();
+                new FormList(
+                    check.UsedFonts,
+                    check.UnusedOrMissingStyles,
+                    check.UnexpectedTags
+                    ).Show();
                 return;
             }
 
