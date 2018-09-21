@@ -101,7 +101,7 @@ namespace AutoTorrentInspection.Util
                     unusedOrMissingStyles.Add(warning);
                 }
 
-                Logger.Log(Logger.Level.Warning, $"Fonts in ass: {string.Join(",", usedStyle)}");
+                Logger.Log(Logger.Level.Warning, $"Fonts in ass: {string.Join(",", usedFonts)}");
             }
         }
 
