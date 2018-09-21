@@ -100,17 +100,21 @@ namespace AutoTorrentInspection.Util
                     Logger.Log(Logger.Level.Warning, warning);
                     unusedOrMissingStyles.Add(warning);
                 }
+
+                Logger.Log(Logger.Level.Warning, $"Fonts in ass: {string.Join(",", usedStyle)}");
             }
         }
 
         private static void GetUnexpectedTags(string subtitlePath, ref HashSet<string> unexpectedTags)
         {
+            const string warningLine = ", 行号: {0}";
+            var lineIndex = 0;
             using (var stream = File.OpenText(subtitlePath))
             {
                 string line;
-
                 while ((line = stream.ReadLine()) != null)
                 {
+                    ++lineIndex;
                     for (int i = 0, j; (j = line.IndexOf('\\', i)) >= 0; i = j)
                     {
                         var cmd = "";
@@ -128,7 +132,9 @@ namespace AutoTorrentInspection.Util
                         {
                             if (cmd.StartsWith(tag))
                             {
+                                
                                 unexpectedTags.Add(tag);
+                                Logger.Log(Logger.Level.Warning, $"Mod tag: '{tag}'" + string.Format(warningLine, lineIndex));
                                 break;
                             }
                         }
