@@ -37,9 +37,9 @@ namespace AutoTorrentInspection.Objects
     public partial class FileDescription
     {
         public string FileName { get; protected set; }
-        public string ReletivePath { get; protected set; }
+        public string RelativePath { get; protected set; }
         public string BasePath { get; protected set; }
-        public string FullPath => Path.Combine(BasePath, ReletivePath, FileName);
+        public string FullPath => Path.Combine(BasePath, RelativePath, FileName);
         public string Extension => Path.GetExtension(FileName)?.ToLower();
         public long Length { get; protected set; }
         public FileState State { get; protected set; } = FileState.InValidFile;
@@ -60,7 +60,7 @@ namespace AutoTorrentInspection.Objects
         protected static readonly Color INVALID_PATH_LENGTH = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_PATH_LENGTH, System.Globalization.NumberStyles.HexNumber));
         protected static readonly Color INVALID_FLAC_LEVEL = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FLAC_LEVEL, System.Globalization.NumberStyles.HexNumber));
         protected static readonly Color NON_UTF_8_W_BOM = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.NON_UTF_8_W_BOM, System.Globalization.NumberStyles.HexNumber));
-        protected static readonly Color INVALID_FILE_SIGNATUR = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE_SIGNATUR, System.Globalization.NumberStyles.HexNumber));
+        protected static readonly Color INVALID_FILE_SIGNATURE = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE_SIGNATURE, System.Globalization.NumberStyles.HexNumber));
         protected static readonly Color TAMPERED_LOG = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.TAMPERED_LOG, System.Globalization.NumberStyles.HexNumber));
 
         protected static readonly Dictionary<FileState, Color> StateColor = new Dictionary<FileState, Color>
@@ -72,7 +72,7 @@ namespace AutoTorrentInspection.Objects
             [FileState.InValidEncode] = INVALID_ENCODE,
             [FileState.InValidFlacLevel] = INVALID_FLAC_LEVEL,
             [FileState.NonUTF8WBOM] = NON_UTF_8_W_BOM,
-            [FileState.InValidFileSignature] = INVALID_FILE_SIGNATUR,
+            [FileState.InValidFileSignature] = INVALID_FILE_SIGNATURE,
             [FileState.TamperedLog] = TAMPERED_LOG,
         };
 
@@ -81,7 +81,7 @@ namespace AutoTorrentInspection.Objects
         protected FileDescription()
         {
             BasePath = string.Empty;
-            ReletivePath = string.Empty;
+            RelativePath = string.Empty;
             FileName = string.Empty;
             Length = 0;
         }
@@ -122,7 +122,7 @@ namespace AutoTorrentInspection.Objects
         public DataGridViewRow ToRow()
         {
             var row = new DataGridViewRow { Tag = this };
-            row.Cells.Add(new DataGridViewTextBoxCell { Value = ReletivePath });
+            row.Cells.Add(new DataGridViewTextBoxCell { Value = RelativePath });
             row.Cells.Add(new DataGridViewTextBoxCell { Value = FileName });
             row.Cells.Add(new DataGridViewTextBoxCell { Value = FileSize.FileSizeToString(Length) });
             row.DefaultCellStyle.BackColor = StateColor[State];

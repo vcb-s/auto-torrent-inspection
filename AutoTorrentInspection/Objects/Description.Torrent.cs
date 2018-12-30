@@ -13,7 +13,7 @@ namespace AutoTorrentInspection.Objects
 
         public FileDescription(MultiFileInfo file, string torrentName) : this(torrentName)
         {
-            ReletivePath = string.Join("\\", file.Path.Take(file.Path.Count - 1));
+            RelativePath = string.Join("\\", file.Path.Take(file.Path.Count - 1));
             FileName = file.FileName;
             Length = file.FileSize;
             BaseValidation();

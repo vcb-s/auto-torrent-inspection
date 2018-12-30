@@ -96,16 +96,16 @@ namespace AutoTorrentInspection
 
     public class RowColor
     {
-        public string INVALID_FILE          = "fffb9966";
-        public string VALID_FILE            = "ff92aaf3";
-        public string INVALID_CUE           = "ffff6538";
-        public string INVALID_ENCODE        = "ff4e4f97";
-        public string INVALID_PATH_LENGTH   = "ffff0a32";
-        public string INVALID_FLAC_LEVEL    = "ffcfd8dc";
-        public string NON_UTF_8_W_BOM       = "fffbbc05";
-        public string INVALID_FILE_SIGNATUR = "ff009933";
-        public string INVALID_CD_FOLDER     = "ff0559ae";
-        public string TAMPERED_LOG          = "fffbbc05";
+        public string INVALID_FILE           = "fffb9966";
+        public string VALID_FILE             = "ff92aaf3";
+        public string INVALID_CUE            = "ffff6538";
+        public string INVALID_ENCODE         = "ff51559b";
+        public string INVALID_PATH_LENGTH    = "ffff0a32";
+        public string INVALID_FLAC_LEVEL     = "ffcfd8dc";
+        public string NON_UTF_8_W_BOM        = "fffbbc05";
+        public string INVALID_FILE_SIGNATURE = "ff009933";
+        public string INVALID_CD_FOLDER      = "ff0559ae";
+        public string TAMPERED_LOG           = "ff8b4513";
     }
 
     public class InspectionOptions
