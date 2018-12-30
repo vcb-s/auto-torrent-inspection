@@ -380,7 +380,7 @@ namespace AutoTorrentInspection.Forms
                         [WebpState.EmptyInRoot | WebpState.One] = "根目录为空并且{0}处于非根目录\n似乎不大对路，现时请手工递归检查",
                         [WebpState.EmptyInRoot | WebpState.TwoOrMore] = "根目录为空并且存在复数个{0}处于非根目录\n现时请手工递归检查"
                     };
-
+                    if (webpState == WebpState.One) return;
                     if (knownStatus.ContainsKey(webpState))
                     {
                         if (resultException != null)
