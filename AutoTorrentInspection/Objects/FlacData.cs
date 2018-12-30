@@ -134,9 +134,9 @@ namespace AutoTorrentInspection.Objects
                 var commentLength        = (int) fs.LEInt32();
                 var commentRawStringData = fs.ReadBytes(commentLength);
                 var comment              = Encoding.UTF8.GetString(commentRawStringData, 0, commentLength);
-                var spilterIndex         = comment.IndexOf('=');
-                var key                  = comment.Substring(0, spilterIndex);
-                var value                = comment.Substring(spilterIndex + 1, comment.Length - 1 - spilterIndex);
+                var splitterIndex         = comment.IndexOf('=');
+                var key                  = comment.Substring(0, splitterIndex);
+                var value                = comment.Substring(splitterIndex + 1, comment.Length - 1 - splitterIndex);
                 info.VorbisComment[key]  = value;
                 var summary              = value.Length > 25 ? value.Substring(0, 25) + "..." : value;
                 Logger.Log($" | [{key}] = '{summary.Replace('\n', ' ')}'");

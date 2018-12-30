@@ -119,6 +119,6 @@ namespace AutoTorrentInspection
 
     public class ASS
     {
-        public string[] UnexceptedTags = { "1img", "2img", "3img", "4img", "1vc", "2vc", "3vc", "4vc", "1va", "2va", "3va", "4va", "distort", "frs", "fsvp", "jitter", "mover", "moves3", "moves4", "movevc", "rndx", "rndy", "rndz", "rnds", "rnd", "z" };
+        public string[] UnexpectedTags = { "1img", "2img", "3img", "4img", "1vc", "2vc", "3vc", "4vc", "1va", "2va", "3va", "4va", "distort", "frs", "fsvp", "jitter", "mover", "moves3", "moves4", "movevc", "rndx", "rndy", "rndz", "rnds", "rnd", "z" };
     }
 }

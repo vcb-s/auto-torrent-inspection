@@ -42,11 +42,11 @@ namespace AutoTorrentInspection.Util
 
         static FileHeader()
         {
-            foreach (var tuplese in Header)
+            foreach (var tuples in Header)
             {
-                foreach (var tuple in tuplese.Value)
+                foreach (var (signature, offset) in tuples.Value)
                 {
-                    MaxLength = Math.Max(MaxLength, tuple.offset + tuple.signature.Length);
+                    MaxLength = Math.Max(MaxLength, offset + signature.Length);
                 }
             }
         }
@@ -73,7 +73,7 @@ namespace AutoTorrentInspection.Util
                     ret &= bytes.SequenceEqual(header.signature);
                     if (ret) continue;
                     Logger.Log(Logger.Level.Error, $"{path}: Expected signature->[{header.signature.ToHex()}]({header.offset}), actual signature->[{bytes.ToHex()}]({header.offset})");
-                    Logger.Log(Logger.Level.Error, $"{path}: Actual extension should be: {stream.MatchSignature() ?? "unknow"}");
+                    Logger.Log(Logger.Level.Error, $"{path}: Actual extension should be: {stream.MatchSignature() ?? "unknown"}");
                     break;
                 }
                 return ret;
@@ -90,16 +90,16 @@ namespace AutoTorrentInspection.Util
             stream.Seek(0, SeekOrigin.Begin);
             if (stream.Length < MaxLength) return null;
             var bytes = stream.ReadBytes(MaxLength);
-            foreach (var tuplese in Header)
+            foreach (var tuples in Header)
             {
                 var valid = true;
-                foreach (var tuple in tuplese.Value)
+                foreach (var (signature, offset) in tuples.Value)
                 {
-                    var sub = new byte[tuple.signature.Length];
-                    Array.Copy(bytes, tuple.offset, sub, 0, tuple.signature.Length);
-                    valid &= sub.SequenceEqual(tuple.signature);
+                    var sub = new byte[signature.Length];
+                    Array.Copy(bytes, offset, sub, 0, signature.Length);
+                    valid &= sub.SequenceEqual(signature);
                 }
-                if (valid) return tuplese.Key;
+                if (valid) return tuples.Key;
             }
             return null;
         }

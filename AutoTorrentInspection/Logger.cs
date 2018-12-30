@@ -22,7 +22,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using System.Text;
 using AutoTorrentInspection.Logging;
 using AutoTorrentInspection.Logging.Handlers;
 

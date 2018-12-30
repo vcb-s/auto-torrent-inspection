@@ -5,9 +5,9 @@ namespace AutoTorrentInspection.Util
 {
     public static class EncodingDetector
     {
-        public static string GetEncoding(string filename, out float confindece)
+        public static string GetEncoding(string filename, out float confidence)
         {
-            confindece = 0.0f;
+            confidence = 0.0f;
             using (var fs = File.OpenRead(filename))
             {
                 ICharsetDetector cdet = new CharsetDetector();
@@ -16,7 +16,7 @@ namespace AutoTorrentInspection.Util
                 if (cdet.Charset != null)
                 {
                     Logger.Log($"Charset: {cdet.Charset}, confidence: {cdet.Confidence}");
-                    confindece = cdet.Confidence;
+                    confidence = cdet.Confidence;
                     return cdet.Charset;
                 }
                 Logger.Log($"{filename}: Detection failed.");
@@ -28,7 +28,7 @@ namespace AutoTorrentInspection.Util
         // 0000 0080-0000 07FF - 110xxxxx 10xxxxxx          ( 2 octet format)
         // 0000 0800-0000 FFFF - 1110xxxx 10xxxxxx 10xxxxxx ( 3 octet format)
         /// <summary>
-        /// Determines wether a text file is encoded in UTF by analyzing its context.
+        /// Determines whether a text file is encoded in UTF by analyzing its context.
         /// </summary>
         /// <param name="filePath">The text file to analyze.</param>
         public static bool IsUTF8(string filePath)

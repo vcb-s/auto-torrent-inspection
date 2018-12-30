@@ -109,7 +109,7 @@ namespace AutoTorrentInspection.Forms
             catch (Exception exception)
             {
                 Logger.Log(exception);
-                Notification.ShowError("Exception catched in GetCRCAsync", exception);
+                Notification.ShowError("Exception caught in GetCRCAsync", exception);
             }
             finally
             {

@@ -10,21 +10,21 @@ namespace AutoTorrentInspection.Util
     {
         private HashSet<string> _usedFonts;
         private HashSet<string> _existFonts;
-        private HashSet<string> _unuesedOrMissingStyles;
+        private HashSet<string> _unusedOrMissingStyles;
         private HashSet<string> _unexpectedTags;
 
         public AssCheck()
         {
             _usedFonts = new HashSet<string>();
             _existFonts = new HashSet<string>();
-            _unuesedOrMissingStyles = new HashSet<string>();
+            _unusedOrMissingStyles = new HashSet<string>();
             _unexpectedTags = new HashSet<string>();
         }
 
         public void FeedSubtitle(string subtitlePath)
         {
             Logger.Log($"Advanced SSA Subtitle: {subtitlePath}");
-            GetFontsUsed(subtitlePath, ref _usedFonts, ref _unuesedOrMissingStyles);
+            GetFontsUsed(subtitlePath, ref _usedFonts, ref _unusedOrMissingStyles);
             GetUnexpectedTags(subtitlePath, ref _unexpectedTags);
         }
 
@@ -41,7 +41,7 @@ namespace AutoTorrentInspection.Util
 
         public HashSet<string> UsedFonts => _usedFonts;
         public HashSet<string> ExistFonts => _existFonts;
-        public HashSet<string> UnusedOrMissingStyles => _unuesedOrMissingStyles;
+        public HashSet<string> UnusedOrMissingStyles => _unusedOrMissingStyles;
         public HashSet<string> UnexpectedTags => _unexpectedTags;
 
         private static readonly Regex StyleRegex = new Regex(@"^Style:\s*(?<style>[^,]+?)\s*,\s*@?(?<font>[^,]+?)\s*,\s*\d+");
@@ -128,7 +128,7 @@ namespace AutoTorrentInspection.Util
                             continue;
                         }
 
-                        foreach (var tag in GlobalConfiguration.Instance().ASS.UnexceptedTags)
+                        foreach (var tag in GlobalConfiguration.Instance().ASS.UnexpectedTags)
                         {
                             if (cmd.StartsWith(tag))
                             {

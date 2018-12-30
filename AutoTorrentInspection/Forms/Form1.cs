@@ -43,7 +43,7 @@ namespace AutoTorrentInspection.Forms
             catch (Exception exception)
             {
                 Logger.Log(exception);
-                Notification.ShowError(@"Exception catched in Form constructor", exception);
+                Notification.ShowError(@"Exception caught in Form constructor", exception);
                 Environment.Exit(0);
             }
             LoadFile(FilePath);
@@ -250,7 +250,7 @@ namespace AutoTorrentInspection.Forms
                     cbFixCue.Enabled = true;
                     _sizeData = FileSizeDuplicateInspection();
                     if (_sizeData?.Any() ?? false) btnCompare.Visible = btnCompare.Enabled = true;
-                    InspecteOperation();
+                    InspectOperation();
                     return;
                 }
                 Logger.Log("Fetch torrent info");
@@ -273,12 +273,12 @@ namespace AutoTorrentInspection.Forms
                     $@"Comment: {_torrent.Comment ?? "无可奉告"}{Environment.NewLine}Source: {_torrent.Source}"
                         .ShowWithTitle("Comment/Source");
                 }
-                InspecteOperation();
+                InspectOperation();
             }
             catch (Exception exception)
             {
                 Logger.Log(exception);
-                Notification.ShowError("Exception catched in LoadFile", exception);
+                Notification.ShowError("Exception caught in LoadFile", exception);
                 toolStripStatusLabel_Status.Text = exception.Message;
             }
         }
@@ -296,7 +296,7 @@ namespace AutoTorrentInspection.Forms
             EmptyInRoot      = 32
         }
 
-        private void InspecteOperation()
+        private void InspectOperation()
         {
             if (_data.Any(catalog => catalog.Value.Any(item => item.Extension == ".ass")))
             {
@@ -394,7 +394,7 @@ namespace AutoTorrentInspection.Forms
                     }
                     else
                     {
-                        throw new Exception($"webp state: \"{webpState}\", unknow combination");
+                        throw new Exception($"webp state: \"{webpState}\", unknown combination");
                     }
                 }).Start();
             }
@@ -575,14 +575,14 @@ namespace AutoTorrentInspection.Forms
 
             Debug.Assert(fileInfo != null);
             if (fileInfo.Extension.ToLower() != ".cue") return;
-            var confindence = fileInfo.Confidence;
+            var confidence = fileInfo.Confidence;
 
             switch (fileInfo.State)
             {
                 case FileState.InValidEncode:
                 {
                     var dResult = MessageBox.Show(caption: @"来自TC的提示", buttons: MessageBoxButtons.YesNo,
-                        text: $"该cue编码不是UTF-8, 是否尝试修复?\n注: 有{(confindence > 0.6 ? confindence > 0.9 ? "极小" : "小" : "大")}概率失败, 此时请检查备份。");
+                        text: $"该cue编码不是UTF-8, 是否尝试修复?\n注: 有{(confidence > 0.6 ? confidence > 0.9 ? "极小" : "小" : "大")}概率失败, 此时请检查备份。");
                     if (dResult == DialogResult.Yes)
                     {
                         CueCurer.MakeBackup(fileInfo.FullPath);

@@ -17,8 +17,6 @@
 //
 // ****************************************************************************
 
-
-using System;
 using System.Text;
 using AutoTorrentInspection.Logging.Formatters;
 
