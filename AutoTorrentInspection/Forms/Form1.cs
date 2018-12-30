@@ -427,7 +427,7 @@ namespace AutoTorrentInspection.Forms
             var data = _data.Values.SelectMany(i => i).Select(file =>
             {
                 var match = FileOrderPattern.Match(file.FileName);
-                var name = $"{file.ReletivePath}/{match.Groups["name"]}[{match.Groups["type"].Value}]{file.Extension}";
+                var name = $"{file.RelativePath}/{match.Groups["name"]}[{match.Groups["type"].Value}]{file.Extension}";
                 (string name, int ord) tuple =  match.Success ? (name, int.Parse(match.Groups["ord"].Value)) : ("", -1);
                 return tuple;
             }).Where(file => file.ord != -1).GroupBy(file => file.name);
@@ -514,7 +514,7 @@ namespace AutoTorrentInspection.Forms
 
             string Split(FileDescription file)
             {
-                var path = file.ReletivePath;
+                var path = file.RelativePath;
                 var beginIndex = path.IndexOf('\\') + 1;
                 var endIndex = path.IndexOf('\\', beginIndex);
                 if (endIndex == -1)

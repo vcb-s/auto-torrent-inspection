@@ -89,7 +89,7 @@ namespace AutoTorrentInspection.Forms
                         token.ThrowIfCancellationRequested();
                         var crc = await file.crc;
                         tmp.Add(crc);
-                        if (crc == 0) node.Nodes.Add(file.info.ReletivePath + file.info.FileName);
+                        if (crc == 0) node.Nodes.Add(file.info.RelativePath + file.info.FileName);
                         else
                         {
                             node.Nodes.Add($"[{crc:X}] {file.info.FullPath}");

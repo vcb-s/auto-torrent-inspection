@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -201,6 +202,11 @@ namespace AutoTorrentInspection.Util
                 return output_checksum(state);
             }
 
+            private static List<(string, string, string)> extract_infos(string text)
+            {
+                return Regex.Split(text, new string('-', 60)).Select(extract_info).ToList();
+            }
+
             private static (string unsigned_text, string version, string old_signature) extract_info(string text)
             {
                 var version = "";
@@ -210,19 +216,29 @@ namespace AutoTorrentInspection.Util
                     version = ret.Value;
                 }
                 var signature = "";
-                ret = Regex.Match(text, "====.* ([0-9A-F]{64}) ====");
+                var fullLine = "";
+                var signatures = Regex.Matches(text, "====.* ([0-9A-F]{64}) ====");
                 if (ret.Success)
                 {
-                    signature = ret.Groups[1].Value;
+                    // get last signature
+                    signature = signatures[signatures.Count - 1].Groups[1].Value;
+                    fullLine = signatures[signatures.Count - 1].Value;
                 }
-                var unsigned_text = Regex.Replace(text, "====.* ([0-9A-F]{64}) ====", "");
-                return (unsigned_text, version, signature);
+
+                var unsignedText = text.Replace(fullLine, "");
+                return (unsignedText, version, signature);
             }
 
-            public static (string version, string old_signature, string actual_signature) eac_verify(string text)
+            public static List<(string version, string old_signature, string actual_signature)> eac_verify(string text)
             {
-                var (unsigned_text, version, old_signature) = extract_info(text);
-                return (version, old_signature, compute_checksum(unsigned_text));
+                var ret = new List<(string, string, string)>();
+
+                foreach (var (unsigned_text, version, old_signature) in extract_infos(text))
+                {
+                    ret.Add((version, old_signature, compute_checksum(unsigned_text)));
+                }
+
+                return ret;
             }
         }
 

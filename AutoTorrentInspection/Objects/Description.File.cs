@@ -8,14 +8,14 @@ namespace AutoTorrentInspection.Objects
     {
         public FlacInfo Flac { get; private set; }
         public string Encode { private set; get; }
-        public float Confidence => _confindece;
-        private float _confindece;
+        public float Confidence => _confidence;
+        private float _confidence;
 
-        public FileDescription(string fileName, string reletivePath, string basePath) : this()
+        public FileDescription(string fileName, string relativePath, string basePath) : this()
         {
             SourceType = SourceTypeEnum.RealFile;
             BasePath = basePath;
-            ReletivePath = reletivePath.TrimEnd('\\');
+            RelativePath = relativePath.TrimEnd('\\');
             FileName = fileName;
             Length = ConvertMethod.GetFile(FullPath).Length;
             FileValidation();
@@ -28,9 +28,9 @@ namespace AutoTorrentInspection.Objects
             {
                 case ".flac":
                 {
-                    if (!GlobalConfiguration.Instance().InspectionOptions.FLACCompressRate) goto SKIP_FLAC_COMRESS_RATE;
+                    if (!GlobalConfiguration.Instance().InspectionOptions.FLACCompressRate) goto SKIP_FLAC_COMPRESS_RATE;
                     Flac = FlacData.GetMetadataFromFlac(FullPath);
-                    // _confindece = (float)Flac.CompressRate;
+                    // _confidence = (float)Flac.CompressRate;
                     FileName += $"[{Flac.CompressRate * 100:00.00}%]";
                     if (Flac.IsHiRes)
                     {
@@ -43,7 +43,7 @@ namespace AutoTorrentInspection.Objects
                         State = FileState.InValidFlacLevel;
                     }
                 }
-                    SKIP_FLAC_COMRESS_RATE:
+                    SKIP_FLAC_COMPRESS_RATE:
                     break;
                 case ".cue":
                     if (!GlobalConfiguration.Instance().InspectionOptions.CUEEncoding) goto SKIP_CUE_ENCODING;
@@ -52,14 +52,27 @@ namespace AutoTorrentInspection.Objects
                     break;
                 case ".log":
                 {
+                    Logger.Log(Logger.Level.Info, $"Log check for '{FullPath}'");
                     Encode = EncodingDetector.GetEncoding(FullPath, out var confidence);
                     if (confidence < 0.9) break;
                     var text = File.ReadAllText(FullPath, System.Text.Encoding.GetEncoding(Encode));
-                    var (version, old_signature, actual_signature) = LogChecker.Core.eac_verify(text);
-                    if (old_signature == "") break;
-                    if (old_signature != actual_signature)
+                    var index = 1;
+                    foreach (var (version, oldSignature, actualSignature) in LogChecker.Core.eac_verify(text))
                     {
-                        State = FileState.TamperedLog;
+                        if (oldSignature == "")
+                        {
+                            Logger.Log(Logger.Level.Debug, $"No signature found, it could be '{actualSignature}'");
+                            continue;
+                        }
+                        if (oldSignature != actualSignature)
+                        {
+                            Logger.Log(Logger.Level.Debug, $"Expect signature '{actualSignature}', but get '{oldSignature}'");
+                            State = FileState.TamperedLog;
+                        }
+                        else
+                        {
+                            Logger.Log(Logger.Level.Fine, $"{index++}. Log entry is fine!");
+                        }
                     }
                 }
                     break;
@@ -88,7 +101,7 @@ namespace AutoTorrentInspection.Objects
         private bool CheckCUE()
         {
             State = FileState.ValidFile;
-            Encode = EncodingDetector.GetEncoding(FullPath, out _confindece);
+            Encode = EncodingDetector.GetEncoding(FullPath, out _confidence);
             if (Encode != "UTF-8")
             {
                 State = FileState.InValidEncode;
