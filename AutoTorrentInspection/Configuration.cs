@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using Jil;
@@ -66,6 +67,7 @@ namespace AutoTorrentInspection
     {
         public Pattern Pattern = new Pattern();
         public Extension Extension = new Extension();
+        public string[] UnexpectedCharacters = { "\u3099", "\u309a" };
     }
 
     public class Pattern
