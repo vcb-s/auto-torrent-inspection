@@ -67,15 +67,15 @@ namespace AutoTorrentInspection.Util
                     var styleLine = StyleRegex.Match(line);
                     if (styleLine.Success)
                     {
-                        var style = styleLine.Groups["style"].Value;
-                        var font = styleLine.Groups["font"].Value;
+                        var style = styleLine.Groups["style"].Value.Trim();
+                        var font = styleLine.Groups["font"].Value.Trim();
                         if (!styles.ContainsKey(style)) styles[style] = font;
                     }
                     else
                     {
                         var dialogueLine = DialogueRegex.Match(line);
                         if (!dialogueLine.Success) continue;
-                        var style = dialogueLine.Groups["style"].Value;
+                        var style = dialogueLine.Groups["style"].Value.Trim();
                         if (styles.ContainsKey(style))
                         {
                             usedStyle.Add(style);
@@ -90,7 +90,7 @@ namespace AutoTorrentInspection.Util
                         var rets = InlineFontRegex.Matches(line);
                         foreach (Match item in rets)
                         {
-                            usedFonts.Add(item.Groups["font"].Value);
+                            usedFonts.Add(item.Groups["font"].Value.Trim());
                         }
                     }
                 }
