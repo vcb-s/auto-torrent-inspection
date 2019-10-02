@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using Jil;
@@ -66,13 +67,14 @@ namespace AutoTorrentInspection
     {
         public Pattern Pattern = new Pattern();
         public Extension Extension = new Extension();
+        public string[] UnexpectedCharacters = { "\u3099", "\u309a" };
     }
 
     public class Pattern
     {
         public string VCBS  = @"^\[[^\[\]]*VCB\-S(?:tudio)?[^\[\]]*\] [^\[\]]+ (?:\[[^\[\]]*\d*\])?\[(?:(?:(?:(?:Hi10p|Hi444pp)_(?:2160|1080|816|720|576|480)p\]\[x264)|(?:(?:Ma10p_(?:2160|1080|816|720|576|480)p\]\[x265)))(?:_\d*(?:flac|aac|ac3|dts))+\](?:\.(?:mkv|mka|flac))?|(?:(?:1080|816|720|576)p\]\[(?:x264|x265)_(?:aac|ac3|dts)\](?:\.mp4)?))(?:(?<!(?:mkv|mka|mp4))(?:\.(?:[SsTt]c|[Cc]h(?:s|t)|[Jj](?:pn|ap)|[Cc]h(?:s|t)&[Jj](?:pn|ap)))?\.ass)?$";
         public string MENU  = @"^\[[^\[\]]*VCB\-S(?:tudio)*[^\[\]]*\] [^\[\]]+ \[[^\[\]]*\]\.png$";
-        public string CD    = @"^\[\d{6}\] (?<title>(?:｢[^｢｣\(\)／]+｣)|(?:[^｢｣\(\)／]+))(?:／(?<artist>[^｢｣\(\)\[\]]+))? (?<hi_res>\[\d{2}bit_\d{2}kHz\] )?(?<content>\((?:\+?(?:(?:flac)|(?:tak)|(?:alac)|(?:mp3)|(?:webp)|(?:jpg)))+\))$";
+        public string CD    = @"^\[\d{6}\] (?<title>(?:｢[^｢｣\[\]\(\)／]+｣)|(?:[^\[\]\(\)／]+))(?:／(?<artist>[^｢｣\[\]\(\)]+))? (?<hi_res>\[\d{2}bit_\d{2}kHz\])? ?(?<content>\((?:\+?(?:flac|tak|alac|mp3|webp|jpg))+\))$";
         [JilDirective(Ignore = true)]
         public string FCH   = @"^(?:\[(?:[^\[\]])*philosophy\-raws(?:[^\[\]])*\])\[[^\[\]]+\]\[(?:(?:[^\[\]]+\]\[(?:BDRIP|DVDRIP|BDRemux))|(?:(?:BDRIP|DVDRIP|BDRemux)(?:\]\[[^\[\]]+)?))\]\[(?:(?:(?:HEVC )?Main10P)|(?:(?:AVC )?Hi10P)|Hi444PP|H264) \d*(?:FLAC|AC3)\]\[(?:(?:(?:1920|1440)[Xx]1080)|(?:1280[Xx]720)|(?:1024[Xx]576)|(?:720[Xx]480))\](?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$";
         [JilDirective(Ignore = true)]
@@ -110,11 +112,12 @@ namespace AutoTorrentInspection
 
     public class InspectionOptions
     {
-        public bool WebPPosition = true;
+        public bool WebPPosition = false;
         public bool CDNaming = true;
         public bool FileHeader = true;
         public bool FLACCompressRate = true;
         public bool CUEEncoding = true;
+        public bool LogValidation = false;
     }
 
     public class ASS

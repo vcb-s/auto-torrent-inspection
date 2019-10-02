@@ -98,6 +98,12 @@ namespace AutoTorrentInspection.Objects
                 return true;
             }
 
+            if (GlobalConfiguration.Instance().Naming.UnexpectedCharacters.Any(character => FullPath.Contains(character)))
+            {
+                State = FileState.InValidFile;
+                return true;
+            }
+
             if (FileName == "readme about WebP.txt")
             {
                 State = FileState.ValidFile;
