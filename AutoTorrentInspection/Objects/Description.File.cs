@@ -46,12 +46,12 @@ namespace AutoTorrentInspection.Objects
                     SKIP_FLAC_COMPRESS_RATE:
                     break;
                 case ".cue":
-                    if (!GlobalConfiguration.Instance().InspectionOptions.CUEEncoding) goto SKIP_CUE_ENCODING;
+                    if (!GlobalConfiguration.Instance().InspectionOptions.CUEEncoding) break;
                     CheckCUE();
-                    SKIP_CUE_ENCODING:
                     break;
                 case ".log":
                 {
+                    if (!GlobalConfiguration.Instance().InspectionOptions.LogValidation) break;
                     Logger.Log(Logger.Level.Info, $"Log check for '{FullPath}'");
                     Encode = EncodingDetector.GetEncoding(FullPath, out var confidence);
                     if (confidence < 0.9) break;
@@ -74,15 +74,14 @@ namespace AutoTorrentInspection.Objects
                             Logger.Log(Logger.Level.Fine, $"{index++}. Log entry is fine!");
                         }
                     }
-                }
                     break;
+                }
                 default:
-                    if (!GlobalConfiguration.Instance().InspectionOptions.FileHeader) goto SKIP_FILE_HEADER;
+                    if (!GlobalConfiguration.Instance().InspectionOptions.FileHeader) break;
                     if (!FileHeader.Check(FullPath))
                     {
                         State = FileState.InValidFileSignature;
                     }
-                    SKIP_FILE_HEADER:
                     break;
             }
         }

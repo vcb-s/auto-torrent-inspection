@@ -21,14 +21,15 @@ namespace AutoTorrentInspection
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Updater.Utils.SoftwareName = "AutoTorrentInspection";
+            Updater.Utils.RepoName = "vcb-s/Auto-Torrent-Inspection";
             Updater.Utils.CurrentVersion = Assembly.GetExecutingAssembly().GetName().Version;
             Logger.StoreLogMessages = true;
             Logger.LoggerHandlerManager.AddHandler(new DebugConsoleLoggerHandler());
 
             if (!IsSupportedRuntimeVersion())
             {
-                var ret = Notification.ShowInfo("需要 .Net4.7 或以上版本以保证所有功能正常运作，是否不再提示？");
-                System.Diagnostics.Process.Start("http://dotnetsocial.cloudapp.net/GetDotnet?tfm=.NETFramework,Version=v4.7");
+                var ret = Notification.ShowInfo("需要 .Net4.8 或以上版本以保证所有功能正常运作，是否不再提示？");
+                System.Diagnostics.Process.Start("https://dotnet.microsoft.com/download/dotnet-framework");
                 if (ret == DialogResult.Yes) RegistryStorage.Save("False", name: "DoVersionCheck");
             }
             if (!File.Exists("config.json"))

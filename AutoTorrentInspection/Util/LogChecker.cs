@@ -39,6 +39,11 @@ namespace AutoTorrentInspection.Util
             {
                 return $"{BYTE0(n):X2}{BYTE1(n):X2}{BYTE2(n):X2}{BYTE3(n):X2}";
             }
+
+            public static uint rotate_right(uint n)
+            {
+                return ((n & 0x000000FF) << 24) | (n >> 8);
+            }
         }
 
         class State
