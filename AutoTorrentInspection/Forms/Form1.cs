@@ -598,12 +598,23 @@ namespace AutoTorrentInspection.Forms
                         text: "该cue内文件名与实际文件不相符, 是否尝试修复?\n注: 非常规编码可能无法正确修复, 此时请检查备份。");
                     if (dResult == DialogResult.Yes)
                     {
-                        CueCurer.MakeBackup(fileInfo.FullPath);
-                        var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
-                        var directory = Path.GetDirectoryName(fileInfo.FullPath);
-                        var editedContext = CueCurer.FixFilename(originContext, directory);
-                        EncodingConverter.SaveAsEncoding(editedContext, fileInfo.FullPath, Encoding.UTF8);
-                        fileInfo.CueFileRevalidation(dataGridView1.Rows[rowIndex]);
+                        try
+                        {
+                            CueCurer.MakeBackup(fileInfo.FullPath);
+                            var originContext = EncodingConverter.GetStringFrom(fileInfo.FullPath, fileInfo.Encode);
+                            var directory = Path.GetDirectoryName(fileInfo.FullPath);
+                            var editedContext = CueCurer.FixFilename(originContext, directory);
+                            EncodingConverter.SaveAsEncoding(editedContext, fileInfo.FullPath, Encoding.UTF8);
+                            fileInfo.CueFileRevalidation(dataGridView1.Rows[rowIndex]);
+                        }
+                        catch (ArgumentException ae)
+                        {
+                            Notification.ShowInfo(ae.Message);
+                        }
+                        catch (Exception e)
+                        {
+                            Notification.ShowError(e.Message, e);
+                        }
                     }
                 }
                 break;
