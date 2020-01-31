@@ -38,7 +38,7 @@ namespace AutoTorrentInspection.Objects
                     }
                     if (Flac.HasCover) FileName += "[图]";
                     Encode = Flac.Encoder;
-                    if (Flac.CompressRate > 0.9) //Maybe a level 0 file
+                    if (Flac.CompressRate > 0.9) //Maybe an uncompressed file
                     {
                         State = FileState.InValidFlacLevel;
                     }
@@ -73,6 +73,17 @@ namespace AutoTorrentInspection.Objects
                         {
                             Logger.Log(Logger.Level.Fine, $"{index++}. Log entry is fine!");
                         }
+                    }
+                    break;
+                }
+                case ".png":
+                {
+                    Logger.Log(Logger.Level.Info, $"Png check for '{FullPath}'");
+                    var pngInfo = PngData.GetMetadataFrom(FullPath);
+                    FileName += $"[{pngInfo.CompressRate * 100:00.00}%]";
+                    if (pngInfo.CompressRate > 0.9) //Maybe an uncompressed file
+                    {
+                        State = FileState.InValidFlacLevel;
                     }
                     break;
                 }
