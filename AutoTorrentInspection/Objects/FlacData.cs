@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -47,10 +48,21 @@ namespace AutoTorrentInspection.Objects
             using (var fs = File.OpenRead(flacPath))
             {
                 var info      = new FlacInfo();
+                var id3Header = Encoding.ASCII.GetString(fs.ReadBytes(3), 0, 3);
+                fs.Seek(0, SeekOrigin.Begin);
+                if (id3Header == "ID3")
+                {
+                    SkipID3Block(fs);
+                    Logger.Log(Logger.Level.Warning, $"{flacPath} 文件在头部包含ID3v2标签！");
+                }
+
+                var flacBeginPosition = fs.Position;
                 var header    = Encoding.ASCII.GetString(fs.ReadBytes(4), 0, 4);
                 if (header != "fLaC")
+                {
                     throw new InvalidDataException($"Except an flac but get an {header}" +
-                        $"{Environment.NewLine}File name: {Path.GetFileName(flacPath)}");
+                                                   $"{Environment.NewLine}File name: {Path.GetFileName(flacPath)}");
+                }
                 //METADATA_BLOCK_HEADER
                 //1-bit Last-metadata-block flag
                 //7-bit BLOCK_TYPE
@@ -89,10 +101,35 @@ namespace AutoTorrentInspection.Objects
                     Debug.Assert(fs.Position - prePos == length);
                     if (lastMetadataBlock) break;
                 }
-                Debug.Assert(fs.Position == metaLength);
+                Debug.Assert(fs.Position == metaLength + flacBeginPosition);
                 info.TrueLength = fs.Length - fs.Position;
                 return info;
             }
+        }
+
+        private static void SkipID3Block(Stream fs)
+        {
+            // header
+            // $49 44 33 yy yy xx zz zz zz zz
+            var beginPosition = fs.Position;
+            var identifier = Encoding.ASCII.GetString(fs.ReadBytes(3), 0, 3);
+            var versionMinor = fs.ReadByte();
+            var versionRevision = fs.ReadByte();
+            Debug.WriteLine("id3v2 version: {0}v2.{1}.{2}", identifier, versionMinor, versionRevision);
+            var flag = fs.ReadByte();
+            var flagUnsync = (flag & 0x80) != 0;
+            var flagXheader = (flag & 0x40) != 0;
+            var flagExperimental = (flag & 0x20) != 0;
+            var flagFooter = (flag & 0x10) != 0;
+            Debug.WriteLine("id3v2 flags: unsync=>{0}; xheader=>{1}; experimental=>{2}; footer=>{3}", flagUnsync, flagXheader, flagExperimental, flagFooter);
+            var tagSize = fs.BEInt32Synchsafe();
+            if (flagFooter)
+            {
+                tagSize += 10;
+            }
+            Debug.WriteLine("id3v2 tag size: {0}", tagSize);
+            Debug.Assert(fs.Position - beginPosition == 10L);
+            fs.Seek(tagSize, SeekOrigin.Current);
         }
 
         private static void ParseStreamInfo(Stream fs, ref FlacInfo info)
@@ -194,6 +231,12 @@ namespace AutoTorrentInspection.Objects
         {
             var b = fs.ReadBytes(4);
             return b[3] + ((uint)b[2] << 8) + ((uint)b[1] << 16) + ((uint)b[0] << 24);
+        }
+
+        public static int BEInt32Synchsafe(this Stream fs)
+        {
+            var b = fs.ReadBytes(4);
+            return (b[3] & 0x7f) + ((b[2] & 0x7f) << 7) + ((b[1] & 0x7f) << 14) + ((b[0] & 0x7f) << 21);
         }
 
         public static uint LEInt32(this Stream fs)
