@@ -117,7 +117,7 @@ namespace AutoTorrentInspection
         public bool FileHeader = true;
         public bool FLACCompressRate = true;
         public bool CUEEncoding = true;
-        public bool LogValidation = false;
+        public bool LogValidation = true;
     }
 
     public class ASS
