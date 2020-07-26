@@ -38,7 +38,7 @@ namespace AutoTorrentInspection
 
     public class Configuration
     {
-        public int Version = 2;
+        public int Version = 3;
         public Naming Naming = new Naming();
         public RowColor RowColor = new RowColor();
         public InspectionOptions InspectionOptions = new InspectionOptions();
@@ -67,7 +67,26 @@ namespace AutoTorrentInspection
     {
         public Pattern Pattern = new Pattern();
         public Extension Extension = new Extension();
-        public string[] UnexpectedCharacters = { "\u3099", "\u309a" };
+        public string[] UnexpectedCharacters =
+        {
+            "\u3099", "\u309a",
+            "\u0300", "\u0310", "\u0320", "\u0330", "\u0340", "\u0350", "\u0360",
+            "\u0301", "\u0311", "\u0321", "\u0331", "\u0341", "\u0351", "\u0361",
+            "\u0302", "\u0312", "\u0322", "\u0332", "\u0342", "\u0352", "\u0362",
+            "\u0303", "\u0313", "\u0323", "\u0333", "\u0343", "\u0353", "\u0363",
+            "\u0304", "\u0314", "\u0324", "\u0334", "\u0344", "\u0354", "\u0364",
+            "\u0305", "\u0315", "\u0325", "\u0335", "\u0345", "\u0355", "\u0365",
+            "\u0306", "\u0316", "\u0326", "\u0336", "\u0346", "\u0356", "\u0366",
+            "\u0307", "\u0317", "\u0327", "\u0337", "\u0347", "\u0357", "\u0367",
+            "\u0308", "\u0318", "\u0328", "\u0338", "\u0348", "\u0358", "\u0368",
+            "\u0309", "\u0319", "\u0329", "\u0339", "\u0349", "\u0359", "\u0369",
+            "\u030A", "\u031A", "\u032A", "\u033A", "\u034A", "\u035A", "\u036A",
+            "\u030B", "\u031B", "\u032B", "\u033B", "\u034B", "\u035B", "\u036B",
+            "\u030C", "\u031C", "\u032C", "\u033C", "\u034C", "\u035C", "\u036C",
+            "\u030D", "\u031D", "\u032D", "\u033D", "\u034D", "\u035D", "\u036D",
+            "\u030E", "\u031E", "\u032E", "\u033E", "\u034E", "\u035E", "\u036E",
+            "\u030F", "\u031F", "\u032F", "\u033F", "\u034F", "\u035F", "\u036F",
+        };
     }
 
     public class Pattern
@@ -108,6 +127,7 @@ namespace AutoTorrentInspection
         public string INVALID_FILE_SIGNATURE = "ff009933";
         public string INVALID_CD_FOLDER      = "ff0559ae";
         public string TAMPERED_LOG           = "ff8b4513";
+        public string INVALID_FILE_NAME_CHAR = "ff2e373b";
     }
 
     public class InspectionOptions

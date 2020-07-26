@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace AutoTorrentInspection.Objects
 {
@@ -61,6 +59,7 @@ namespace AutoTorrentInspection.Objects
 
                 var length = fs.BEInt32();
                 var chunkTypeCode = Encoding.ASCII.GetString(fs.ReadBytes(4));
+                Debug.Assert(length == 13);
                 Debug.Assert(chunkTypeCode == "IHDR");
                 pngInfo.Width = fs.BEInt32();
                 pngInfo.Height = fs.BEInt32();
@@ -72,7 +71,8 @@ namespace AutoTorrentInspection.Objects
             }
 
             var rawSize = pngInfo.GetRawSize();
-            pngInfo.CompressRate = (double) pngInfo.FileSize / rawSize;
+            // 通过单个文件例子测算的非压缩png的额外开销比例
+            pngInfo.CompressRate = pngInfo.FileSize * 0.99820 / rawSize;
             return pngInfo;
         }
     }
