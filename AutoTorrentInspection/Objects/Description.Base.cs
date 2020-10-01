@@ -17,6 +17,7 @@ namespace AutoTorrentInspection.Objects
         InValidPathLength = 1,
         InValidFile = 1 << 1,
         InValidFileSignature = 1 << 2,
+        InValidFileNameCharacter = 1 << 3,
         //cue
         InValidCue = 1 << 11,
         InValidEncode = 1 << 12,
@@ -62,6 +63,7 @@ namespace AutoTorrentInspection.Objects
         protected static readonly Color NON_UTF_8_W_BOM = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.NON_UTF_8_W_BOM, System.Globalization.NumberStyles.HexNumber));
         protected static readonly Color INVALID_FILE_SIGNATURE = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE_SIGNATURE, System.Globalization.NumberStyles.HexNumber));
         protected static readonly Color TAMPERED_LOG = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.TAMPERED_LOG, System.Globalization.NumberStyles.HexNumber));
+        protected static readonly Color INVALID_FILE_NAME_CHAR = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE_NAME_CHAR, System.Globalization.NumberStyles.HexNumber));
 
         protected static readonly Dictionary<FileState, Color> StateColor = new Dictionary<FileState, Color>
         {
@@ -74,6 +76,7 @@ namespace AutoTorrentInspection.Objects
             [FileState.NonUTF8WBOM] = NON_UTF_8_W_BOM,
             [FileState.InValidFileSignature] = INVALID_FILE_SIGNATURE,
             [FileState.TamperedLog] = TAMPERED_LOG,
+            [FileState.InValidFileNameCharacter] = INVALID_FILE_NAME_CHAR,
         };
 
         protected const long MaxFilePathLength = 240;
@@ -95,12 +98,14 @@ namespace AutoTorrentInspection.Objects
             if (FullPath.Length > MaxFilePathLength)
             {
                 State = FileState.InValidPathLength;
+                Logger.Log(Logger.Level.Info, $"'{FullPath}': ${State}");
                 return true;
             }
 
             if (GlobalConfiguration.Instance().Naming.UnexpectedCharacters.Any(character => FullPath.Contains(character)))
             {
-                State = FileState.InValidFile;
+                State = FileState.InValidFileNameCharacter;
+                Logger.Log(Logger.Level.Info, $"'{FullPath}': COMBINING CHARACTER!");
                 return true;
             }
 

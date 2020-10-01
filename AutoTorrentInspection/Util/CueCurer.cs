@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using AutoTorrentInspection.Objects;
@@ -41,6 +42,10 @@ namespace AutoTorrentInspection.Util
                 //找到目录里的所有主文件名相同的文件
                 var filename = audioName.Groups["fileName"].Value;
                 var files = Directory.GetFiles(directory, filename.Substring(0, filename.LastIndexOf('.')) + ".*", SearchOption.TopDirectoryOnly);
+                if (files.Length == 0)
+                {
+                    throw new ArgumentException("CD所在文件夹下未找到对应的音频文件");
+                }
                 var matchedFile = files.Select(file => new FileInfo(file)).First(fi => RAudioExt.IsMatch(fi.Extension));
                 result = result.Replace(filename, matchedFile.Name);
             }
