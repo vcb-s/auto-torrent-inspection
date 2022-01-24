@@ -3,16 +3,16 @@
     <title>Color Reference</title>
 </head>
 <body>
-    <div style="background-color: #fb9966">INVALID_FILE</div>
-    <div style="background-color: #92aaf3">VALID_FILE</div>
-    <div style="background-color: #ff6538">INVALID_CUE</div>
-    <div style="background-color: #51559b">INVALID_ENCODE</div>
-    <div style="background-color: #ff0a32">INVALID_PATH_LENGTH</div>
-    <div style="background-color: #cfd8dc">INVALID_FLAC_LEVEL</div>
-    <div style="background-color: #fbbc05">NON_UTF_8_W_BOM</div>
-    <div style="background-color: #009933">INVALID_FILE_SIGNATURE</div>
-    <div style="background-color: #0559ae">INVALID_CD_FOLDER</div>
-    <div style="background-color: #8b4513">TAMPERED_LOG</div>
-    <div style="background-color: #2e373b">INVALID_FILE_NAME_CHAR</div>
+    <div style="background-color: #fb9966">INVALID_FILE(未知类型的文件)</div>
+    <div style="background-color: #92aaf3">VALID_FILE(正常的文件)</div>
+    <div style="background-color: #ff6538">INVALID_CUE(CUE异常：如无法关联到音频文件)</div>
+    <div style="background-color: #51559b">INVALID_ENCODE(文件编码异常，非UTF-8)</div>
+    <div style="background-color: #ff0a32">INVALID_PATH_LENGTH(相对路径长度超过240)</div>
+    <div style="background-color: #cfd8dc">INVALID_FLAC_LEVEL(flac文件压缩比过低)</div>
+    <div style="background-color: #fbbc05">NON_UTF_8_W_BOM(文件编码异常，非UTF-8带BOM)</div>
+    <div style="background-color: #009933">INVALID_FILE_SIGNATURE(文件后缀与文件头不一致)</div>
+    <div style="background-color: #0559ae">INVALID_CD_FOLDER(CD文件夹名格式有误，仅供参考)</div>
+    <div style="background-color: #8b4513">TAMPERED_LOG(log含checksum但不正确)</div>
+    <div style="background-color: #2e373b">INVALID_FILE_NAME_CHAR(存在合并字符，多发生于macos)</div>
 </body>
 </html>
