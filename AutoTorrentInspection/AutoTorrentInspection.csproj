@@ -148,8 +148,8 @@
     <Compile Include="Objects\Description.Torrent.cs" />
     <Compile Include="Objects\PngData.cs" />
     <Compile Include="Util\ConvertMethod.cs" />
+    <Compile Include="Util\Crypto.cs" />
     <Compile Include="Util\CueCurer.cs" />
-    <Compile Include="Util\AESEncryptDecrypt.cs" />
     <Compile Include="Util\EncodingConverter.cs" />
     <Compile Include="Util\EncodingDetector.cs" />
     <Compile Include="Program.cs" />
