@@ -20,7 +20,6 @@ namespace AutoTorrentInspection.Forms
         {
             InitializeComponent();
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
-            RemoveDupe(@"C:\Users\TautCony\PycharmProjects\CLC\FULL_TEST_CASE\2017");
         }
 
         public FormFileDup(IEnumerable<(long, IEnumerable<FileDescription>)> sizeData)
