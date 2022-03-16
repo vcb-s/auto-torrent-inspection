@@ -32,7 +32,7 @@ namespace AutoTorrentInspection.Objects
             get
             {
                 var timeZoneOffset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
-                var utcTime        = _torrent.CreationDate ?? new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                var utcTime = _torrent.CreationDate ?? new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                 return utcTime.Add(timeZoneOffset);
             }
         }
@@ -56,7 +56,7 @@ namespace AutoTorrentInspection.Objects
             }
         }
 
-        public string TorrentName => _torrent.DisplayName;
+        public string TorrentName => !string.IsNullOrEmpty(_torrent.DisplayNameUtf8) ? _torrent.DisplayNameUtf8 : _torrent.DisplayName;
 
         public bool IsPrivate => _torrent.IsPrivate;
 
