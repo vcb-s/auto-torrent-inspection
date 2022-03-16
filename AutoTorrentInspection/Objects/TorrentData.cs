@@ -31,9 +31,8 @@ namespace AutoTorrentInspection.Objects
         {
             get
             {
-                var timeZoneOffset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
                 var utcTime = _torrent.CreationDate ?? new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                return utcTime.Add(timeZoneOffset);
+                return TimeZoneInfo.ConvertTimeFromUtc(utcTime, TimeZoneInfo.Local);
             }
         }
 

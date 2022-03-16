@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Text;
 using AutoTorrentInspection.Objects;
-using AutoTorrentInspection.Util;
 using BencodeNET.Objects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -33,7 +32,7 @@ namespace AutoTorrentInspection.Test.Util
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.dmhy.org/announce?secure=securecode");
             Assert.IsTrue(_torrent.Comment == "Ripped And Scanned By imi415@U2");
             Assert.IsTrue(_torrent.CreatedBy == "uTorrent/3.4.2");
-            Assert.IsTrue(_torrent.CreationDate == (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(1415247690)).Add(TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now)));
+            Assert.IsTrue(_torrent.CreationDate == TimeZoneInfo.ConvertTimeFromUtc(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(1415247690), TimeZoneInfo.Local));
             Assert.IsTrue(_torrent.IsPrivate);
             Assert.IsTrue(_torrent.Source == "[u2.dmhy.org] U2分享園@動漫花園");
             Assert.IsTrue(_torrent.TorrentName == "南條愛乃 - あなたの愛した世界");
@@ -53,7 +52,7 @@ namespace AutoTorrentInspection.Test.Util
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.dmhy.org/announce?secure=securecode");
             Assert.IsTrue(string.IsNullOrEmpty(_torrent.Comment));
             Assert.IsTrue(_torrent.CreatedBy == "uTorrent/3220");
-            Assert.IsTrue(_torrent.CreationDate == (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(1414723640)).Add(TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now)));
+            Assert.IsTrue(_torrent.CreationDate == TimeZoneInfo.ConvertTimeFromUtc(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(1414723640), TimeZoneInfo.Local));
             Assert.IsTrue(_torrent.IsPrivate);
             Assert.IsTrue(_torrent.Source == "[u2.dmhy.org] U2分享園@動漫花園");
             Assert.IsTrue(_torrent.TorrentName == "[FLsnow][Tamako_love_story][MOVIE][外挂结构].rar");
@@ -72,7 +71,7 @@ namespace AutoTorrentInspection.Test.Util
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.hdtime.org/announce.php?passkey=passkey");
             Assert.IsTrue(string.IsNullOrEmpty(_torrent.Comment));
             Assert.IsTrue(_torrent.CreatedBy == null);
-            Assert.IsTrue(_torrent.CreationDate == new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Add(TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now)));
+            Assert.IsTrue(_torrent.CreationDate == TimeZoneInfo.ConvertTimeFromUtc(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc), TimeZoneInfo.Local));
             Assert.IsFalse(_torrent.IsPrivate);
             Assert.IsTrue(_torrent.Source == "[hdtime.org] HDTIME");
             Assert.IsTrue(_torrent.TorrentName == "The Martian 2015 HD-VOD HC x264 AC3-CPG");
