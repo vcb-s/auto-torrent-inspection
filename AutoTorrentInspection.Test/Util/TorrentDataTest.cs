@@ -27,7 +27,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent1()
         {
-            const string torrentPath = @"..\..\[Torrent Sample]\Comment.torrent";
+            const string torrentPath = @"..\..\..\[Torrent Sample]\Comment.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.dmhy.org/announce?secure=securecode");
@@ -47,7 +47,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent2()
         {
-            const string torrentPath = @"..\..\[Torrent Sample]\SingleFile.torrent";
+            const string torrentPath = @"..\..\..\[Torrent Sample]\SingleFile.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.dmhy.org/announce?secure=securecode");
@@ -66,7 +66,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent3()
         {
-            const string torrentPath = @"..\..\[Torrent Sample]\Martian.torrent";
+            const string torrentPath = @"..\..\..\[Torrent Sample]\Martian.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.hdtime.org/announce.php?passkey=passkey");
@@ -85,7 +85,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent4()
         {
-            const string torrentPath = @"..\..\[Torrent Sample]\USO.torrent";
+            const string torrentPath = @"..\..\..\[Torrent Sample]\USO.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             var fileList = _torrent.GetFileList();
@@ -95,7 +95,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent5()
         {
-            const string torrentPath = @"..\..\[Torrent Sample]\FZ.torrent";
+            const string torrentPath = @"..\..\..\[Torrent Sample]\FZ.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             var fileList = _torrent.GetFileList();
@@ -105,7 +105,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent6()
         {
-            const string torrentPath = @"..\..\[Torrent Sample]\Padding_file.torrent";
+            const string torrentPath = @"..\..\..\[Torrent Sample]\Padding_file.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             var fileList = _torrent.GetFileList();
@@ -124,7 +124,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestNonUTF8Encode()
         {
-            const string torrentPath = @"..\..\[Torrent Sample]\GBK.torrent";
+            const string torrentPath = @"..\..\..\[Torrent Sample]\GBK.torrent";
             _torrent = new TorrentData(torrentPath);
             Assert.AreEqual("[2DJGAME] [2010.03.10] 映画「時をかける少女」主題歌「ノスタルシ゛ア」&挿入歌「時をかける少女」(320k+cover).rar",
                 _torrent.TorrentName);

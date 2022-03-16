@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using AutoTorrentInspection.Objects;
 using AutoTorrentInspection.Util;
+using Force.Crc32;
 
 namespace AutoTorrentInspection.Forms
 {
@@ -42,7 +43,7 @@ namespace AutoTorrentInspection.Forms
                 var group = new Dictionary<uint, List<FileInfo>>();
                 foreach (var file in lengthGroup)
                 {
-                    var crc32 = await FileCRC32C(file.FullName);
+                    var crc32 = await FileCRC32(file.FullName);
                     if (!group.ContainsKey(crc32))
                     {
                         group[crc32] = new List<FileInfo>();
@@ -72,7 +73,7 @@ namespace AutoTorrentInspection.Forms
                 filesize = size.length,
                 files = size.files.Select(item => new
                 {
-                    crc  = FileCRC32C(item.FullPath),
+                    crc  = FileCRC32(item.FullPath),
                     info = item
                 })
             });
@@ -93,7 +94,7 @@ namespace AutoTorrentInspection.Forms
                         else
                         {
                             node.Nodes.Add($"[{crc:X}] {file.info.FullPath}");
-                            Logger.Log($"{file.info.FileName} ||| CRC32C: {crc:X}");
+                            Logger.Log($"{file.info.FileName} ||| CRC32: {crc:X}");
                         }
                     }
                     var valid = tmp.Distinct().Count() != tmp.Count;
@@ -124,11 +125,11 @@ namespace AutoTorrentInspection.Forms
         }
 
         /// <summary>
-        /// Calculate file's CRC32C Value
+        /// Calculate file's CRC32 Value
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
-        public static async Task<uint> FileCRC32C(string filePath)
+        public static async Task<uint> FileCRC32(string filePath)
         {
             if (!File.Exists(filePath)) return 0;
             var currentCRC32C = 0U;
@@ -139,8 +140,9 @@ namespace AutoTorrentInspection.Forms
                 int cbSize;
                 do
                 {
-                    cbSize = await file.ReadAsync(buffer, 0, capacity).ConfigureAwait(false);
-                    if (cbSize > 0) currentCRC32C = Crc32C.Crc32CAlgorithm.Append(currentCRC32C, buffer, 0, cbSize);
+                    cbSize = await file.ReadAsync(buffer.AsMemory(0, capacity)).ConfigureAwait(false);
+                    if (cbSize > 0) currentCRC32C = Crc32Algorithm.Append(currentCRC32C, buffer, 0, cbSize);
+
                 } while (cbSize > 0);
                 return currentCRC32C;
             }
