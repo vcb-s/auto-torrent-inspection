@@ -14,7 +14,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void IsUTF8Test()
         {
-            foreach (var item in Directory.GetFiles(@"..\..\[Encode Sample]"))
+            foreach (var item in Directory.GetFiles(@"..\..\..\[Encode Sample]"))
             {
                 float confindence;
                 string encode = EncodingDetector.GetEncoding(item, out confindence);
@@ -25,7 +25,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void GetFileListTest()
         {
-            var result = ConvertMethod.GetFileList(@"..\..\[Folder Sample]");
+            var result = ConvertMethod.GetFileList(@"..\..\..\[Folder Sample]");
             result.Values.ToList().ForEach(category => category.ForEach(Console.WriteLine));
             Assert.IsTrue(result.Count              == 3);
             Assert.IsTrue(result["root"].Count      == 1);
@@ -37,7 +37,7 @@ namespace AutoTorrentInspection.Test.Util
         public void CueMatchCheckTest()
         {
             var cueFiles = new List<FileDescription>();
-            foreach (var folder in ConvertMethod.GetFileList(@"..\..\[Match Sample]").Values)
+            foreach (var folder in ConvertMethod.GetFileList(@"..\..\..\[Match Sample]").Values)
             {
                 cueFiles.AddRange(folder.Where(file => file.Extension.ToLower() == ".cue"));
             }
@@ -52,8 +52,8 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void GetDiffTest()
         {
-            const string ghost1 = @"..\..\[Torrent Sample]\Ghost in the Shell：STAND ALONE COMPLEX.v1.torrent";
-            const string ghost2 = @"..\..\[Torrent Sample]\Ghost in the Shell：STAND ALONE COMPLEX.v2.torrent";
+            const string ghost1 = @"..\..\..\[Torrent Sample]\Ghost in the Shell：STAND ALONE COMPLEX.v1.torrent";
+            const string ghost2 = @"..\..\..\[Torrent Sample]\Ghost in the Shell：STAND ALONE COMPLEX.v2.torrent";
             var ret = ConvertMethod.GetDiffNode(new TorrentData(ghost1), new TorrentData(ghost2));
 
             Console.WriteLine(@"in a not in b:");
@@ -65,7 +65,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void GetRawFolderFileListWithAttributeTest()
         {
-            var ret = ConvertMethod.GetRawFolderFileListWithAttribute(@"..\..\");
+            var ret = ConvertMethod.GetRawFolderFileListWithAttribute(@"..\..\..\");
             Node node1 = new Node(ret);
             Console.WriteLine(node1.Json);
         }

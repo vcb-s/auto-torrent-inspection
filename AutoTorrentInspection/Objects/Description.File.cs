@@ -31,12 +31,12 @@ namespace AutoTorrentInspection.Objects
                     if (!GlobalConfiguration.Instance().InspectionOptions.FLACCompressRate) goto SKIP_FLAC_COMPRESS_RATE;
                     Flac = FlacData.GetMetadataFromFlac(FullPath);
                     // _confidence = (float)Flac.CompressRate;
-                    FileName += $"[{Flac.CompressRate * 100:00.00}%]";
+                    Suffix += $"[{Flac.CompressRate * 100:00.00}%]";
                     if (Flac.IsHiRes)
                     {
-                        FileName += "[HR]";
+                        Suffix += "[HR]";
                     }
-                    if (Flac.HasCover) FileName += "[图]";
+                    if (Flac.HasCover) Suffix += "[图]";
                     Encode = Flac.Encoder;
                     if (Flac.CompressRate > 0.9) //Maybe an uncompressed file
                     {
@@ -80,7 +80,7 @@ namespace AutoTorrentInspection.Objects
                 {
                     Logger.Log(Logger.Level.Info, $"Png check for '{FullPath}'");
                     var pngInfo = PngData.GetMetadataFrom(FullPath);
-                    FileName += $"[{pngInfo.CompressRate * 100:00.00}%]";
+                    Suffix += $"[{pngInfo.CompressRate * 100:00.00}%]";
                     if (pngInfo.CompressRate > 0.9) //Maybe an uncompressed file
                     {
                         State = FileState.InValidFlacLevel;

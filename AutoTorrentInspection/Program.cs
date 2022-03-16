@@ -19,7 +19,9 @@ namespace AutoTorrentInspection
         static void Main(string[] args)
         {
             Application.EnableVisualStyles();
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.SetCompatibleTextRenderingDefault(false);
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
             Updater.Utils.SoftwareName = "AutoTorrentInspection";
             Updater.Utils.RepoName = "vcb-s/Auto-Torrent-Inspection";
             Updater.Utils.CurrentVersion = Assembly.GetExecutingAssembly().GetName().Version;

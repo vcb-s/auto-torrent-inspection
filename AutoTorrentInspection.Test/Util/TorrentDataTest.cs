@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Text;
 using AutoTorrentInspection.Objects;
-using AutoTorrentInspection.Util;
 using BencodeNET.Objects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -27,13 +26,13 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent1()
         {
-            const string torrentPath = @"..\..\[Torrent Sample]\Comment.torrent";
+            const string torrentPath = @"..\..\..\[Torrent Sample]\Comment.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.dmhy.org/announce?secure=securecode");
             Assert.IsTrue(_torrent.Comment == "Ripped And Scanned By imi415@U2");
             Assert.IsTrue(_torrent.CreatedBy == "uTorrent/3.4.2");
-            Assert.IsTrue(_torrent.CreationDate == (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(1415247690)).Add(TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now)));
+            Assert.IsTrue(_torrent.CreationDate == TimeZoneInfo.ConvertTimeFromUtc(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(1415247690), TimeZoneInfo.Local));
             Assert.IsTrue(_torrent.IsPrivate);
             Assert.IsTrue(_torrent.Source == "[u2.dmhy.org] U2分享園@動漫花園");
             Assert.IsTrue(_torrent.TorrentName == "南條愛乃 - あなたの愛した世界");
@@ -47,13 +46,13 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent2()
         {
-            const string torrentPath = @"..\..\[Torrent Sample]\SingleFile.torrent";
+            const string torrentPath = @"..\..\..\[Torrent Sample]\SingleFile.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.dmhy.org/announce?secure=securecode");
             Assert.IsTrue(string.IsNullOrEmpty(_torrent.Comment));
             Assert.IsTrue(_torrent.CreatedBy == "uTorrent/3220");
-            Assert.IsTrue(_torrent.CreationDate == (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(1414723640)).Add(TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now)));
+            Assert.IsTrue(_torrent.CreationDate == TimeZoneInfo.ConvertTimeFromUtc(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(1414723640), TimeZoneInfo.Local));
             Assert.IsTrue(_torrent.IsPrivate);
             Assert.IsTrue(_torrent.Source == "[u2.dmhy.org] U2分享園@動漫花園");
             Assert.IsTrue(_torrent.TorrentName == "[FLsnow][Tamako_love_story][MOVIE][外挂结构].rar");
@@ -66,13 +65,13 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent3()
         {
-            const string torrentPath = @"..\..\[Torrent Sample]\Martian.torrent";
+            const string torrentPath = @"..\..\..\[Torrent Sample]\Martian.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             Assert.IsTrue(_torrent.GetAnnounceList().First() == "http://tracker.hdtime.org/announce.php?passkey=passkey");
             Assert.IsTrue(string.IsNullOrEmpty(_torrent.Comment));
             Assert.IsTrue(_torrent.CreatedBy == null);
-            Assert.IsTrue(_torrent.CreationDate == new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Add(TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now)));
+            Assert.IsTrue(_torrent.CreationDate == TimeZoneInfo.ConvertTimeFromUtc(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc), TimeZoneInfo.Local));
             Assert.IsFalse(_torrent.IsPrivate);
             Assert.IsTrue(_torrent.Source == "[hdtime.org] HDTIME");
             Assert.IsTrue(_torrent.TorrentName == "The Martian 2015 HD-VOD HC x264 AC3-CPG");
@@ -85,7 +84,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent4()
         {
-            const string torrentPath = @"..\..\[Torrent Sample]\USO.torrent";
+            const string torrentPath = @"..\..\..\[Torrent Sample]\USO.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             var fileList = _torrent.GetFileList();
@@ -95,7 +94,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent5()
         {
-            const string torrentPath = @"..\..\[Torrent Sample]\FZ.torrent";
+            const string torrentPath = @"..\..\..\[Torrent Sample]\FZ.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             var fileList = _torrent.GetFileList();
@@ -105,7 +104,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestLoadTorrent6()
         {
-            const string torrentPath = @"..\..\[Torrent Sample]\Padding_file.torrent";
+            const string torrentPath = @"..\..\..\[Torrent Sample]\Padding_file.torrent";
             _torrent = new TorrentData(torrentPath);
             PrintTorrentInfo();
             var fileList = _torrent.GetFileList();
@@ -124,7 +123,7 @@ namespace AutoTorrentInspection.Test.Util
         [TestMethod()]
         public void TestNonUTF8Encode()
         {
-            const string torrentPath = @"..\..\[Torrent Sample]\GBK.torrent";
+            const string torrentPath = @"..\..\..\[Torrent Sample]\GBK.torrent";
             _torrent = new TorrentData(torrentPath);
             Assert.AreEqual("[2DJGAME] [2010.03.10] 映画「時をかける少女」主題歌「ノスタルシ゛ア」&挿入歌「時をかける少女」(320k+cover).rar",
                 _torrent.TorrentName);

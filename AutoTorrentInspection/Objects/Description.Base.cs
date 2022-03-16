@@ -38,6 +38,8 @@ namespace AutoTorrentInspection.Objects
     public partial class FileDescription
     {
         public string FileName { get; protected set; }
+
+        public string Suffix { get; protected set; } = "";
         public string RelativePath { get; protected set; }
         public string BasePath { get; protected set; }
         public string FullPath => Path.Combine(BasePath, RelativePath, FileName);
@@ -134,7 +136,7 @@ namespace AutoTorrentInspection.Objects
         {
             var row = new DataGridViewRow { Tag = this };
             row.Cells.Add(new DataGridViewTextBoxCell { Value = RelativePath });
-            row.Cells.Add(new DataGridViewTextBoxCell { Value = FileName });
+            row.Cells.Add(new DataGridViewTextBoxCell { Value = FileName + Suffix });
             row.Cells.Add(new DataGridViewTextBoxCell { Value = FileSize.FileSizeToString(Length) });
             row.DefaultCellStyle.BackColor = StateColor[State];
             return row;
