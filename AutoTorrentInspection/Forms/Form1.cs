@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -121,18 +122,25 @@ namespace AutoTorrentInspection.Forms
                 {
                     return;
                 }
-                using (var wc = new System.Net.WebClient())
+                using (var hc = new HttpClient())
                 {
+                    hc.Timeout = TimeSpan.FromMinutes(1);
                     try
                     {
-                        var filePath = Path.GetTempFileName()+".torrent";
-                        FilePath = filePath;
-                        wc.DownloadFileCompleted += LoadFile;
-                        wc.DownloadFileAsync(new Uri(url), filePath);
-                        FilePath = filePath;
+                        hc.GetAsync(url).ContinueWith(resp =>
+                        {
+                            var filePath = Path.GetTempFileName() + ".torrent";
+                            FilePath = filePath;
+                            using (var fs = File.Create(filePath))
+                            {
+                                resp.Result.Content.CopyToAsync(fs);
+                                // resp.Result.CopyTo(fs);
+                            }
+                            LoadFile(FilePath);
+                        }, TaskContinuationOptions.None);
                         return;
                     }
-                    catch(Exception exception)
+                    catch (Exception exception)
                     {
                         Logger.Log(exception);
                         Notification.ShowError(@"种子文件下载失败", exception);
@@ -309,7 +317,8 @@ namespace AutoTorrentInspection.Forms
                 }
             }
 
-            if (!GlobalConfiguration.Instance().InspectionOptions.WebPPosition) goto SKIP_WEBP;
+            // if (!GlobalConfiguration.Instance().InspectionOptions.WebPPosition) goto SKIP_WEBP;
+            goto SKIP_WEBP;
 
             var webpState = WebpState.Default;
             const string webpReadMe = "readme about WebP.txt";

@@ -28,12 +28,6 @@ namespace AutoTorrentInspection
             Logger.StoreLogMessages = true;
             Logger.LoggerHandlerManager.AddHandler(new DebugConsoleLoggerHandler());
 
-            if (!IsSupportedRuntimeVersion())
-            {
-                var ret = Notification.ShowInfo("需要 .Net4.8 或以上版本以保证所有功能正常运作，是否不再提示？");
-                System.Diagnostics.Process.Start("https://dotnet.microsoft.com/download/dotnet-framework");
-                if (ret == DialogResult.Yes) RegistryStorage.Save("False", name: "DoVersionCheck");
-            }
             if (!File.Exists("config.json"))
             {
                 Logger.Log("Extract default config file to current directory");
@@ -80,22 +74,6 @@ namespace AutoTorrentInspection
                 //argsFull = "\"" + argsFull + "\"";
                 Application.Run(new Form1(argsFull));
             }
-        }
-
-        private static bool IsSupportedRuntimeVersion()
-        {
-            //https://msdn.microsoft.com/en-us/library/hh925568
-            const int minSupportedRelease = 460798;
-            if (RegistryStorage.Load(name: "DoVersionCheck") == "False") return true;
-            using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full"))
-            {
-                if (key?.GetValue("Release") != null)
-                {
-                    var releaseKey = (int)key.GetValue("Release");
-                    if (releaseKey >= minSupportedRelease) return true;
-                }
-            }
-            return false;
         }
     }
 }
