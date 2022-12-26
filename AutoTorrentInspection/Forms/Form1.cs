@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -52,9 +53,6 @@ namespace AutoTorrentInspection.Forms
         private void Form1_Load(object sender, EventArgs e)
         {
             Text = $@"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version}";
-            RegistryStorage.Save(Application.ExecutablePath);
-            RegistryStorage.RegistryAddCount(@"Software\AutoTorrentInspection\Statistics", @"count");
-            Updater.Utils.CheckUpdateWeekly("AutoTorrentInspection");
         }
 
         private SystemMenu _systemMenu;
@@ -62,7 +60,6 @@ namespace AutoTorrentInspection.Forms
         private void AddCommand()
         {
             _systemMenu = new SystemMenu(this);
-            _systemMenu.AddCommand("检查更新(&U)", () => { Updater.Utils.CheckUpdate(true); }, true);
             _systemMenu.AddCommand("关于(&A)", () => { new FormAbout().Show(); }, false);
             FormLog formLog = null;
             _systemMenu.AddCommand("显示日志(&L)", () =>
@@ -121,18 +118,25 @@ namespace AutoTorrentInspection.Forms
                 {
                     return;
                 }
-                using (var wc = new System.Net.WebClient())
+                using (var hc = new HttpClient())
                 {
+                    hc.Timeout = TimeSpan.FromMinutes(1);
                     try
                     {
-                        var filePath = Path.GetTempFileName()+".torrent";
-                        FilePath = filePath;
-                        wc.DownloadFileCompleted += LoadFile;
-                        wc.DownloadFileAsync(new Uri(url), filePath);
-                        FilePath = filePath;
+                        hc.GetAsync(url).ContinueWith(resp =>
+                        {
+                            var filePath = Path.GetTempFileName() + ".torrent";
+                            FilePath = filePath;
+                            using (var fs = File.Create(filePath))
+                            {
+                                resp.Result.Content.CopyToAsync(fs);
+                                // resp.Result.CopyTo(fs);
+                            }
+                            LoadFile(FilePath);
+                        }, TaskContinuationOptions.None);
                         return;
                     }
-                    catch(Exception exception)
+                    catch (Exception exception)
                     {
                         Logger.Log(exception);
                         Notification.ShowError(@"种子文件下载失败", exception);
@@ -309,7 +313,8 @@ namespace AutoTorrentInspection.Forms
                 }
             }
 
-            if (!GlobalConfiguration.Instance().InspectionOptions.WebPPosition) goto SKIP_WEBP;
+            // if (!GlobalConfiguration.Instance().InspectionOptions.WebPPosition) goto SKIP_WEBP;
+            goto SKIP_WEBP;
 
             var webpState = WebpState.Default;
             const string webpReadMe = "readme about WebP.txt";

@@ -128,6 +128,7 @@ namespace AutoTorrentInspection
         public string INVALID_CD_FOLDER      = "ff0559ae";
         public string TAMPERED_LOG           = "ff8b4513";
         public string INVALID_FILE_NAME_CHAR = "ff2e373b";
+        public string EMPTY_FILE             = "ffcad7ce";
     }
 
     public class InspectionOptions
