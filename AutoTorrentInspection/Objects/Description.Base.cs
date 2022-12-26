@@ -18,6 +18,7 @@ namespace AutoTorrentInspection.Objects
         InValidFile = 1 << 1,
         InValidFileSignature = 1 << 2,
         InValidFileNameCharacter = 1 << 3,
+        EmptyFile = 1 << 4,
         //cue
         InValidCue = 1 << 11,
         InValidEncode = 1 << 12,
@@ -66,6 +67,7 @@ namespace AutoTorrentInspection.Objects
         protected static readonly Color INVALID_FILE_SIGNATURE = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE_SIGNATURE, System.Globalization.NumberStyles.HexNumber));
         protected static readonly Color TAMPERED_LOG = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.TAMPERED_LOG, System.Globalization.NumberStyles.HexNumber));
         protected static readonly Color INVALID_FILE_NAME_CHAR = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE_NAME_CHAR, System.Globalization.NumberStyles.HexNumber));
+        protected static readonly Color EMPTY_FILE = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.EMPTY_FILE, System.Globalization.NumberStyles.HexNumber));
 
         protected static readonly Dictionary<FileState, Color> StateColor = new Dictionary<FileState, Color>
         {
@@ -79,6 +81,7 @@ namespace AutoTorrentInspection.Objects
             [FileState.InValidFileSignature] = INVALID_FILE_SIGNATURE,
             [FileState.TamperedLog] = TAMPERED_LOG,
             [FileState.InValidFileNameCharacter] = INVALID_FILE_NAME_CHAR,
+            [FileState.EmptyFile] = EMPTY_FILE,
         };
 
         protected const long MaxFilePathLength = 240;
@@ -122,6 +125,12 @@ namespace AutoTorrentInspection.Objects
                 RegexesMatch(FileName, AnimePattern, MenuPngPattern, FchPattern, MaWenPattern))
             {
                 State = FileState.ValidFile;
+            }
+
+            if (Length == 0)
+            {
+                State = FileState.EmptyFile;
+                return true;
             }
 
             return false;
