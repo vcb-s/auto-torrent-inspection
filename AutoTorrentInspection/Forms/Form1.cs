@@ -53,9 +53,6 @@ namespace AutoTorrentInspection.Forms
         private void Form1_Load(object sender, EventArgs e)
         {
             Text = $@"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version}";
-            RegistryStorage.Save(Application.ExecutablePath);
-            RegistryStorage.RegistryAddCount(@"Software\AutoTorrentInspection\Statistics", @"count");
-            Updater.Utils.CheckUpdateWeekly("AutoTorrentInspection");
         }
 
         private SystemMenu _systemMenu;
@@ -63,7 +60,6 @@ namespace AutoTorrentInspection.Forms
         private void AddCommand()
         {
             _systemMenu = new SystemMenu(this);
-            _systemMenu.AddCommand("检查更新(&U)", () => { Updater.Utils.CheckUpdate(true); }, true);
             _systemMenu.AddCommand("关于(&A)", () => { new FormAbout().Show(); }, false);
             FormLog formLog = null;
             _systemMenu.AddCommand("显示日志(&L)", () =>
