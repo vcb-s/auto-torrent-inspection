@@ -43,7 +43,7 @@ namespace AutoTorrentInspection.Util
         /// <returns></returns>
         public static Dictionary<string, List<FileDescription>> GetFileList(string folderPath)
         {
-            folderPath = folderPath.Trim('\\');
+            folderPath = folderPath.TrimEnd('\\');
             var fileDic = new Dictionary<string, List<FileDescription>>();
             foreach (var file in EnumerateFolder(folderPath))
             {
