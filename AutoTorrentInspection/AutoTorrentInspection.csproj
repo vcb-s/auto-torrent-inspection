@@ -26,7 +26,7 @@
     <Content Include="Images\About.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BencodeNET" Version="4.0.0" />
+    <PackageReference Include="BencodeNET" Version="5.0.0" />
     <PackageReference Include="Costura.Fody" Version="5.7.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

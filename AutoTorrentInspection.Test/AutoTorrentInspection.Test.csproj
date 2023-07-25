@@ -21,14 +21,14 @@
     <ProjectReference Include="..\AutoTorrentInspection\AutoTorrentInspection.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BencodeNET" Version="4.0.0" />
-    <PackageReference Include="coverlet.collector" Version="3.2.0">
+    <PackageReference Include="BencodeNET" Version="5.0.0" />
+    <PackageReference Include="coverlet.collector" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Crc32.NET" Version="1.2.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.0.1" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.0.1" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
     <PackageReference Include="Ude.NetStandard" Version="1.2.0" />
   </ItemGroup>
   <Choose>
