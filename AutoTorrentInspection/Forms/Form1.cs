@@ -17,6 +17,7 @@ using AutoTorrentInspection.Util;
 
 namespace AutoTorrentInspection.Forms
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:验证平台兼容性", Justification = "<挂起>")]
     public partial class Form1 : Form
     {
         public Form1()
@@ -315,6 +316,7 @@ namespace AutoTorrentInspection.Forms
 
             // if (!GlobalConfiguration.Instance().InspectionOptions.WebPPosition) goto SKIP_WEBP;
             goto SKIP_WEBP;
+#if false
 
             var webpState = WebpState.Default;
             const string webpReadMe = "readme about WebP.txt";
@@ -368,6 +370,7 @@ namespace AutoTorrentInspection.Forms
                     //todo: only folders in root path, check each of these
                 }
                 EXIT_WEBP:
+
                 btnWebP.Visible = btnWebP.Enabled = webpState == WebpState.Zero;
                 new Task(() =>
                 {
@@ -403,8 +406,8 @@ namespace AutoTorrentInspection.Forms
                     }
                 }).Start();
             }
-
-            SKIP_WEBP:
+#endif
+        SKIP_WEBP:
             ThroughInspection();
             if (!GlobalConfiguration.Instance().InspectionOptions.CDNaming) goto SKIP_CD;
             CDInspection();

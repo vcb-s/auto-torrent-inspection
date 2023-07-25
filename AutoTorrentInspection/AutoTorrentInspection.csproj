@@ -29,7 +29,7 @@
     <PackageReference Include="BencodeNET" Version="5.0.0" />
     <PackageReference Include="Costura.Fody" Version="5.7.0">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <IncludeAssets>runtime; compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Crc32.NET" Version="1.2.0" />
     <PackageReference Include="Jil" Version="2.17.0" />

@@ -7,6 +7,7 @@ using System.Windows.Forms;
 
 namespace AutoTorrentInspection.Forms
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:验证平台兼容性", Justification = "<挂起>")]
     public partial class FormLog : Form
     {
         public FormLog()
