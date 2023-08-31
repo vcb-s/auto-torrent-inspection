@@ -11,7 +11,7 @@ namespace AutoTorrentInspection.Util.Tests
         [TestMethod()]
         public void FileCRCTest()
         {
-            const string path = @"..\..\..\[CRC Sample]\VIDEO_TS [57FD7F1E].IFO";
+            const string path = @"..\..\..\..\[CRC Sample]\VIDEO_TS [57FD7F1E].IFO";
             var hash = new Crc32Algorithm();
             using (var file = File.OpenRead(path))
             {
