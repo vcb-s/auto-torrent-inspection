@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace AutoTorrentInspection.Util
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:验证平台兼容性", Justification = "<挂起>")]
     class AssCheck
     {
         private HashSet<string> _usedFonts;
