@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <PublishSingleFile>true</PublishSingleFile>
+    <PublishSingleFile>false</PublishSingleFile>
+    <PublishReadyToRun>true</PublishReadyToRun>
     <SelfContained>false</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <PublishReadyToRun>true</PublishReadyToRun>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
@@ -29,15 +29,15 @@
     <PackageReference Include="BencodeNET" Version="5.0.0" />
     <PackageReference Include="Costura.Fody" Version="5.7.0">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        <!--IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets-->
     </PackageReference>
     <PackageReference Include="Crc32.NET" Version="1.2.0" />
+    <PackageReference Include="Fody" Version="6.8.0">
+      <PrivateAssets>all</PrivateAssets>
+      <!--IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets-->
+    </PackageReference>
     <PackageReference Include="Jil" Version="2.17.0" />
     <PackageReference Include="Sigil" Version="5.0.0" />
     <PackageReference Include="Ude.NetStandard" Version="1.2.0" />
   </ItemGroup>
-  <PropertyGroup>
-    <PublishSingleFile>true</PublishSingleFile>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-  </PropertyGroup>
 </Project>

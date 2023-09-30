@@ -1,0 +1,39 @@
+name: .NET Desktop
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+
+    strategy:
+      matrix:
+        configuration: [ Release ]
+        runtime-identifier: [ 'win-x64' ]
+
+    runs-on: windows-2022
+
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.x
+
+    - name: Publish the application
+      run: dotnet publish AutoTorrentInspection --configuration ${{ matrix.configuration }} --runtime ${{ matrix.runtime-identifier }} --self-contained false
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: AutoTorrentInspection-${{ matrix.runtime-identifier }}-${{ matrix.configuration }}
+        path: |
+          AutoTorrentInspection/bin/${{ matrix.configuration }}/net6.0-windows/win-x64/publish/*
+          !AutoTorrentInspection/bin/${{ matrix.configuration }}/net6.0-windows/win-x64/publish/*.xml
+          !AutoTorrentInspection/bin/${{ matrix.configuration }}/net6.0-windows/win-x64/publish/*.pdb
