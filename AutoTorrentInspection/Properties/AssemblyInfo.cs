@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // 有关程序集的一般信息由以下
@@ -10,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("AutoTorrentInspection")]
-[assembly: AssemblyCopyright("Copyright 2015-2022 TautCony")]
+[assembly: AssemblyCopyright("Copyright 2015-2023 TautCony")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

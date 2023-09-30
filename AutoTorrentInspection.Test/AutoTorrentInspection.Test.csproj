@@ -13,7 +13,7 @@
         <ProjectReference Include="..\AutoTorrentInspection\AutoTorrentInspection.csproj" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
         <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
         <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
 
@@ -24,6 +24,9 @@
         <PackageReference Include="Crc32.NET" Version="1.2.0" />
         <PackageReference Include="BencodeNET" Version="5.0.0" />
         <PackageReference Include="Ude.NetStandard" Version="1.2.0" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Properties\" />
     </ItemGroup>
 
 </Project>
