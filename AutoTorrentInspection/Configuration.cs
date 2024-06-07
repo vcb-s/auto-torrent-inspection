@@ -98,6 +98,16 @@ namespace AutoTorrentInspection
         public string FCH   = @"^(?:\[(?:[^\[\]])*philosophy\-raws(?:[^\[\]])*\])\[[^\[\]]+\]\[(?:(?:[^\[\]]+\]\[(?:BDRIP|DVDRIP|BDRemux))|(?:(?:BDRIP|DVDRIP|BDRemux)(?:\]\[[^\[\]]+)?))\]\[(?:(?:(?:HEVC )?Main10P)|(?:(?:AVC )?Hi10P)|Hi444PP|H264) \d*(?:FLAC|AC3)\]\[(?:(?:(?:1920|1440)[Xx]1080)|(?:1280[Xx]720)|(?:1024[Xx]576)|(?:720[Xx]480))\](?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$";
         [JilDirective(Ignore = true)]
         public string MAWEN = @"^[^\[\]]+ \[(?:BD|BluRay|BD\-Remux|SPDVD|DVD) (?:1920x1080p?|1280x720p?|720x480p?|1080p|720p|480p)(?: (?:23\.976|24|25|29\.970|59\.940)fps)?(?: vfr)? (?:(?:(?:AVC|HEVC)\-(?:Lossless-)?(?:yuv420p10|yuv420p8|yuv444p10))|(?:x264(?:-Hi(?:10|444P)P)?|x265-Ma10P))(?: (?:FLAC|AAC|AC3)(?:x\d)?)+(?: (?:Chap|Ordered\-Chap))?\](?: v\d)? - (?:[^\.&]+ ?& ?)*mawen1250(?: ?& ?[^\.&]+)*(?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$";
+
+        private static readonly string GROUP = @"([^\[\]]*)VCB\-S(tudio)*([^\[\]]*)";
+        private static readonly string TITLE = @"([^\[\] ]+[^\[\]]*[^\[\] ]+|[^\[\] ]+)";
+        private static readonly string LEVEL = @"(Hi10p|Hi444pp|Ma1(0|2)p|Ma444-1(0|2)p)";
+        private static readonly string RESOLUTION = @"([1-9][0-9]{2,3}p|4K)";
+        private static readonly string UHD_SUFFIX = @"(HDR|HDR10|SDR|DoVi(_P[\d\.]+)?)";
+
+        public string SERIES_TITLE = @$"^\[{GROUP}\] {TITLE}$";
+        public string SEASON_TITLE = @$"^\[{GROUP}\] {TITLE} \[({LEVEL}_)?{RESOLUTION}(_{UHD_SUFFIX})?\]$";
+        public string[] SUBTITLES = {"CDs", "Scans", "SPs"};
     }
 
     public class Extension
@@ -119,6 +129,7 @@ namespace AutoTorrentInspection
     {
         public string INVALID_FILE           = "fffb9966";
         public string VALID_FILE             = "ff92aaf3";
+        public string INVALID_DIR            = "ffba55d3";
         public string INVALID_CUE            = "ffff6538";
         public string INVALID_ENCODE         = "ff51559b";
         public string INVALID_PATH_LENGTH    = "ffff0a32";

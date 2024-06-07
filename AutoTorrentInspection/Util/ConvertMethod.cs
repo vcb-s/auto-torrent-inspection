@@ -57,6 +57,70 @@ namespace AutoTorrentInspection.Util
             return fileDic;
         }
 
+        public static SeasonDir GetSeasonDirFileList(string folderPath, string subDirPath, int seasonId)
+        {
+            string currPath = Path.Combine(folderPath, subDirPath);
+            DirectoryInfo info = new DirectoryInfo(currPath);
+            Logger.Log($"currPath: {currPath}, name: {info.Name}");
+            var fileDic = new SeasonDir(info.Name, seasonId);
+
+            fileDic.SubDirs.TryAdd("root", new DirDescription(".", Path.Combine(subDirPath, "root"), folderPath));
+            foreach (var dir in Directory.GetDirectories(currPath))
+            {
+                fileDic.SubDirs.TryAdd(dir.Substring(currPath.Length + 1), new DirDescription(dir.Substring(currPath.Length + 1), dir.Substring(folderPath.Length + 1), folderPath));
+            }
+
+            foreach (var file in EnumerateFolder(currPath))
+            {
+                var slashPosition = file.IndexOf('\\');
+                var category      = slashPosition != -1 ? file.Substring(0, slashPosition) : "root";
+                var relativePath  = Path.Combine(subDirPath, Path.GetDirectoryName(file) ?? "");
+
+                Logger.Log($"file: {Path.GetFileName(file)}, relativePath: {relativePath}, folderPath: {folderPath}");
+                fileDic.SubDirs[category].Files.Add(new FileDescription(Path.GetFileName(file), relativePath, folderPath));
+                Application.DoEvents();
+            }
+            return fileDic;
+        }
+
+        public static SeriesDir GetSeriesDirFileList(string folderPath)
+        {
+            folderPath = folderPath.TrimEnd('\\');
+            // 检测是系列目录还是季度目录
+            bool isSeries = Directory.GetFiles(folderPath).Length == 0;
+
+            DirectoryInfo info = new DirectoryInfo(folderPath);
+            var fileDic = new SeriesDir(info.Name, isSeries);
+            int seasonId = 0;
+
+            if (isSeries)
+            {
+                foreach (var dir in Directory.GetDirectories(folderPath))
+                {
+                    Logger.Log($"search: {dir.Substring(folderPath.Length + 1)}");
+                    fileDic.SeasonDirs.Add(GetSeasonDirFileList(folderPath, dir.Substring(folderPath.Length + 1), seasonId++));
+                }
+            }
+            else
+            {
+                Logger.Log($"search: {folderPath}");
+                fileDic.SeasonDirs.Add(GetSeasonDirFileList(folderPath, "", seasonId++));
+            }
+
+            Logger.Log($"series name: {fileDic.DirName}, isSeries: {fileDic.IsSeries}, validType: {fileDic.State}");
+            foreach (var season in fileDic.SeasonDirs)
+            {
+                Logger.Log($"  season name: {season.DirName}, validType: {season.State}");
+                foreach (var subdir in season.SubDirs)
+                {
+                    Logger.Log($"        subdir name: {subdir.Value.DirName}, validType: {subdir.Value.State}, fileNum: {subdir.Value.Files.Count}");
+                    Logger.Log($"               relativePath: {subdir.Value.RelativePath}, basePath: {subdir.Value.BasePath}");
+                }
+            }
+
+            return fileDic;
+        }
+
         public static string GetUTFString(this byte[] buffer)
         {
             if (buffer == null) return null;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using AutoTorrentInspection.Util;
 using BencodeNET.Objects;
@@ -59,6 +60,8 @@ namespace AutoTorrentInspection.Objects
 
         public bool IsPrivate => _torrent.IsPrivate;
 
+        public bool IsSingle => _torrent.FileMode == TorrentFileMode.Single;
+
         public string Encoding => _torrent.Encoding?.WebName;
 
         public string MagnetLink => _torrent.GetMagnetLink();
@@ -110,6 +113,77 @@ namespace AutoTorrentInspection.Objects
                 fileDic.TryAdd(category, new List<FileDescription>());
                 fileDic[category].Add(new FileDescription(file, torrentName));
             }
+            return fileDic;
+        }
+
+        public SeriesDir GetSeriesDirFileList()
+        {
+            SeriesDir fileDic;
+            var torrentName = TorrentName;
+            Logger.Log($"torrentName: {torrentName}");
+
+            // 检测是系列目录还是季度目录
+            bool isSeries = !_torrent.Files.Where(_ => _.Path.Count == 1 && !_.FileName.StartsWith("_____padding_file")).Any();
+            fileDic = new SeriesDir(torrentName, isSeries);
+            int seasonId = 0;
+
+            if (isSeries)
+            {
+                foreach (var sdir in _torrent.Files.Where(_ => _.Path.Count != 1 && !_.FileName.StartsWith("_____padding_file")).Select(_ => _.Path.First()).Distinct())
+                {
+                    Logger.Log($"search: {sdir}");
+                    var seasonDir = new SeasonDir(sdir, seasonId++);
+
+                    seasonDir.SubDirs.TryAdd("root", new DirDescription(".", Path.Combine(sdir, "root"), torrentName));
+                    foreach (var dir in _torrent.Files.Where(_ => _.Path.Count >= 3 && _.Path.First() == sdir && !_.FileName.StartsWith("_____padding_file"))
+                            .Select(_ => _.Path[1]).Distinct())
+                    {
+                        seasonDir.SubDirs.TryAdd(dir, new DirDescription(dir, Path.Combine(sdir, dir), torrentName));
+                    }
+
+                    foreach (var file in _torrent.Files.Where(_ => _.Path.Count >= 2 && _.Path.First() == sdir))
+                    {
+                        var category = file.Path.Count != 2 ? file.Path[1] : "root";
+                        if (file.FileName.StartsWith("_____padding_file")) continue;
+
+                        seasonDir.SubDirs[category].Files.Add(new FileDescription(file, torrentName));
+                    }
+
+                    fileDic.SeasonDirs.Add(seasonDir);
+                }
+            }
+            else
+            {
+                Logger.Log($"search: {torrentName}");
+                var seasonDir = new SeasonDir(torrentName, seasonId++);
+
+                seasonDir.SubDirs.TryAdd("root", new DirDescription(".", "root", torrentName));
+                foreach (var dir in _torrent.Files.Where(_ => _.Path.Count != 1 && !_.FileName.StartsWith("_____padding_file")).Select(_ => _.Path.First()).Distinct())
+                {
+                    seasonDir.SubDirs.TryAdd(dir, new DirDescription(dir, dir, torrentName));
+                }
+
+                foreach (var file in _torrent.Files)
+                {
+                    var category = file.Path.Count != 1 ? file.Path.First() : "root";
+                    if (file.FileName.StartsWith("_____padding_file")) continue;
+
+                    seasonDir.SubDirs[category].Files.Add(new FileDescription(file, torrentName));
+                }
+                fileDic.SeasonDirs.Add(seasonDir);
+            }
+
+            Logger.Log($"series name: {fileDic.DirName}, isSeries: {fileDic.IsSeries}, validType: {fileDic.State}");
+            foreach (var season in fileDic.SeasonDirs)
+            {
+                Logger.Log($"  season name: {season.DirName}, validType: {season.State}");
+                foreach (var subdir in season.SubDirs)
+                {
+                    Logger.Log($"        subdir name: {subdir.Value.DirName}, validType: {subdir.Value.State}, fileNum: {subdir.Value.Files.Count}");
+                    Logger.Log($"               relativePath: {subdir.Value.RelativePath}, basePath: {subdir.Value.BasePath}");
+                }
+            }
+
             return fileDic;
         }
     }
