@@ -86,7 +86,7 @@ namespace AutoTorrentInspection.Forms
         }
         private string[] _paths = new string[20];
         private TorrentData _torrent;
-        private Dictionary<string, List<FileDescription>> _data;
+        private SeriesDir _data;
         private IEnumerable<(long, IEnumerable<FileDescription>)> _sizeData;
 
         private bool _isUrl;
@@ -170,7 +170,14 @@ namespace AutoTorrentInspection.Forms
             if (_data == null) return;
             dataGridView1.Rows.Clear();
             Application.DoEvents();
-            dataGridView1.SuspendDrawing(() => Inspection(cbCategory.Text));
+
+            Regex r = new Regex(@"^S(\d+)-(.*)");
+            string[] match = r.Split(cbCategory.Text);
+            int.TryParse(match[1], out int sid);
+            var subDir = _data.SeasonDirs[sid].SubDirs.ToList().Find(_ => _.Key.Contains(match[2]));
+            Logger.Log($"cbCategory sid: {match[1]}, dirName: {match[2]}");
+
+            dataGridView1.SuspendDrawing(() => Inspection(subDir.Value));
             Logger.Log($"Refreshed, switch to '{cbCategory.Text}'");
         }
 
@@ -179,7 +186,7 @@ namespace AutoTorrentInspection.Forms
         private AssCheck CheckAss()
         {
             var assCheck = new AssCheck();
-            assCheck.FeedSubtitle(_data.Values.SelectMany(_ => _).Where(file => file.Extension == ".ass").Select(file => file.FullPath));
+            assCheck.FeedSubtitle(_data.SeasonDirs.SelectMany(_ => _.SubDirs.SelectMany(_ => _.Value.Files)).Where(file => file.Extension == ".ass").Select(file => file.FullPath));
             return assCheck;
         }
 
@@ -248,7 +255,7 @@ namespace AutoTorrentInspection.Forms
                 if (Directory.Exists(filepath))
                 {
                     Logger.Log("Fetch file info");
-                    _data = ConvertMethod.GetFileList(filepath);
+                    _data = ConvertMethod.GetSeriesDirFileList(filepath);
                     btnAnnounceList.Enabled = true;
                     btnAnnounceList.Text = "Fonts";
                     btnTreeView.Visible = btnTreeView.Enabled = false;
@@ -260,7 +267,12 @@ namespace AutoTorrentInspection.Forms
                 }
                 Logger.Log("Fetch torrent info");
                 _torrent = new TorrentData(filepath);
-                _data    = _torrent.GetFileList();
+                if (_torrent.IsSingle)
+                {
+                    new Task(() => Notification.ShowInfo(@"不支持单文件模式的种子")).Start();
+                    return;
+                }
+                _data = _torrent.GetSeriesDirFileList();
                 btnAnnounceList.Enabled = true;
                 btnAnnounceList.Text = "Tracker";
                 btnTreeView.Visible = btnTreeView.Enabled = true;
@@ -303,14 +315,71 @@ namespace AutoTorrentInspection.Forms
 
         private void InspectOperation()
         {
-            if (_data.Any(catalog => catalog.Value.Any(item => item.Extension == ".ass")))
+            dataGridView1.Rows.Clear();
+            cbCategory.Items.Clear();
+            Application.DoEvents();
+
+            // 检查系列目录名
+            if (_data.State != FileState.ValidFile || cbShowAll.Checked)
             {
-                if (_data.ContainsKey("root"))
+                dataGridView1.Rows.Add(_data.ToRow());
+                Application.DoEvents();
+            }
+
+            foreach (var season in _data.SeasonDirs)
+            {
+                InspectSeason(season);
+            }
+
+            if (cbCategory.Items.Count > 0)
+            {
+                cbCategory.SelectedIndex = cbCategory.SelectedIndex == -1 ? 0 : cbCategory.SelectedIndex;
+            }
+
+            var time = DateTime.Now;
+            try
+            {
+                time = _torrent?.CreationDate ?? new DirectoryInfo(FilePath).LastWriteTime;
+            }
+            catch { /* ignored */ }
+            var title = new List<string>
+            {
+                $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version}",
+                $"{_torrent?.TorrentName ?? FilePath}",
+                _torrent?.CreatedBy,
+                _torrent?.Encoding,
+                time.ToString(System.Globalization.CultureInfo.CurrentCulture),
+                (_torrent?.PieceSize ?? 0) != 0 ? $"PieceSize: {_torrent?.PieceSize / 1024}KiB" : null
+            }.Where(item => item != null);
+            Text = string.Join(" - ", title);
+
+            cbCategory.Enabled = cbCategory.Items.Count > 1;
+            toolStripStatusLabel_Status.Text = dataGridView1.Rows.Count == 0 ? "状态正常, All Green"
+                : $"发现 {dataGridView1.Rows.Count} 个世界的扭曲点{(cbShowAll.Checked ? "(并不是)" : "")}";
+        }
+
+        private void InspectSeason(SeasonDir season)
+        {
+            // 检查季度目录名
+            if (season.State != FileState.ValidFile || cbShowAll.Checked)
+            {
+                dataGridView1.Rows.Add(season.ToRow());
+                Application.DoEvents();
+            }
+            // 检查该季度所有子目录
+            Func<DirDescription, bool> filter = item => item.State != FileState.ValidFile || cbShowAll.Checked;
+            foreach (var subDir in season.SubDirs.Values.Where(filter))
+            {
+                dataGridView1.Rows.Add(subDir.ToRow());
+                Application.DoEvents();
+            }
+
+            // 检查季度目录是否有字体包
+            if (season.SubDirs.Any(_ => _.Value.Files.Any(item => item.Extension == ".ass")))
+            {
+                if (!season.SubDirs["root"].Files.Any(item => item.FileName.ToLower().Contains("font")))
                 {
-                    if (!_data["root"].Any(item => item.FileName.ToLower().Contains("font")))
-                    {
-                        new Task(() => Notification.ShowInfo("发现ass格式字幕\n但未在根目录发现字体包")).Start();
-                    }
+                    new Task(() => Notification.ShowInfo($"在季度目录 {season.DirName} 发现ass格式字幕\n但未在其根目录发现字体包")).Start();
                 }
             }
 
@@ -408,17 +477,24 @@ namespace AutoTorrentInspection.Forms
             }
 #endif
         SKIP_WEBP:
-            ThroughInspection();
+
+            // 检查文件名
+            ThroughInspection(season);
+
+            // 检查CDs目录
             if (!GlobalConfiguration.Instance().InspectionOptions.CDNaming) goto SKIP_CD;
-            CDInspection();
+            foreach (var subDir in season.SubDirs)
+            {
+                CDInspection(subDir.Value);
+            }
             SKIP_CD:
-            cbCategory.Enabled = cbCategory.Items.Count > 1;
+            return;
         }
 
         private IEnumerable<(long length, IEnumerable<FileDescription> files)> FileSizeDuplicateInspection()
         {
             //拍扁并按体积分组
-            foreach (var sizePair in _data.Values.SelectMany(i => i).GroupBy(i => i.Length))
+            foreach (var sizePair in _data.SeasonDirs.SelectMany(_ => _.SubDirs).SelectMany(_ => _.Value.Files).GroupBy(i => i.Length))
             {
                 //再按后缀分组并跳过单个文件的
                 foreach (var files in sizePair.GroupBy(i => i.Extension).SkipWhile(i => i.Count() <= 1))
@@ -430,9 +506,9 @@ namespace AutoTorrentInspection.Forms
 
         private static readonly Regex FileOrderPattern = new Regex(@"^\[[^\[\]]*VCB\-S(?:tudio)*[^\[\]]*\] (?<name>[^\[\]]+)\[(?<type>[^\d]*)(?<ord>\d+)(?:v\d)?\]");
 
-        private IEnumerable<string> FileOrderMissingInspection()
+        private IEnumerable<string> FileOrderMissingInspection(SeasonDir season)
         {
-            var data = _data.Values.SelectMany(i => i).Select(file =>
+            var data = season.SubDirs.SelectMany(_ => _.Value.Files).Select(file =>
             {
                 var match = FileOrderPattern.Match(file.FileName);
                 var name = $"{file.RelativePath}/{match.Groups["name"]}[{match.Groups["type"].Value}]{file.Extension}";
@@ -450,43 +526,19 @@ namespace AutoTorrentInspection.Forms
             }
         }
 
-        private void ThroughInspection()
+        private void ThroughInspection(SeasonDir season)
         {
-            dataGridView1.Rows.Clear();
-            cbCategory.Items.Clear();
-            Application.DoEvents();
             dataGridView1.SuspendDrawing(() =>
             {
-                foreach (var item in _data.Keys)
+                foreach (var item in season.SubDirs)
                 {
-                    Logger.Log($"Inspection for {item}");
-                    cbCategory.Items.Add(item);
-                    Inspection(item);
+                    Logger.Log($"Inspection for {item.Value.DirName}");
+                    cbCategory.Items.Add($"S{season.SeasonId}-{item.Key}");
+                    Inspection(item.Value);
                 }
             });
-            if (cbCategory.Items.Count > 0)
-            {
-                cbCategory.SelectedIndex = cbCategory.SelectedIndex == -1 ? 0 : cbCategory.SelectedIndex;
-            }
 
-            var time = DateTime.Now;
-            try
-            {
-                time = _torrent?.CreationDate ?? new DirectoryInfo(FilePath).LastWriteTime;
-            }
-            catch { /* ignored */ }
-            var title = new List<string>
-            {
-                $"Auto Torrent Inspection v{Assembly.GetExecutingAssembly().GetName().Version}",
-                $"{_torrent?.TorrentName ?? FilePath}",
-                _torrent?.CreatedBy,
-                _torrent?.Encoding,
-                time.ToString(System.Globalization.CultureInfo.CurrentCulture),
-                (_torrent?.PieceSize ?? 0) != 0 ? $"PieceSize: {_torrent?.PieceSize / 1024}KiB" : null
-            }.Where(item => item != null);
-            Text = string.Join(" - ", title);
-
-            var ret = FileOrderMissingInspection().ToList();
+            var ret = FileOrderMissingInspection(season).ToList();
             if (ret.Count != 0)
             {
                 Logger.Log($"index missing: {string.Join(", ", ret)}");
@@ -494,12 +546,12 @@ namespace AutoTorrentInspection.Forms
             }
         }
 
-        private void Inspection(string category)
+        private void Inspection(DirDescription subDir)
         {
             Func<FileDescription, bool> filter = item => item.State != FileState.ValidFile || cbShowAll.Checked;
             //dataGridView1.Rows.AddRange(_data[category].Where(item => check(item)).Select(r => r.ToRow()).ToArray());
             //Application.DoEvents();
-            foreach (var item in _data[category].Where(filter))
+            foreach (var item in subDir.Files.Where(filter))
             {
                 dataGridView1.Rows.Add(item.ToRow());
                 Application.DoEvents();
@@ -508,26 +560,40 @@ namespace AutoTorrentInspection.Forms
                 : $"发现 {dataGridView1.Rows.Count} 个世界的扭曲点{(cbShowAll.Checked ? "(并不是)" : "")}";
         }
 
-        private void CDInspection()
+        private void CDInspection(DirDescription subDir)
         {
-            if (!_data.ContainsKey("CDs"))
+            if (subDir.DirName != "CDs")
             {
-                Logger.Log("No 'CDs' found under root folder");
+                Logger.Log($"No 'CDs' found under folder {subDir.RelativePath}");
                 return;
             }
             var INVALID_CD_FOLDER = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_CD_FOLDER, System.Globalization.NumberStyles.HexNumber));
             var pat = new Regex(GlobalConfiguration.Instance().Naming.Pattern.CD);
 
-            dataGridView1.Rows.AddRange(_data["CDs"].Select(Split).Distinct().Where(NotMatchPattern).Select(ToRow).ToArray());
+            dataGridView1.Rows.AddRange(subDir.Files.Select(Split).Distinct().Where(NotMatchPattern).Select(ToRow).ToArray());
 
             string Split(FileDescription file)
             {
                 var path = file.RelativePath;
                 var beginIndex = path.IndexOf('\\') + 1;
                 var endIndex = path.IndexOf('\\', beginIndex);
-                if (endIndex == -1)
-                    return path.Substring(beginIndex);
-                return path.Substring(beginIndex, endIndex - beginIndex);
+
+                if (!_data.IsSeries)
+                {
+                    if (endIndex == -1)
+                        return path.Substring(beginIndex);
+                    return path.Substring(beginIndex, endIndex - beginIndex);
+                }
+                else
+                {
+                    if (endIndex == -1)
+                        return path;
+                    var beginIndex_2nd = endIndex + 1;
+                    var endIndex_2nd = path.IndexOf('\\', beginIndex_2nd);
+                    if (endIndex_2nd == -1)
+                        return path.Substring(beginIndex_2nd);
+                    return path.Substring(beginIndex_2nd, endIndex_2nd - beginIndex_2nd);
+                }
             }
 
             bool NotMatchPattern(string folder)
@@ -673,9 +739,11 @@ namespace AutoTorrentInspection.Forms
         private void DeleteFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_fileInfo == null) return;
-            var category = cbCategory.Text == "root" ? _data.First(list => list.Value.Contains(_fileInfo)).Key : null;
             File.Delete(_fileInfo.FullPath);
-            if (category != null) _data[category].Remove(_fileInfo);
+            _data.SeasonDirs.SelectMany(_ => _.SubDirs.Values).ToList().ForEach(x => {
+                if (x.Files.Contains(_fileInfo))
+                    x.Files.Remove(_fileInfo);
+            });
             dataGridView1.Rows.Remove(_rowUnderMouse);
             Application.DoEvents();
             _rowUnderMouse = null;

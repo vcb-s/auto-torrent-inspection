@@ -19,6 +19,7 @@ namespace AutoTorrentInspection.Objects
         InValidFileSignature = 1 << 2,
         InValidFileNameCharacter = 1 << 3,
         EmptyFile = 1 << 4,
+        InValidDir = 1 << 5,
         //cue
         InValidCue = 1 << 11,
         InValidEncode = 1 << 12,
@@ -59,6 +60,7 @@ namespace AutoTorrentInspection.Objects
 
         protected static readonly Color INVALID_FILE = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE, System.Globalization.NumberStyles.HexNumber));
         protected static readonly Color VALID_FILE = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.VALID_FILE, System.Globalization.NumberStyles.HexNumber));
+        protected static readonly Color INVALID_DIR = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_DIR, System.Globalization.NumberStyles.HexNumber));
         protected static readonly Color INVALID_CUE = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_CUE, System.Globalization.NumberStyles.HexNumber));
         protected static readonly Color INVALID_ENCODE = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_ENCODE, System.Globalization.NumberStyles.HexNumber));
         protected static readonly Color INVALID_PATH_LENGTH = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_PATH_LENGTH, System.Globalization.NumberStyles.HexNumber));
@@ -69,11 +71,12 @@ namespace AutoTorrentInspection.Objects
         protected static readonly Color INVALID_FILE_NAME_CHAR = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_FILE_NAME_CHAR, System.Globalization.NumberStyles.HexNumber));
         protected static readonly Color EMPTY_FILE = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.EMPTY_FILE, System.Globalization.NumberStyles.HexNumber));
 
-        protected static readonly Dictionary<FileState, Color> StateColor = new Dictionary<FileState, Color>
+        public static readonly Dictionary<FileState, Color> StateColor = new Dictionary<FileState, Color>
         {
             [FileState.ValidFile] = VALID_FILE,
             [FileState.InValidPathLength] = INVALID_PATH_LENGTH,
             [FileState.InValidFile] = INVALID_FILE,
+            [FileState.InValidDir] = INVALID_DIR,
             [FileState.InValidCue] = INVALID_CUE,
             [FileState.InValidEncode] = INVALID_ENCODE,
             [FileState.InValidFlacLevel] = INVALID_FLAC_LEVEL,
