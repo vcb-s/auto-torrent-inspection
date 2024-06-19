@@ -112,11 +112,11 @@ namespace AutoTorrentInspection
 
     public class Extension
     {
-        public string[] AudioExtensions = {"flac", "tak", "m4a", "cue", "log"};
+        public string[] AudioExtensions = {"flac", "wv", "m4a", "mp3", "cue", "log"};
         [JilDirective(Ignore = true)]
         public Regex AudioExtension => new Regex($@"\.{string.Join("|", AudioExtensions)}$", RegexOptions.IgnoreCase);
 
-        public string[] ImageExtensions = {"jpg", "jpeg", "jp2", "webp"};
+        public string[] ImageExtensions = {"jpg", "jpeg", "webp"};
         [JilDirective(Ignore = true)]
         public Regex ImageExtension => new Regex($@"\.{string.Join("|", ImageExtensions)}$", RegexOptions.IgnoreCase);
 
