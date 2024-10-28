@@ -99,11 +99,23 @@ namespace AutoTorrentInspection
         [JilDirective(Ignore = true)]
         public string MAWEN = @"^[^\[\]]+ \[(?:BD|BluRay|BD\-Remux|SPDVD|DVD) (?:1920x1080p?|1280x720p?|720x480p?|1080p|720p|480p)(?: (?:23\.976|24|25|29\.970|59\.940)fps)?(?: vfr)? (?:(?:(?:AVC|HEVC)\-(?:Lossless-)?(?:yuv420p10|yuv420p8|yuv444p10))|(?:x264(?:-Hi(?:10|444P)P)?|x265-Ma10P))(?: (?:FLAC|AAC|AC3)(?:x\d)?)+(?: (?:Chap|Ordered\-Chap))?\](?: v\d)? - (?:[^\.&]+ ?& ?)*mawen1250(?: ?& ?[^\.&]+)*(?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$";
 
-        private static readonly string GROUP = @"([^\[\]]*)VCB\-S(tudio)*([^\[\]]*)";
-        private static readonly string TITLE = @"([^\[\] ]+[^\[\]]*[^\[\] ]+|[^\[\] ]+)";
-        private static readonly string LEVEL = @"(Hi10p|Hi444pp|Ma1(0|2)p|Ma444-1(0|2)p)";
-        private static readonly string RESOLUTION = @"([1-9][0-9]{2,3}p|4K)";
-        private static readonly string UHD_SUFFIX = @"(HDR|HDR10|SDR|DoVi(_P[\d\.]+)?)";
+        private const string DATE = @"(?<year>[0-9]{2})(?<month>(0[1-9])|(1[0-2]))(?<day>(0[1-9])|([1-2][0-9])|3[0-1])";
+        private const string SPCD = @"SPCD";
+        private const string VOLUME = @"(0[1-9])|([1-9][0-9])";
+        private const string CONTENT_NAME = @$"(?!{SPCD})([^｢｣／ ]+[^｢｣／]*[^｢｣／ ]+|[^｢｣／ ]+)";
+        private const string SPECIAL_NAME = @"(｢[^｢｣]+｣)";
+        private const string DESCRIPTION = @$"({CONTENT_NAME}|{SPECIAL_NAME}|{CONTENT_NAME} {SPECIAL_NAME})";
+        private const string ARTISTS = @"／([^｢｣／\[\] ]+[^｢｣／\[\]]*[^｢｣／\[\] ]+|[^｢｣／\[\] ]+)";
+        private const string HIRES_FORMAT = @"(?<bit>16|24|32)bit_(?<freq>48|96|192|384)kHz";
+        private const string FILE_FORMAT = @"(?<audio>((flac|wavpack)\+aac\+mp3)|((flac|wavpack)\+mp3\+aac)|((flac|wavpack)\+(aac|mp3))|flac|wavpack|aac|mp3)(\+(?<image>webp\+jpg|jpg\+webp|webp|jpg))?(\+(?<video>mkv\+mp4|mp4\+mkv|mkv|mp4))?";
+
+        public string CD_DIR = @$"^\[{DATE}\] ({SPCD}( {VOLUME})?( {DESCRIPTION})?|{DESCRIPTION})({ARTISTS})?( \[{HIRES_FORMAT}\])? \({FILE_FORMAT}\)$";
+
+        private const string GROUP = @"([^\[\]]*)VCB\-S(tudio)*([^\[\]]*)";
+        private const string TITLE = @"([^\[\] ]+[^\[\]]*[^\[\] ]+|[^\[\] ]+)";
+        private const string LEVEL = @"(Hi10p|Hi444pp|Ma1(0|2)p|Ma444-1(0|2)p)";
+        private const string RESOLUTION = @"([1-9][0-9]{2,3}p|4K)";
+        private const string UHD_SUFFIX = @"(HDR|HDR10|SDR|DoVi(_P[\d\.]+)?)";
 
         public string SERIES_TITLE = @$"^\[{GROUP}\] {TITLE}$";
         public string SEASON_TITLE = @$"^\[{GROUP}\] {TITLE} \[({LEVEL}_)?{RESOLUTION}(_{UHD_SUFFIX})?\]$";

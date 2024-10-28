@@ -568,9 +568,10 @@ namespace AutoTorrentInspection.Forms
                 return;
             }
             var INVALID_CD_FOLDER = Color.FromArgb(int.Parse(GlobalConfiguration.Instance().RowColor.INVALID_CD_FOLDER, System.Globalization.NumberStyles.HexNumber));
-            var pat = new Regex(GlobalConfiguration.Instance().Naming.Pattern.CD);
+            var pat = new Regex(GlobalConfiguration.Instance().Naming.Pattern.CD_DIR);
 
             dataGridView1.Rows.AddRange(subDir.Files.Select(Split).Distinct().Where(NotMatchPattern).Select(ToRow).ToArray());
+            Application.DoEvents();
 
             string Split(FileDescription file)
             {
@@ -598,7 +599,7 @@ namespace AutoTorrentInspection.Forms
 
             bool NotMatchPattern(string folder)
             {
-                Logger.Log($"Progress: '{folder}'");
+                Logger.Log($"Progress: '{folder}', match: {pat.IsMatch(folder)}");
                 return !pat.IsMatch(folder);
             }
 
