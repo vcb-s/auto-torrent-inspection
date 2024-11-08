@@ -102,14 +102,15 @@ namespace AutoTorrentInspection
         private const string DATE = @"(?<year>[0-9]{2})(?<month>(0[1-9])|(1[0-2]))(?<day>(0[1-9])|([1-2][0-9])|3[0-1])";
         private const string SPCD = @"SPCD";
         private const string VOLUME = @"(0[1-9])|([1-9][0-9])";
-        private const string CONTENT_NAME = @$"(?!{SPCD})([^｢｣／ ]+[^｢｣／]*[^｢｣／ ]+|[^｢｣／ ]+)";
+        private const string CONTENT_NAME = @$"(?!{SPCD})([^｢｣／& ]+[^｢｣／&]*[^｢｣／& ]+|[^｢｣／& ]+)";
         private const string SPECIAL_NAME = @"(｢[^｢｣]+｣)";
         private const string DESCRIPTION = @$"({CONTENT_NAME}|{SPECIAL_NAME}|{CONTENT_NAME} {SPECIAL_NAME})";
+        private const string DESCRIPTIONS = @$"({DESCRIPTION}( & {DESCRIPTION})*)";
         private const string ARTISTS = @"／([^｢｣／\[\] ]+[^｢｣／\[\]]*[^｢｣／\[\] ]+|[^｢｣／\[\] ]+)";
         private const string HIRES_FORMAT = @"(?<bit>16|24|32)bit_(?<freq>48|96|192|384)kHz";
         private const string FILE_FORMAT = @"(?<audio>((flac|wavpack)\+aac\+mp3)|((flac|wavpack)\+mp3\+aac)|((flac|wavpack)\+(aac|mp3))|flac|wavpack|aac|mp3)(\+(?<image>webp\+jpg|jpg\+webp|webp|jpg))?(\+(?<video>mkv\+mp4|mp4\+mkv|mkv|mp4))?";
 
-        public string CD_DIR = @$"^\[{DATE}\] ({SPCD}( {VOLUME})?( {DESCRIPTION})?|{DESCRIPTION})({ARTISTS})?( \[{HIRES_FORMAT}\])? \({FILE_FORMAT}\)$";
+        public string CD_DIR = @$"^\[{DATE}\] ({SPCD}( {VOLUME})?( {DESCRIPTIONS})?|{DESCRIPTIONS})({ARTISTS})?( \[{HIRES_FORMAT}\])? \({FILE_FORMAT}\)$";
 
         private const string GROUP = @"([^\[\]]*)VCB\-S(tudio)?([^\[\]]*)";
         private const string TITLE = @"([^\[\] ]+[^\[\]]*[^\[\] ]+|[^\[\] ]+)";
