@@ -91,9 +91,6 @@ namespace AutoTorrentInspection
 
     public class Pattern
     {
-        public string VCBS = @"^\[(?<g>[^]]+)\]((?<b1>\[)?(?<t>[^[\]]+)(?(b1)\]|))( )*(\[(BD|DVD|Web)Rip\])?( )*(?<f>(.(?!(BD|DVD|Web)Rip\]|(((Ma|Hi|YUV)(10|444|422)[^\]_]+|BDRemux)_)?([1-9][0-9]{2,3}p|4K)(_HDR)?\]))*)( )*(\[(BD|DVD|Web)Rip\])?( )*(\[(?<qlabel>(((Ma|Hi|YUV)(10|444|422)[^\]_]+|BDRemux)_)?([1-9][0-9]{2,3}p|4K)(_HDR)?)\]( )*(\[(BD|DVD|Web)Rip\])?( )*(\[BDRemux\])?( )*\[(?<tlabel>([2-9]?x26[45]|h264|BDRemux)(_(1[0-9]|[2-9])?(flac|aac|ac3|dts))*)\])?( )*(\[(BD|DVD|Web)Rip\])?( )*((?<b2>\[)?(\.)?(?<x>[^]]*)(?(b2)\]|)(?=\]?\.(mkv|mka|mp4|flac|png|ass|7z|zip|rar)))( )*(\[(BD|DVD|Web)Rip\])?( )*\]?\.(?<e>mkv|mka|mp4|flac|png|ass|7z|zip|rar)$";
-        public string MENU  = @"^\[[^\[\]]*VCB\-S(?:tudio)*[^\[\]]*\] [^\[\]]+ \[[^\[\]]*\]\.png$";
-        public string CD = @"^(\[(?<eac>EAC|XLD)\])?( )*(\[(?<year>[0129][0-9])(?<month>[0-9]{2})?(?<day>[0-9]{2})?\])?(?<pre>[^｢｣／[\]()]*)?(?<quot>｢)?(?<mid>(?(quot)([^｣]+)|))(?(quot)｣|)(?<aft>(?(quot)[^／[\]()]*|))(?<slash>／)?(?(slash)(?<art>(.(?!\[[^\[\]盤版]+(盤|版)\]|\[(16|24|32)bit|\((flac|aac|mp3)))*)(?<art_ts>.)|)(?<ed>\[(?<edn>[^[\]盤版]+(盤|版))\])?(?<ed_ts>(?(ed)( )*)|)(?<hr>\[((?<bit>16|24|32)bit_(?<freq>48|96|192|384)kHz)\])?(?<hr_ts>(?(hr)( )*)|)\((?<af>(flac\+aac\+mp3|flac\+mp3\+aac|flac\+aac|flac\+mp3|flac|aac|mp3))(\+(?<if>webp\+jpg|jpg\+webp|webp|jpg))?(\+(?<vf>mkv))?\)$";
         [JilDirective(Ignore = true)]
         public string FCH   = @"^(?:\[(?:[^\[\]])*philosophy\-raws(?:[^\[\]])*\])\[[^\[\]]+\]\[(?:(?:[^\[\]]+\]\[(?:BDRIP|DVDRIP|BDRemux))|(?:(?:BDRIP|DVDRIP|BDRemux)(?:\]\[[^\[\]]+)?))\]\[(?:(?:(?:HEVC )?Main10P)|(?:(?:AVC )?Hi10P)|Hi444PP|H264) \d*(?:FLAC|AC3)\]\[(?:(?:(?:1920|1440)[Xx]1080)|(?:1280[Xx]720)|(?:1024[Xx]576)|(?:720[Xx]480))\](?:(?:\.(?:sc|tc|chs|cht))?\.ass|(?:\.(?:mkv|mka|flac)))$";
         [JilDirective(Ignore = true)]
@@ -143,7 +140,7 @@ namespace AutoTorrentInspection
         [JilDirective(Ignore = true)]
         public Regex ImageExtension => new Regex($@"\.{string.Join("|", ImageExtensions)}$", RegexOptions.IgnoreCase);
 
-        public string[] ExceptExtensions = {"rar", "7z", "zip"};
+        public string[] ExceptExtensions = {"7z", "zip"};
         [JilDirective(Ignore = true)]
         public Regex ExceptExtension => new Regex($@"\.{string.Join("|", ExceptExtensions)}$", RegexOptions.IgnoreCase);
     }
