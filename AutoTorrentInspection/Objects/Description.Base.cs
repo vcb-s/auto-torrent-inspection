@@ -50,8 +50,8 @@ namespace AutoTorrentInspection.Objects
         public FileState State { get; protected set; } = FileState.InValidFile;
         public SourceTypeEnum SourceType { get; protected set; }
 
-        protected static readonly Regex AnimePattern = new Regex(GlobalConfiguration.Instance().Naming.Pattern.VCBS);
-        protected static readonly Regex MenuPngPattern = new Regex(GlobalConfiguration.Instance().Naming.Pattern.MENU);
+        protected static readonly Regex VcbsNormalPattern = new Regex(GlobalConfiguration.Instance().Naming.Pattern.VCBS_NORMAL);
+        protected static readonly Regex VcbsSpecialPattern = new Regex(GlobalConfiguration.Instance().Naming.Pattern.VCBS_SPECIAL);
         protected static readonly Regex FchPattern = new Regex(GlobalConfiguration.Instance().Naming.Pattern.FCH);
         protected static readonly Regex MaWenPattern = new Regex(GlobalConfiguration.Instance().Naming.Pattern.MAWEN);
         protected static readonly Regex AudioExtension = GlobalConfiguration.Instance().Naming.Extension.AudioExtension;
@@ -125,7 +125,7 @@ namespace AutoTorrentInspection.Objects
 
             State = FileState.InValidFile;
             if (RegexesMatch(Extension, ExceptExtension, ImageExtension, AudioExtension) ||
-                RegexesMatch(FileName, AnimePattern, MenuPngPattern, FchPattern, MaWenPattern))
+                RegexesMatch(FileName, VcbsNormalPattern, VcbsSpecialPattern, FchPattern, MaWenPattern))
             {
                 State = FileState.ValidFile;
             }

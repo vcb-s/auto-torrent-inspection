@@ -111,15 +111,25 @@ namespace AutoTorrentInspection
 
         public string CD_DIR = @$"^\[{DATE}\] ({SPCD}( {VOLUME})?( {DESCRIPTION})?|{DESCRIPTION})({ARTISTS})?( \[{HIRES_FORMAT}\])? \({FILE_FORMAT}\)$";
 
-        private const string GROUP = @"([^\[\]]*)VCB\-S(tudio)*([^\[\]]*)";
+        private const string GROUP = @"([^\[\]]*)VCB\-S(tudio)?([^\[\]]*)";
         private const string TITLE = @"([^\[\] ]+[^\[\]]*[^\[\] ]+|[^\[\] ]+)";
+        private const string EP = @"([^\[\] ]+[^\[\]]*[^\[\] ]+|[^\[\] ]+)";
         private const string LEVEL = @"(Hi10p|Hi444pp|Ma1(0|2)p|Ma444-1(0|2)p)";
         private const string RESOLUTION = @"([1-9][0-9]{2,3}p|4K)";
         private const string UHD_SUFFIX = @"(HDR|HDR10|SDR|DoVi(_P[\d\.]+)?)";
+        private const string VIDEO_FORMAT = @"(x264|x265|svtav1)";
+        private const string AUDIO_FORMAT = @"(_\d?flac)?(_\d?aac)?(_\d?eac3)?(_\d?ac3)?(_\d?dts)?";
+        private const string LANGUAGE_TAG = @"([\w-&]+)";
+
+        private const string PROFILE = @$"({LEVEL}_)?{RESOLUTION}(_{UHD_SUFFIX})?";
+        private const string AV_FORMAT = @$"{VIDEO_FORMAT}{AUDIO_FORMAT}";
 
         public string SERIES_TITLE = @$"^\[{GROUP}\] {TITLE}$";
-        public string SEASON_TITLE = @$"^\[{GROUP}\] {TITLE} \[({LEVEL}_)?{RESOLUTION}(_{UHD_SUFFIX})?\]$";
+        public string SEASON_TITLE = @$"^\[{GROUP}\] {TITLE} \[{PROFILE}\]$";
         public string[] SUBTITLES = {"CDs", "Scans", "SPs"};
+
+        public string VCBS_NORMAL = @$"^\[{GROUP}\] {TITLE} (\[{EP}\])?\[{PROFILE}\]\[{AV_FORMAT}\]((\.{LANGUAGE_TAG})?\.ass|(\[{LANGUAGE_TAG}\])?\.(mkv|mka|mp4))$";
+        public string VCBS_SPECIAL = @$"^\[{GROUP}\] {TITLE} \[{EP}\]\.(png|7z|zip|flac|m4a|eac3|ac3|dts)$";
     }
 
     public class Extension
