@@ -140,7 +140,7 @@ namespace AutoTorrentInspection
         [JilDirective(Ignore = true)]
         public Regex AudioExtension => new Regex($@"\.{string.Join("|", AudioExtensions)}$", RegexOptions.IgnoreCase);
 
-        public string[] ImageExtensions = {"jpg", "jpeg", "webp"};
+        public string[] ImageExtensions = {"jpg", "webp"};
         [JilDirective(Ignore = true)]
         public Regex ImageExtension => new Regex($@"\.{string.Join("|", ImageExtensions)}$", RegexOptions.IgnoreCase);
 
