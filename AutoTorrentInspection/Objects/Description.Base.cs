@@ -54,6 +54,7 @@ namespace AutoTorrentInspection.Objects
         protected static readonly Regex VcbsSpecialPattern = new Regex(GlobalConfiguration.Instance().Naming.Pattern.VCBS_SPECIAL);
         protected static readonly Regex FchPattern = new Regex(GlobalConfiguration.Instance().Naming.Pattern.FCH);
         protected static readonly Regex MaWenPattern = new Regex(GlobalConfiguration.Instance().Naming.Pattern.MAWEN);
+        protected static readonly Regex VideoExtension = GlobalConfiguration.Instance().Naming.Extension.VideoExtension;
         protected static readonly Regex AudioExtension = GlobalConfiguration.Instance().Naming.Extension.AudioExtension;
         protected static readonly Regex ImageExtension = GlobalConfiguration.Instance().Naming.Extension.ImageExtension;
         protected static readonly Regex ExceptExtension = GlobalConfiguration.Instance().Naming.Extension.ExceptExtension;
@@ -124,8 +125,12 @@ namespace AutoTorrentInspection.Objects
             }
 
             State = FileState.InValidFile;
-            if (RegexesMatch(Extension, ExceptExtension, ImageExtension, AudioExtension) ||
-                RegexesMatch(FileName, VcbsNormalPattern, VcbsSpecialPattern, FchPattern, MaWenPattern))
+            string[] filters = {"CDs", "Scans"};
+            bool isInCDsDir = RelativePath == filters[0] || RelativePath.Contains(filters[0] + "\\");
+            bool isInScansDir = RelativePath == filters[1] || RelativePath.Contains(filters[1] + "\\") || RelativePath.Contains("\\" + filters[1]);
+            if (isInCDsDir && RegexesMatch(Extension, VideoExtension, AudioExtension, ImageExtension) ||
+                isInScansDir && RegexesMatch(Extension, ImageExtension, ExceptExtension) ||
+                !(isInCDsDir || isInScansDir) && RegexesMatch(FileName, VcbsNormalPattern, VcbsSpecialPattern, FchPattern, MaWenPattern))
             {
                 State = FileState.ValidFile;
             }

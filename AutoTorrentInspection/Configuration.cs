@@ -132,6 +132,10 @@ namespace AutoTorrentInspection
 
     public class Extension
     {
+        public string[] VideoExtensions = {"mkv", "mp4"};
+        [JilDirective(Ignore = true)]
+        public Regex VideoExtension => new Regex($@"\.{string.Join("|", VideoExtensions)}$", RegexOptions.IgnoreCase);
+
         public string[] AudioExtensions = {"flac", "wv", "m4a", "mp3", "cue", "log"};
         [JilDirective(Ignore = true)]
         public Regex AudioExtension => new Regex($@"\.{string.Join("|", AudioExtensions)}$", RegexOptions.IgnoreCase);
