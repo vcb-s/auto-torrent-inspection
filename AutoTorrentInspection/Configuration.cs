@@ -43,16 +43,15 @@ namespace AutoTorrentInspection
         public RowColor RowColor = new RowColor();
         public InspectionOptions InspectionOptions = new InspectionOptions();
         public string[] TrackerList = {
-            "http://208.67.16.113:8000/annonuce",
-            "udp://208.67.16.113:8000/annonuce",
-            "udp://tracker.openbittorrent.com:80/announce",
-            "http://t.acg.rip:6699/announce",
+            "http://open.acgtracker.com:1096/announce",
             "http://nyaa.tracker.wf:7777/announce",
-            "https://tr.bangumi.moe:9696/announce",
-            "http://tr.bangumi.moe:6969/announce",
-            "udp://tr.bangumi.moe:6969/announce",
-            "http://open.acgnxtracker.com/announce",
-            "https://open.acgnxtracker.com/announce"
+            "http://sukebei.tracker.wf:8888/announce",
+            "udp://tracker.torrent.eu.org:451/announce",
+            "udp://open.stealth.si:80/announce",
+            "udp://tracker.opentrackr.org:1337/announce",
+            "http://t.acg.rip:6699/announce",
+            "http://share.hkg-fansub.info:80/announce.php",
+            "http://tracker.sbsub.com:2710/announce"
         };
 
         public ASS ASS = new ASS();
