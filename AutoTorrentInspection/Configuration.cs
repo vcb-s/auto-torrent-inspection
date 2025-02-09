@@ -69,7 +69,7 @@ namespace AutoTorrentInspection
         public Extension Extension = new Extension();
         public string[] UnexpectedCharacters =
         {
-            "\u3099", "\u309a",
+            "\u3099", "\u309a", "\u200B",
             "\u0300", "\u0310", "\u0320", "\u0330", "\u0340", "\u0350", "\u0360",
             "\u0301", "\u0311", "\u0321", "\u0331", "\u0341", "\u0351", "\u0361",
             "\u0302", "\u0312", "\u0322", "\u0332", "\u0342", "\u0352", "\u0362",
